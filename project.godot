@@ -1,0 +1,59 @@
+; Dear, Unknown - a nonogram travel game
+; Godot 4 project file.
+
+config_version=5
+
+[application]
+
+config/name="Dear, Unknown"
+config/description="Season One: The Last Ones. A nonogram travel game about postcards between strangers."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+Pal="*res://scripts/autoload/palette.gd"
+GameData="*res://scripts/autoload/game_data.gd"
+SaveGame="*res://scripts/autoload/save_game.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=800
+window/size/window_width_override=1280
+window/size/window_height_override=800
+window/size/resizable=true
+; The whole UI is built from containers with real breakpoints, so the viewport
+; must report actual available space. "canvas_items" would instead render at a
+; fixed 1280x800 and scale the result, shrinking text on a phone rather than
+; reflowing. Legibility is handled by content_scale_factor in main.gd.
+window/stretch/mode="disabled"
+window/handheld/orientation="sensor"
+window/size/window_width_override.mobile=430
+window/size/window_height_override.mobile=932
+
+[input]
+
+undo={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":90,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+reset={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":82,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+hint={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":72,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+anti_aliasing/quality/msaa_2d=1

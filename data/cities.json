@@ -1,0 +1,1025 @@
+{
+ "version": 1,
+ "cities": [
+  {
+   "id": "tokyo",
+   "name": "Tokyo",
+   "country": "Japan",
+   "flag": "🇯🇵",
+   "tagline": "Neon evenings and very quiet shrines.",
+   "map": [
+    0.888,
+    0.3017
+   ],
+   "palette": [
+    "#F6DCE0",
+    "#C25E6B",
+    "#402E33"
+   ],
+   "puzzles": [
+    {
+     "id": "tokyo_fuji",
+     "name": "Mount Fuji",
+     "emoji": "🗻",
+     "category": "Nature",
+     "index": 0,
+     "art": [
+      "..#..",
+      ".###.",
+      ".###.",
+      "#####",
+      "#####"
+     ]
+    },
+    {
+     "id": "tokyo_lantern",
+     "name": "Paper Lantern",
+     "emoji": "🏮",
+     "category": "Cultural object",
+     "index": 1,
+     "art": [
+      ".###.",
+      "#####",
+      "#####",
+      "#####",
+      ".###."
+     ]
+    },
+    {
+     "id": "tokyo_torii",
+     "name": "Torii Gate",
+     "emoji": "⛩",
+     "category": "Architecture",
+     "index": 2,
+     "art": [
+      "##########",
+      "##########",
+      "..#....#..",
+      "##########",
+      "##########",
+      "..#....#..",
+      "..#....#..",
+      "..#....#..",
+      "..#....#..",
+      ".###..###."
+     ]
+    },
+    {
+     "id": "tokyo_ramen",
+     "name": "Ramen",
+     "emoji": "🍜",
+     "category": "Food",
+     "index": 3,
+     "art": [
+      "..#....#..",
+      ".#......#.",
+      "..#....#..",
+      "..........",
+      "##########",
+      "##########",
+      ".########.",
+      "..######..",
+      "...####...",
+      ".........."
+     ]
+    },
+    {
+     "id": "tokyo_onigiri",
+     "name": "Onigiri",
+     "emoji": "🍙",
+     "category": "Food",
+     "index": 4,
+     "art": [
+      "....##....",
+      "...####...",
+      "..######..",
+      "..######..",
+      ".########.",
+      ".########.",
+      "##.####.##",
+      "##.####.##",
+      "##########",
+      "##########"
+     ]
+    },
+    {
+     "id": "tokyo_shinkansen",
+     "name": "Shinkansen",
+     "emoji": "🚄",
+     "category": "Transportation",
+     "index": 5,
+     "art": [
+      "..........",
+      "...#######",
+      "..########",
+      ".#.####.##",
+      "##########",
+      "##########",
+      "##########",
+      ".########.",
+      "..##..##..",
+      ".........."
+     ]
+    },
+    {
+     "id": "tokyo_sakura",
+     "name": "Cherry Blossom",
+     "emoji": "🌸",
+     "category": "Nature",
+     "index": 6,
+     "art": [
+      ".##....##.",
+      "####..####",
+      ".##.##.##.",
+      "....##....",
+      "..######..",
+      "..######..",
+      "....##....",
+      ".##.##.##.",
+      "####..####",
+      ".##....##."
+     ]
+    },
+    {
+     "id": "tokyo_tower",
+     "name": "Tokyo Tower",
+     "emoji": "🗼",
+     "category": "Landmark",
+     "index": 7,
+     "art": [
+      ".......#.......",
+      ".......#.......",
+      "......###......",
+      "......#.#......",
+      ".....#####.....",
+      ".....#...#.....",
+      "....#######....",
+      "....#.....#....",
+      "...##.....##...",
+      "...#.......#...",
+      "..###########..",
+      "..##.......##..",
+      ".###.......###.",
+      ".##.........##.",
+      "###############"
+     ]
+    }
+   ],
+   "notes": [
+    "Ate standing up at a counter built for six. Best meal of the trip.",
+    "Got lost in a train station for twenty minutes and enjoyed all of it.",
+    "It rained the whole afternoon and somehow that improved things.",
+    "Bought coffee from a vending machine. It was genuinely good.",
+    "Quieter than you would ever guess from the photos.",
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "tokyo_torii",
+     "x": 0.2,
+     "base": 0.67,
+     "w": 0.19
+    },
+    {
+     "id": "tokyo_tower",
+     "x": 0.412,
+     "base": 0.448,
+     "w": 0.09
+    },
+    {
+     "id": "tokyo_onigiri",
+     "x": 0.695,
+     "base": 0.752,
+     "w": 0.115
+    }
+   ],
+   "letter": {
+    "theme": "the last blossom",
+    "title": "The Last Blossom",
+    "body": "Dear, Unknown,\n\nThere was one blossom left today.\n\nI thought someone should know."
+   },
+   "style": "Makoto Shinkai — luminous dusk, lens flare, saturated sky",
+   "drift": "petal"
+  },
+  {
+   "id": "paris",
+   "name": "Paris",
+   "country": "France",
+   "flag": "🇫🇷",
+   "tagline": "Grey stone, gold light, small tables.",
+   "map": [
+    0.5065,
+    0.2286
+   ],
+   "palette": [
+    "#E8E2F2",
+    "#6E63A8",
+    "#2F2A3D"
+   ],
+   "puzzles": [
+    {
+     "id": "paris_wine",
+     "name": "Glass of Wine",
+     "emoji": "🍷",
+     "category": "Food",
+     "index": 0,
+     "art": [
+      "#####",
+      ".###.",
+      "..#..",
+      "..#..",
+      "#####"
+     ]
+    },
+    {
+     "id": "paris_brie",
+     "name": "Wedge of Brie",
+     "emoji": "🧀",
+     "category": "Food",
+     "index": 1,
+     "art": [
+      "....#",
+      "...##",
+      "..###",
+      ".####",
+      "#####"
+     ]
+    },
+    {
+     "id": "paris_croissant",
+     "name": "Croissant",
+     "emoji": "🥐",
+     "category": "Food",
+     "index": 2,
+     "art": [
+      "....###...",
+      "..#####...",
+      ".####.##..",
+      ".###...##.",
+      ".##....##.",
+      ".##....##.",
+      ".###...##.",
+      ".####.##..",
+      "..#####...",
+      "....###..."
+     ]
+    },
+    {
+     "id": "paris_macaron",
+     "name": "Macaron",
+     "emoji": "🍬",
+     "category": "Food",
+     "index": 3,
+     "art": [
+      "..######..",
+      ".########.",
+      ".########.",
+      "..........",
+      "##########",
+      "##########",
+      "..........",
+      ".########.",
+      ".########.",
+      "..######.."
+     ]
+    },
+    {
+     "id": "paris_cafe",
+     "name": "Café Crème",
+     "emoji": "☕",
+     "category": "Everyday life",
+     "index": 4,
+     "art": [
+      "...#..#...",
+      "..#..#....",
+      "...#..#...",
+      "..........",
+      "########..",
+      "#######.#.",
+      "#######.#.",
+      "#######.#.",
+      "########..",
+      ".######..."
+     ]
+    },
+    {
+     "id": "paris_arc",
+     "name": "Arc de Triomphe",
+     "emoji": "🏛",
+     "category": "Architecture",
+     "index": 5,
+     "art": [
+      "##########",
+      "##########",
+      "##########",
+      "###....###",
+      "##......##",
+      "##......##",
+      "##......##",
+      "##......##",
+      "##......##",
+      "##......##"
+     ]
+    },
+    {
+     "id": "paris_louvre",
+     "name": "Glass Pyramid",
+     "emoji": "🔺",
+     "category": "Architecture",
+     "index": 6,
+     "art": [
+      "....##....",
+      "....##....",
+      "...####...",
+      "...####...",
+      "..######..",
+      "..######..",
+      ".########.",
+      ".########.",
+      "##########",
+      "##########"
+     ]
+    },
+    {
+     "id": "paris_eiffel",
+     "name": "Eiffel Tower",
+     "emoji": "🗼",
+     "category": "Landmark",
+     "index": 7,
+     "art": [
+      ".......#.......",
+      "......###......",
+      "......###......",
+      ".....#####.....",
+      ".....##.##.....",
+      "....##...##....",
+      "....#######....",
+      "....##...##....",
+      "...###...###...",
+      "...##.....##...",
+      "..###.....###..",
+      "..#####.#####..",
+      ".####.#.#.####.",
+      ".###..#.#..###.",
+      "###...#.#...###"
+     ]
+    }
+   ],
+   "notes": [
+    "Sat at a tiny table watching people for an hour. That was the activity.",
+    "The bread really is different here. I am sorry to report it.",
+    "Walked until my feet hurt, then walked a bit more.",
+    "Everything shut for lunch and honestly I respect it.",
+    "Found a bench with a good view and stayed there far too long.",
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "paris_arc",
+     "x": 0.205,
+     "base": 0.61,
+     "w": 0.15
+    },
+    {
+     "id": "paris_eiffel",
+     "x": 0.48,
+     "base": 0.665,
+     "w": 0.235
+    },
+    {
+     "id": "paris_louvre",
+     "x": 0.79,
+     "base": 0.6,
+     "w": 0.14
+    }
+   ],
+   "letter": {
+    "theme": "the last croissant",
+    "title": "The Last Croissant",
+    "body": "Dear, Unknown,\n\nThey sold the last croissant at 7:03.\nI was there when it happened.\n\nI thought someone should know."
+   },
+   "style": "Monet — impressionist broken colour, diffuse gold light",
+   "drift": "mote"
+  },
+  {
+   "id": "rome",
+   "name": "Rome",
+   "country": "Italy",
+   "flag": "🇮🇹",
+   "tagline": "Ruins, and people having lunch beside them.",
+   "map": [
+    0.5347,
+    0.2672
+   ],
+   "palette": [
+    "#F7E3CE",
+    "#B96A32",
+    "#3D2E22"
+   ],
+   "puzzles": [
+    {
+     "id": "rome_gelato",
+     "name": "Gelato",
+     "emoji": "🍦",
+     "category": "Food",
+     "index": 0,
+     "art": [
+      ".###.",
+      "#####",
+      ".###.",
+      "..#..",
+      "..#.."
+     ]
+    },
+    {
+     "id": "rome_column",
+     "name": "Roman Column",
+     "emoji": "🏛",
+     "category": "Architecture",
+     "index": 1,
+     "art": [
+      "#####",
+      ".###.",
+      ".###.",
+      ".###.",
+      "#####"
+     ]
+    },
+    {
+     "id": "rome_pizza",
+     "name": "Pizza al Taglio",
+     "emoji": "🍕",
+     "category": "Food",
+     "index": 2,
+     "art": [
+      "....##....",
+      "...####...",
+      "...####...",
+      "..######..",
+      "..#.##.#..",
+      ".########.",
+      ".###..###.",
+      ".########.",
+      "##########",
+      "##########"
+     ]
+    },
+    {
+     "id": "rome_pasta",
+     "name": "Cacio e Pepe",
+     "emoji": "🍝",
+     "category": "Food",
+     "index": 3,
+     "art": [
+      "..........",
+      ".#.#..#.#.",
+      "..#.##.#..",
+      ".#.#..#.#.",
+      "##########",
+      ".########.",
+      ".########.",
+      "..######..",
+      "...####...",
+      ".........."
+     ]
+    },
+    {
+     "id": "rome_vespa",
+     "name": "Vespa",
+     "emoji": "🛵",
+     "category": "Transportation",
+     "index": 4,
+     "art": [
+      ".......##.",
+      "......####",
+      "..#######.",
+      ".########.",
+      "##########",
+      "##########",
+      ".########.",
+      "##......##",
+      "#.#....#.#",
+      "##......##"
+     ]
+    },
+    {
+     "id": "rome_fountain",
+     "name": "Fountain",
+     "emoji": "⛲",
+     "category": "Landmark",
+     "index": 5,
+     "art": [
+      "....##....",
+      "...####...",
+      "..##..##..",
+      ".##....##.",
+      "....##....",
+      "....##....",
+      "..######..",
+      ".########.",
+      "##########",
+      "##########"
+     ]
+    },
+    {
+     "id": "rome_amphora",
+     "name": "Amphora",
+     "emoji": "🏺",
+     "category": "Cultural object",
+     "index": 6,
+     "art": [
+      "..######..",
+      "..#....#..",
+      "...####...",
+      "..######..",
+      ".########.",
+      "##########",
+      "##########",
+      ".########.",
+      "..######..",
+      "...####..."
+     ]
+    },
+    {
+     "id": "rome_colosseum",
+     "name": "Colosseum",
+     "emoji": "🏟",
+     "category": "Landmark",
+     "index": 7,
+     "art": [
+      "...#########...",
+      "..###########..",
+      ".#############.",
+      "###.#.#.#.#.###",
+      "###.#.#.#.#.###",
+      "###############",
+      "###.#.#.#.#.###",
+      "###.#.#.#.#.###",
+      "###############",
+      "##.#.#.#.#.#.##",
+      "##.#.#.#.#.#.##",
+      "###############",
+      "#.#.#.#.#.#.#.#",
+      "#.#.#.#.#.#.#.#",
+      "###############"
+     ]
+    }
+   ],
+   "notes": [
+    "There is a ruin behind the bus stop and nobody looks at it.",
+    "Ate far too much and would do the whole thing again.",
+    "The water from the street fountains is freezing and free.",
+    "Got lost on purpose. Can recommend.",
+    "Everything here is older than it strictly needs to be.",
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "rome_column",
+     "x": 0.195,
+     "base": 0.605,
+     "w": 0.1
+    },
+    {
+     "id": "rome_colosseum",
+     "x": 0.48,
+     "base": 0.66,
+     "w": 0.25
+    },
+    {
+     "id": "rome_fountain",
+     "x": 0.79,
+     "base": 0.6,
+     "w": 0.145
+    }
+   ],
+   "letter": {
+    "theme": "the last coin",
+    "title": "The Last Coin",
+    "body": "Dear, Unknown,\n\nAn old woman gave me the last coin.\nShe said it wasn't worth anything anymore.\nI kept it anyway.\n\nI thought someone should know."
+   },
+   "style": "Caravaggio — tenebrism, deep shadow, one hard light source",
+   "drift": "dust"
+  },
+  {
+   "id": "newyork",
+   "name": "New York",
+   "country": "USA",
+   "flag": "🇺🇸",
+   "tagline": "Loud, vertical, oddly friendly.",
+   "map": [
+    0.2944,
+    0.2738
+   ],
+   "palette": [
+    "#DDEAF0",
+    "#2E6E88",
+    "#22333B"
+   ],
+   "puzzles": [
+    {
+     "id": "ny_apple",
+     "name": "The Big Apple",
+     "emoji": "🍎",
+     "category": "Cultural object",
+     "index": 0,
+     "art": [
+      "..#..",
+      ".###.",
+      "#####",
+      "#####",
+      ".###."
+     ]
+    },
+    {
+     "id": "ny_walkup",
+     "name": "Walk-Up Window",
+     "emoji": "🏢",
+     "category": "Everyday life",
+     "index": 1,
+     "art": [
+      ".###.",
+      ".#.#.",
+      ".###.",
+      ".#.#.",
+      "#####"
+     ]
+    },
+    {
+     "id": "ny_taxi",
+     "name": "Yellow Cab",
+     "emoji": "🚕",
+     "category": "Transportation",
+     "index": 2,
+     "art": [
+      "....##....",
+      "....##....",
+      "..######..",
+      ".########.",
+      "##########",
+      "##########",
+      ".########.",
+      "##......##",
+      "#.#....#.#",
+      "##......##"
+     ]
+    },
+    {
+     "id": "ny_skyline",
+     "name": "Skyline",
+     "emoji": "🌆",
+     "category": "Architecture",
+     "index": 3,
+     "art": [
+      ".#........",
+      ".#..#.....",
+      ".#..#..##.",
+      "###.#..##.",
+      "###.##.##.",
+      "###.##.###",
+      "#####.####",
+      "#####.####",
+      "##########",
+      "##########"
+     ]
+    },
+    {
+     "id": "ny_traffic",
+     "name": "Traffic Light",
+     "emoji": "🚦",
+     "category": "Everyday life",
+     "index": 4,
+     "art": [
+      "..######..",
+      ".########.",
+      ".##....##.",
+      ".########.",
+      ".##....##.",
+      ".########.",
+      ".##....##.",
+      ".########.",
+      "..######..",
+      "....##...."
+     ]
+    },
+    {
+     "id": "ny_bagel",
+     "name": "Bagel",
+     "emoji": "🥯",
+     "category": "Food",
+     "index": 5,
+     "art": [
+      "...####...",
+      "..######..",
+      ".###..###.",
+      "###....###",
+      "###....###",
+      "###....###",
+      "###....###",
+      ".###..###.",
+      "..######..",
+      "...####..."
+     ]
+    },
+    {
+     "id": "ny_hotdog",
+     "name": "Street Cart Hot Dog",
+     "emoji": "🌭",
+     "category": "Food",
+     "index": 6,
+     "art": [
+      "..........",
+      "..#....#..",
+      ".########.",
+      "##########",
+      "#.######.#",
+      "##########",
+      ".########.",
+      "..#....#..",
+      "..........",
+      ".........."
+     ]
+    },
+    {
+     "id": "ny_liberty",
+     "name": "Statue of Liberty",
+     "emoji": "🗽",
+     "category": "Landmark",
+     "index": 7,
+     "art": [
+      "...........##..",
+      "...........##..",
+      "..#.#.#.#..##..",
+      "..#######..##..",
+      "...#####...##..",
+      "....###...###..",
+      "....###..####..",
+      "....#########..",
+      "....#######....",
+      "...#########...",
+      "...#########...",
+      "..###########..",
+      "..###########..",
+      ".#############.",
+      "###############"
+     ]
+    }
+   ],
+   "notes": [
+    "Loud in a way that stops bothering you after about a day.",
+    "Walked eleven miles without meaning to.",
+    "The pizza argument is real and I have now picked a side.",
+    "Looked up constantly for a week. Nobody else does.",
+    "Bought something from a cart at midnight. No regrets.",
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "ny_taxi",
+     "x": 0.2,
+     "base": 0.615,
+     "w": 0.145
+    },
+    {
+     "id": "ny_liberty",
+     "x": 0.47,
+     "base": 0.665,
+     "w": 0.215
+    },
+    {
+     "id": "ny_skyline",
+     "x": 0.78,
+     "base": 0.61,
+     "w": 0.17
+    }
+   ],
+   "letter": {
+    "theme": "the last lonely person",
+    "title": "The Last Lonely Person",
+    "body": "Dear, Unknown,\n\nI met the last lonely person tonight.\nWe talked for an hour.\nWhen I left, he wasn't lonely anymore.\n\nI don't know what that makes me."
+   },
+   "style": "Edward Hopper — flat planes of hard light, still and empty",
+   "drift": "none"
+  },
+  {
+   "id": "london",
+   "name": "London",
+   "country": "UK",
+   "flag": "🇬🇧",
+   "tagline": "Rain, parks, and a very old river.",
+   "map": [
+    0.4996,
+    0.2138
+   ],
+   "palette": [
+    "#DEE7DC",
+    "#4C7A57",
+    "#26332A"
+   ],
+   "puzzles": [
+    {
+     "id": "london_tea",
+     "name": "Cup of Tea",
+     "emoji": "🫖",
+     "category": "Everyday life",
+     "index": 0,
+     "art": [
+      "#####",
+      "#####",
+      "#####",
+      ".###.",
+      "..#.."
+     ]
+    },
+    {
+     "id": "london_rain",
+     "name": "Passing Shower",
+     "emoji": "🌧",
+     "category": "Nature",
+     "index": 1,
+     "art": [
+      ".###.",
+      "#####",
+      ".....",
+      "#.#.#",
+      ".#.#."
+     ]
+    },
+    {
+     "id": "london_bus",
+     "name": "Double-Decker",
+     "emoji": "🚌",
+     "category": "Transportation",
+     "index": 2,
+     "art": [
+      ".########.",
+      "##########",
+      "#.##.##.##",
+      "##########",
+      "##########",
+      "#.##.##.##",
+      "##########",
+      "##########",
+      ".##....##.",
+      ".##....##."
+     ]
+    },
+    {
+     "id": "london_phonebox",
+     "name": "Phone Box",
+     "emoji": "☎",
+     "category": "Cultural object",
+     "index": 3,
+     "art": [
+      ".########.",
+      "##########",
+      ".########.",
+      ".##.##.##.",
+      ".##.##.##.",
+      ".##.##.##.",
+      ".##.##.##.",
+      ".##.##.##.",
+      ".########.",
+      "##########"
+     ]
+    },
+    {
+     "id": "london_umbrella",
+     "name": "Umbrella",
+     "emoji": "☂",
+     "category": "Everyday life",
+     "index": 4,
+     "art": [
+      "...####...",
+      "..######..",
+      ".########.",
+      "##########",
+      "##########",
+      "....##....",
+      "....##....",
+      "....##....",
+      "....##..#.",
+      "....####.."
+     ]
+    },
+    {
+     "id": "london_crown",
+     "name": "Crown Jewels",
+     "emoji": "👑",
+     "category": "Cultural object",
+     "index": 5,
+     "art": [
+      "##..##..##",
+      "##..##..##",
+      "##.####.##",
+      "##########",
+      "##########",
+      "##########",
+      "##########",
+      ".########.",
+      ".########.",
+      ".........."
+     ]
+    },
+    {
+     "id": "london_corgi",
+     "name": "Corgi",
+     "emoji": "🐕",
+     "category": "Animal",
+     "index": 6,
+     "art": [
+      "##......##",
+      "####..####",
+      "##########",
+      "#.######.#",
+      "##########",
+      "###.##.###",
+      "##########",
+      ".########.",
+      "..######..",
+      "...####..."
+     ]
+    },
+    {
+     "id": "london_bigben",
+     "name": "Big Ben",
+     "emoji": "🕰",
+     "category": "Landmark",
+     "index": 7,
+     "art": [
+      ".......#.......",
+      "......###......",
+      ".....#####.....",
+      "....#######....",
+      "....#######....",
+      "...#########...",
+      "...#########...",
+      "...##.###.##...",
+      "...#.#####.#...",
+      "...##.###.##...",
+      "...#########...",
+      "....#######....",
+      "....#.#.#.#....",
+      "....#######....",
+      "....#.#.#.#...."
+     ]
+    }
+   ],
+   "notes": [
+    "Rained. Went to a pub instead. The system works.",
+    "Sat in a park in the gap between two rain showers.",
+    "The tube map is a lie about geography and I love it.",
+    "Everyone apologised to me and I apologised straight back.",
+    "The museums are free, so I went to three of them.",
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "london_bus",
+     "x": 0.2,
+     "base": 0.615,
+     "w": 0.155
+    },
+    {
+     "id": "london_bigben",
+     "x": 0.475,
+     "base": 0.665,
+     "w": 0.2
+    },
+    {
+     "id": "london_phonebox",
+     "x": 0.79,
+     "base": 0.605,
+     "w": 0.115
+    }
+   ],
+   "letter": {
+    "theme": "the last postcard",
+    "title": "The Last Postcard",
+    "body": "Dear, Unknown,\n\nThis is the last postcard.\nI don't know why I'm sending it.\nI don't know who you are.\nI don't even know how I found your address.\n\nBut somehow, every time something became the last of its kind, I knew I had to write to you.\n\nTokyo. Paris. Rome. New York.\n\nI thought I was recording the end of things.\nPerhaps I was only making sure someone remembered.\n\nIf you are reading this,\nthen perhaps you are the one I was writing to all along."
+   },
+   "style": "Victorian pale watercolour — soft washes, muted, restrained",
+   "drift": "rain"
+  }
+ ]
+}

@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A postcard for you — Dear, Unknown</title>
+<meta name="description" content="Someone sent you a postcard. Solve the puzzle to open it.">
+<style>
+  :root {
+    --bg: #F0E7D8;
+    --panel: #FBF6EC;
+    --panel-alt: #E9DFCC;
+    --ink: #3A3128;
+    --ink-soft: #8B7A63;
+    --ink-faint: #B6A48A;
+    --line: #D9CAB2;
+    --line-strong: #A8957A;
+    --accent: #C25E4B;
+    --cell: #3A3128;
+    --shadow: rgba(0,0,0,.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1C1917; --panel: #272220; --panel-alt: #332C28;
+      --ink: #EFE4D3; --ink-soft: #A6937A; --ink-faint: #6E6052;
+      --line: #3D352F; --line-strong: #6A5C4E;
+      --accent: #E08A6E; --cell: #EFE4D3; --shadow: rgba(0,0,0,.45);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 "Avenir Next", Optima, "Segoe UI", system-ui, sans-serif;
+    min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 48px;
+    -webkit-text-size-adjust: 100%;
+  }
+  h1, h2, h3 { font-weight: 600; margin: 0; }
+  .muted { color: var(--ink-soft); }
+  .faint { color: var(--ink-faint); font-size: 13px; }
+
+  header { text-align: center; max-width: 560px; margin-bottom: 20px; }
+  header .eyebrow { font-size: 13px; letter-spacing: .18em; color: var(--accent); text-transform: uppercase; }
+  header h1 { font-size: clamp(22px, 5vw, 30px); margin: 6px 0 4px; }
+
+  .stage { width: 100%; max-width: 620px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: 20px; box-shadow: 0 6px 24px var(--shadow);
+  }
+
+  /* ---- puzzle ---- */
+  .puzzle {
+    display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto;
+    justify-content: center; touch-action: none; user-select: none;
+    -webkit-user-select: none; margin: 0 auto;
+  }
+  .colclues { display: grid; }
+  .colclues > div {
+    display: flex; flex-direction: column; justify-content: flex-end;
+    align-items: center; gap: 1px; padding-bottom: 4px;
+    font: 500 var(--clue-size)/1.15 ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--ink-soft);
+  }
+  .rowclues { display: grid; }
+  .rowclues > div {
+    display: flex; justify-content: flex-end; align-items: center; gap: 4px;
+    padding-right: 6px;
+    font: 500 var(--clue-size)/1 ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--ink-soft);
+  }
+  .cells {
+    display: grid; background: var(--line);
+    gap: 1px; border: 2px solid var(--line-strong);
+    transition: gap .45s ease, border-color .45s ease, background .45s ease;
+  }
+  .cells .c {
+    width: var(--cell-size); height: var(--cell-size);
+    background: var(--panel); position: relative;
+    transition: background .45s ease;
+  }
+  .cells .c.g5 { box-shadow: inset 2px 0 0 -1px var(--line-strong); }
+  .cells .c.r5 { box-shadow: inset 0 2px 0 -1px var(--line-strong); }
+  .cells .c.g5.r5 { box-shadow: inset 2px 0 0 -1px var(--line-strong), inset 0 2px 0 -1px var(--line-strong); }
+  .cells .c.fill { background: var(--cell); }
+  .cells .c.mark::before, .cells .c.mark::after {
+    content: ""; position: absolute; inset: 32%;
+    border-top: 2px solid var(--ink-faint); transform-origin: center;
+  }
+  .cells .c.mark::before { transform: rotate(45deg); }
+  .cells .c.mark::after { transform: rotate(-45deg); }
+  .cells .c.hit { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .solved .cells { gap: 0; border-color: transparent; background: transparent; }
+  .solved .cells .c { background: transparent; box-shadow: none !important; }
+  .solved .cells .c.fill { background: var(--cell); }
+  .solved .cells .c.mark::before, .solved .cells .c.mark::after { display: none; }
+  .solved .colclues, .solved .rowclues { opacity: 0; transition: opacity .4s ease; }
+
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+  button {
+    font: 500 15px/1 inherit; font-family: inherit; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line-strong);
+    border-radius: 10px; padding: 11px 16px; cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+  button.primary:hover { color: var(--panel); filter: brightness(1.06); }
+  button:disabled { opacity: .45; cursor: default; border-color: var(--line); color: var(--ink-faint); }
+
+  /* ---- postcard ---- */
+  .postcard-wrap { perspective: 1400px; margin: 0 auto; width: 100%; max-width: 560px; }
+  .postcard {
+    position: relative; aspect-ratio: 3 / 2; transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.4,.1,.2,1);
+  }
+  .postcard.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 8px 28px var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .face.back { transform: rotateY(180deg); }
+
+  .front-art { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4%; padding: 5% 5% 0; }
+  .front-title { text-align: center; padding: 0 4% 5%; }
+  .front-title .name { font-size: clamp(18px, 5.2vw, 34px); letter-spacing: .22em; font-weight: 600; }
+  .front-title .country { font-size: clamp(9px, 2.2vw, 13px); letter-spacing: .14em; margin-top: 4px; }
+  .front-rule { height: 2px; margin: 0 6% 4%; }
+
+  .back-inner { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 4%; padding: 6%; }
+  .back-left { display: flex; flex-direction: column; }
+  .back-msg { flex: 1; font-size: clamp(11px, 2.6vw, 16px); white-space: pre-wrap; overflow: hidden; }
+  .back-from { font-size: clamp(10px, 2.3vw, 14px); }
+  .back-right { border-left: 1px solid; padding-left: 6%; display: flex; flex-direction: column; }
+  .stamp { align-self: flex-end; width: 30%; aspect-ratio: 4/5; border: 2px solid; border-radius: 3px;
+           display: flex; align-items: center; justify-content: center; padding: 8%; }
+  .postmark { margin-top: 6%; width: 34%; aspect-ratio: 1; border: 1.5px solid; border-radius: 50%;
+              display: flex; align-items: center; justify-content: center;
+              font-size: clamp(6px, 1.5vw, 9px); letter-spacing: .06em; text-align: center; }
+  .to-lines { margin-top: auto; }
+  .to-name { font-size: clamp(10px, 2.4vw, 15px); }
+  .to-lines hr { border: 0; border-top: 1px solid; margin: 9% 0 0; opacity: .5; }
+
+  .locked-note { text-align: center; margin: 14px 0 0; }
+  .hidden { display: none !important; }
+  .center { text-align: center; }
+  .footer { margin-top: 28px; text-align: center; font-size: 13px; color: var(--ink-faint); }
+  .footer a { color: var(--accent); }
+
+  .paste { display: flex; gap: 8px; margin-top: 12px; }
+  .paste input {
+    flex: 1; font: 15px/1 inherit; font-family: inherit; padding: 11px 12px;
+    border-radius: 10px; border: 1px solid var(--line-strong);
+    background: var(--bg); color: var(--ink);
+  }
+
+  @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .pop { animation: pop .5s cubic-bezier(.2,.9,.3,1.2) both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow" id="eyebrow">Dear, Unknown</div>
+  <h1 id="headline">A postcard for you</h1>
+  <p class="muted" id="subhead">Solve the puzzle to open it.</p>
+</header>
+
+<div class="stage">
+
+  <!-- no / bad code -->
+  <section id="empty" class="card hidden">
+    <h3>Paste your postcard code</h3>
+    <p class="muted">The link you were sent ends in <code>#…</code>. Paste the whole link or just the code.</p>
+    <div class="paste">
+      <input id="codeInput" placeholder="paste link or code" autocomplete="off" spellcheck="false">
+      <button class="primary" id="codeGo">Open</button>
+    </div>
+    <p class="faint" id="emptyErr"></p>
+  </section>
+
+  <!-- puzzle -->
+  <section id="game" class="card hidden">
+    <div id="puzzleHost"></div>
+    <div class="tools">
+      <button id="toolBtn" class="primary">■ Fill</button>
+      <button id="undoBtn">↶ Undo</button>
+      <button id="resetBtn">↺ Reset</button>
+      <button id="hintBtn">💡 Hint</button>
+    </div>
+    <p class="locked-note faint" id="lockedNote"></p>
+  </section>
+
+  <!-- reward -->
+  <section id="reward" class="hidden">
+    <div class="postcard-wrap">
+      <div class="postcard flipped" id="postcard">
+        <div class="face front" id="cardFront"></div>
+        <div class="face back" id="cardBack"></div>
+      </div>
+    </div>
+    <div class="tools">
+      <button id="flipBtn">↻ Turn over</button>
+      <button id="replayBtn">↺ Solve it again</button>
+    </div>
+  </section>
+
+</div>
+
+<p class="footer">
+  Made with <strong>Dear, Unknown</strong> — a nonogram travel game.<br>
+  <a id="storeLink" href="#">Get the full game</a>
+</p>
+
+<script>
+"use strict";
+
+const DATA = {"cities":[{"id":"tokyo","name":"Tokyo","country":"Japan","flag":"🇯🇵","palette":["#F6DCE0","#C25E6B","#402E33"],"puzzles":[{"id":"tokyo_fuji","name":"Mount Fuji","emoji":"🗻","category":"Nature","index":0,"art":["..#..",".###.",".###.","#####","#####"]},{"id":"tokyo_lantern","name":"Paper Lantern","emoji":"🏮","category":"Cultural object","index":1,"art":[".###.","#####","#####","#####",".###."]},{"id":"tokyo_torii","name":"Torii Gate","emoji":"⛩","category":"Architecture","index":2,"art":["##########","##########","..#....#..","##########","##########","..#....#..","..#....#..","..#....#..","..#....#..",".###..###."]},{"id":"tokyo_ramen","name":"Ramen","emoji":"🍜","category":"Food","index":3,"art":["..#....#..",".#......#.","..#....#..","..........","##########","##########",".########.","..######..","...####...",".........."]},{"id":"tokyo_onigiri","name":"Onigiri","emoji":"🍙","category":"Food","index":4,"art":["....##....","...####...","..######..","..######..",".########.",".########.","##.####.##","##.####.##","##########","##########"]},{"id":"tokyo_shinkansen","name":"Shinkansen","emoji":"🚄","category":"Transportation","index":5,"art":["..........","...#######","..########",".#.####.##","##########","##########","##########",".########.","..##..##..",".........."]},{"id":"tokyo_sakura","name":"Cherry Blossom","emoji":"🌸","category":"Nature","index":6,"art":[".##....##.","####..####",".##.##.##.","....##....","..######..","..######..","....##....",".##.##.##.","####..####",".##....##."]},{"id":"tokyo_tower","name":"Tokyo Tower","emoji":"🗼","category":"Landmark","index":7,"art":[".......#.......",".......#.......","......###......","......#.#......",".....#####.....",".....#...#.....","....#######....","....#.....#....","...##.....##...","...#.......#...","..###########..","..##.......##..",".###.......###.",".##.........##.","###############"]}]},{"id":"paris","name":"Paris","country":"France","flag":"🇫🇷","palette":["#E8E2F2","#6E63A8","#2F2A3D"],"puzzles":[{"id":"paris_wine","name":"Glass of Wine","emoji":"🍷","category":"Food","index":0,"art":["#####",".###.","..#..","..#..","#####"]},{"id":"paris_brie","name":"Wedge of Brie","emoji":"🧀","category":"Food","index":1,"art":["....#","...##","..###",".####","#####"]},{"id":"paris_croissant","name":"Croissant","emoji":"🥐","category":"Food","index":2,"art":["....###...","..#####...",".####.##..",".###...##.",".##....##.",".##....##.",".###...##.",".####.##..","..#####...","....###..."]},{"id":"paris_macaron","name":"Macaron","emoji":"🍬","category":"Food","index":3,"art":["..######..",".########.",".########.","..........","##########","##########","..........",".########.",".########.","..######.."]},{"id":"paris_cafe","name":"Café Crème","emoji":"☕","category":"Everyday life","index":4,"art":["...#..#...","..#..#....","...#..#...","..........","########..","#######.#.","#######.#.","#######.#.","########..",".######..."]},{"id":"paris_arc","name":"Arc de Triomphe","emoji":"🏛","category":"Architecture","index":5,"art":["##########","##########","##########","###....###","##......##","##......##","##......##","##......##","##......##","##......##"]},{"id":"paris_louvre","name":"Glass Pyramid","emoji":"🔺","category":"Architecture","index":6,"art":["....##....","....##....","...####...","...####...","..######..","..######..",".########.",".########.","##########","##########"]},{"id":"paris_eiffel","name":"Eiffel Tower","emoji":"🗼","category":"Landmark","index":7,"art":[".......#.......","......###......","......###......",".....#####.....",".....##.##.....","....##...##....","....#######....","....##...##....","...###...###...","...##.....##...","..###.....###..","..#####.#####..",".####.#.#.####.",".###..#.#..###.","###...#.#...###"]}]},{"id":"rome","name":"Rome","country":"Italy","flag":"🇮🇹","palette":["#F7E3CE","#B96A32","#3D2E22"],"puzzles":[{"id":"rome_gelato","name":"Gelato","emoji":"🍦","category":"Food","index":0,"art":[".###.","#####",".###.","..#..","..#.."]},{"id":"rome_column","name":"Roman Column","emoji":"🏛","category":"Architecture","index":1,"art":["#####",".###.",".###.",".###.","#####"]},{"id":"rome_pizza","name":"Pizza al Taglio","emoji":"🍕","category":"Food","index":2,"art":["....##....","...####...","...####...","..######..","..#.##.#..",".########.",".###..###.",".########.","##########","##########"]},{"id":"rome_pasta","name":"Cacio e Pepe","emoji":"🍝","category":"Food","index":3,"art":["..........",".#.#..#.#.","..#.##.#..",".#.#..#.#.","##########",".########.",".########.","..######..","...####...",".........."]},{"id":"rome_vespa","name":"Vespa","emoji":"🛵","category":"Transportation","index":4,"art":[".......##.","......####","..#######.",".########.","##########","##########",".########.","##......##","#.#....#.#","##......##"]},{"id":"rome_fountain","name":"Fountain","emoji":"⛲","category":"Landmark","index":5,"art":["....##....","...####...","..##..##..",".##....##.","....##....","....##....","..######..",".########.","##########","##########"]},{"id":"rome_amphora","name":"Amphora","emoji":"🏺","category":"Cultural object","index":6,"art":["..######..","..#....#..","...####...","..######..",".########.","##########","##########",".########.","..######..","...####..."]},{"id":"rome_colosseum","name":"Colosseum","emoji":"🏟","category":"Landmark","index":7,"art":["...#########...","..###########..",".#############.","###.#.#.#.#.###","###.#.#.#.#.###","###############","###.#.#.#.#.###","###.#.#.#.#.###","###############","##.#.#.#.#.#.##","##.#.#.#.#.#.##","###############","#.#.#.#.#.#.#.#","#.#.#.#.#.#.#.#","###############"]}]},{"id":"newyork","name":"New York","country":"USA","flag":"🇺🇸","palette":["#DDEAF0","#2E6E88","#22333B"],"puzzles":[{"id":"ny_apple","name":"The Big Apple","emoji":"🍎","category":"Cultural object","index":0,"art":["..#..",".###.","#####","#####",".###."]},{"id":"ny_walkup","name":"Walk-Up Window","emoji":"🏢","category":"Everyday life","index":1,"art":[".###.",".#.#.",".###.",".#.#.","#####"]},{"id":"ny_taxi","name":"Yellow Cab","emoji":"🚕","category":"Transportation","index":2,"art":["....##....","....##....","..######..",".########.","##########","##########",".########.","##......##","#.#....#.#","##......##"]},{"id":"ny_skyline","name":"Skyline","emoji":"🌆","category":"Architecture","index":3,"art":[".#........",".#..#.....",".#..#..##.","###.#..##.","###.##.##.","###.##.###","#####.####","#####.####","##########","##########"]},{"id":"ny_traffic","name":"Traffic Light","emoji":"🚦","category":"Everyday life","index":4,"art":["..######..",".########.",".##....##.",".########.",".##....##.",".########.",".##....##.",".########.","..######..","....##...."]},{"id":"ny_bagel","name":"Bagel","emoji":"🥯","category":"Food","index":5,"art":["...####...","..######..",".###..###.","###....###","###....###","###....###","###....###",".###..###.","..######..","...####..."]},{"id":"ny_hotdog","name":"Street Cart Hot Dog","emoji":"🌭","category":"Food","index":6,"art":["..........","..#....#..",".########.","##########","#.######.#","##########",".########.","..#....#..","..........",".........."]},{"id":"ny_liberty","name":"Statue of Liberty","emoji":"🗽","category":"Landmark","index":7,"art":["...........##..","...........##..","..#.#.#.#..##..","..#######..##..","...#####...##..","....###...###..","....###..####..","....#########..","....#######....","...#########...","...#########...","..###########..","..###########..",".#############.","###############"]}]},{"id":"london","name":"London","country":"UK","flag":"🇬🇧","palette":["#DEE7DC","#4C7A57","#26332A"],"puzzles":[{"id":"london_tea","name":"Cup of Tea","emoji":"🫖","category":"Everyday life","index":0,"art":["#####","#####","#####",".###.","..#.."]},{"id":"london_rain","name":"Passing Shower","emoji":"🌧","category":"Nature","index":1,"art":[".###.","#####",".....","#.#.#",".#.#."]},{"id":"london_bus","name":"Double-Decker","emoji":"🚌","category":"Transportation","index":2,"art":[".########.","##########","#.##.##.##","##########","##########","#.##.##.##","##########","##########",".##....##.",".##....##."]},{"id":"london_phonebox","name":"Phone Box","emoji":"☎","category":"Cultural object","index":3,"art":[".########.","##########",".########.",".##.##.##.",".##.##.##.",".##.##.##.",".##.##.##.",".##.##.##.",".########.","##########"]},{"id":"london_umbrella","name":"Umbrella","emoji":"☂","category":"Everyday life","index":4,"art":["...####...","..######..",".########.","##########","##########","....##....","....##....","....##....","....##..#.","....####.."]},{"id":"london_crown","name":"Crown Jewels","emoji":"👑","category":"Cultural object","index":5,"art":["##..##..##","##..##..##","##.####.##","##########","##########","##########","##########",".########.",".########.",".........."]},{"id":"london_corgi","name":"Corgi","emoji":"🐕","category":"Animal","index":6,"art":["##......##","####..####","##########","#.######.#","##########","###.##.###","##########",".########.","..######..","...####..."]},{"id":"london_bigben","name":"Big Ben","emoji":"🕰","category":"Landmark","index":7,"art":[".......#.......","......###......",".....#####.....","....#######....","....#######....","...#########...","...#########...","...##.###.##...","...#.#####.#...","...##.###.##...","...#########...","....#######....","....#.#.#.#....","....#######....","....#.#.#.#...."]}]}]};
+
+// ---------------------------------------------------------------- helpers
+const $ = (id) => document.getElementById(id);
+
+function decodeCode(raw) {
+  let s = (raw || "").trim();
+  const hash = s.lastIndexOf("#");
+  if (hash >= 0) s = s.slice(hash + 1);
+  if (!s) return null;
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  try {
+    const bin = atob(s);
+    const bytes = Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
+    return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+  } catch (e) {
+    return null;
+  }
+}
+
+function findCity(id) { return DATA.cities.find((c) => c.id === id) || null; }
+function findPuzzle(city, id) { return city.puzzles.find((p) => p.id === id) || null; }
+
+function clues(line) {
+  const out = []; let run = 0;
+  for (const v of line) {
+    if (v === 1) run++;
+    else if (run) { out.push(run); run = 0; }
+  }
+  if (run) out.push(run);
+  return out.length ? out : [0];
+}
+
+/** Pixel art as a canvas, scaled to fit `px` on its long edge. */
+function artCanvas(art, color, px) {
+  const h = art.length, w = art[0].length;
+  const cell = Math.max(1, Math.floor(px / Math.max(w, h)));
+  const cv = document.createElement("canvas");
+  cv.width = w * cell; cv.height = h * cell;
+  cv.style.width = cv.width + "px"; cv.style.height = cv.height + "px";
+  cv.style.maxWidth = "100%"; cv.style.height = "auto";
+  cv.style.imageRendering = "pixelated";
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = color;
+  for (let r = 0; r < h; r++)
+    for (let c = 0; c < w; c++)
+      if (art[r][c] === "#") ctx.fillRect(c * cell, r * cell, cell, cell);
+  return cv;
+}
+
+// ---------------------------------------------------------------- puzzle
+const EMPTY = 0, FILL = 1, MARK = 2;
+
+class Board {
+  constructor(art, host) {
+    this.art = art;
+    this.h = art.length;
+    this.w = art[0].length;
+    this.solution = art.map((row) => [...row].map((ch) => (ch === "#" ? 1 : 0)));
+    this.state = this.solution.map((row) => row.map(() => EMPTY));
+    this.rowClues = this.solution.map(clues);
+    this.colClues = [];
+    for (let c = 0; c < this.w; c++)
+      this.colClues.push(clues(this.solution.map((row) => row[c])));
+    this.undoStack = [];
+    this.hints = 0;
+    this.done = false;
+    this.onSolve = () => {};
+    this.host = host;
+    this.tool = FILL;
+    this._render();
+    this._bind();
+  }
+
+  _cellSize() {
+    const maxRowClue = Math.max(...this.rowClues.map((c) => c.length));
+    const avail = Math.min(this.host.clientWidth || 520, 520);
+    // leave room for the clue gutter — widest row clue wins
+    const size = Math.floor((avail - maxRowClue * 18 - 12) / this.w);
+    return Math.max(16, Math.min(38, size));
+  }
+
+  _render() {
+    const cs = this._cellSize();
+    this.host.innerHTML = "";
+    this.host.style.setProperty("--cell-size", cs + "px");
+    this.host.style.setProperty("--clue-size", Math.max(10, Math.round(cs * 0.42)) + "px");
+
+    const wrap = document.createElement("div");
+    wrap.className = "puzzle";
+    wrap.innerHTML = '<div class="corner"></div><div class="colclues"></div>'
+                   + '<div class="rowclues"></div><div class="cells"></div>';
+    const [corner, colBox, rowBox, cellBox] = wrap.children;
+
+    colBox.style.gridTemplateColumns = `repeat(${this.w}, ${cs}px)`;
+    colBox.style.marginLeft = "2px";
+    for (const list of this.colClues) {
+      const d = document.createElement("div");
+      d.innerHTML = list.map((n) => `<span>${n}</span>`).join("");
+      colBox.appendChild(d);
+    }
+
+    rowBox.style.gridTemplateRows = `repeat(${this.h}, ${cs}px)`;
+    rowBox.style.marginTop = "2px";
+    for (const list of this.rowClues) {
+      const d = document.createElement("div");
+      d.innerHTML = list.map((n) => `<span>${n}</span>`).join("");
+      rowBox.appendChild(d);
+    }
+
+    cellBox.style.gridTemplateColumns = `repeat(${this.w}, ${cs}px)`;
+    this.cells = [];
+    for (let r = 0; r < this.h; r++) {
+      const row = [];
+      for (let c = 0; c < this.w; c++) {
+        const el = document.createElement("div");
+        el.className = "c" + (c % 5 === 0 && c ? " g5" : "") + (r % 5 === 0 && r ? " r5" : "");
+        el.dataset.r = r; el.dataset.c = c;
+        cellBox.appendChild(el);
+        row.push(el);
+      }
+      this.cells.push(row);
+    }
+    corner.style.width = "100%";
+    this.wrap = wrap;
+    this.host.appendChild(wrap);
+    this._paintAll();
+  }
+
+  _paintAll() {
+    for (let r = 0; r < this.h; r++)
+      for (let c = 0; c < this.w; c++) this._paint(r, c);
+  }
+
+  _paint(r, c) {
+    const el = this.cells[r][c];
+    el.classList.toggle("fill", this.state[r][c] === FILL);
+    el.classList.toggle("mark", this.state[r][c] === MARK);
+  }
+
+  _bind() {
+    let painting = false, value = EMPTY, last = null;
+
+    const cellFrom = (ev) => {
+      const el = document.elementFromPoint(ev.clientX, ev.clientY);
+      if (!el || !el.classList.contains("c")) return null;
+      return [Number(el.dataset.r), Number(el.dataset.c)];
+    };
+
+    const apply = (r, c) => {
+      const key = r + ":" + c;
+      if (key === last) return;
+      last = key;
+      if (this.state[r][c] === value) return;
+      this.stroke.push([r, c, this.state[r][c]]);
+      this.state[r][c] = value;
+      this._paint(r, c);
+    };
+
+    this.wrap.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Only the press lives on the board; move/up are wired once, globally, so
+    // replaying a puzzle does not stack duplicate window listeners.
+    this.wrap.addEventListener("pointerdown", (ev) => {
+      if (this.done) return;
+      const hit = cellFrom(ev);
+      if (!hit) return;
+      ev.preventDefault();
+      const secondary = ev.button === 2 || ev.ctrlKey;
+      const want = (this.tool === MARK) !== secondary ? MARK : FILL;
+      const [r, c] = hit;
+      value = this.state[r][c] === want ? EMPTY : want;
+      painting = true; last = null; this.stroke = [];
+      apply(r, c);
+    });
+
+    this._move = (ev) => {
+      if (!painting) return;
+      const hit = cellFrom(ev);
+      if (hit) apply(hit[0], hit[1]);
+    };
+    this._up = () => {
+      if (!painting) return;
+      painting = false;
+      if (this.stroke.length) this.undoStack.push(this.stroke);
+      this.stroke = [];
+      this.check();
+      refreshTools();
+    };
+  }
+
+  handleMove(ev) { this._move(ev); }
+  handleUp() { this._up(); }
+
+  undo() {
+    const stroke = this.undoStack.pop();
+    if (!stroke) return;
+    for (let i = stroke.length - 1; i >= 0; i--) {
+      const [r, c, old] = stroke[i];
+      this.state[r][c] = old;
+      this._paint(r, c);
+    }
+  }
+
+  reset() {
+    this.undoStack = [];
+    for (let r = 0; r < this.h; r++)
+      for (let c = 0; c < this.w; c++) { this.state[r][c] = EMPTY; this._paint(r, c); }
+  }
+
+  hint() {
+    const wrong = [];
+    for (let r = 0; r < this.h; r++)
+      for (let c = 0; c < this.w; c++) {
+        const want = this.solution[r][c] === 1 ? FILL : MARK;
+        if (this.state[r][c] !== want) wrong.push([r, c, want]);
+      }
+    if (!wrong.length) return;
+    const [r, c, want] = wrong[Math.floor(Math.random() * wrong.length)];
+    this.undoStack.push([[r, c, this.state[r][c]]]);
+    this.state[r][c] = want;
+    this._paint(r, c);
+    this.cells[r][c].classList.add("hit");
+    setTimeout(() => this.cells[r][c].classList.remove("hit"), 700);
+    this.hints++;
+    this.check();
+  }
+
+  check() {
+    for (let r = 0; r < this.h; r++)
+      for (let c = 0; c < this.w; c++)
+        if ((this.state[r][c] === FILL) !== (this.solution[r][c] === 1)) return false;
+    this.done = true;
+    this.onSolve();
+    return true;
+  }
+}
+
+// ---------------------------------------------------------------- postcard
+function buildPostcard(city, note) {
+  const [paper, accent, deep] = city.palette;
+  const front = $("cardFront"), back = $("cardBack");
+  front.style.background = paper;
+  back.style.background = paper;
+  front.style.border = back.style.border = "2px solid " + accent + "55";
+
+  const hero = city.puzzles[city.puzzles.length - 1];
+  const left = city.puzzles[Math.min(2, city.puzzles.length - 1)];
+  const right = city.puzzles[Math.min(4, city.puzzles.length - 1)];
+
+  front.innerHTML = "";
+  const artRow = document.createElement("div");
+  artRow.className = "front-art";
+  const small1 = artCanvas(left.art, accent, 66);
+  const big = artCanvas(hero.art, deep, 150);
+  const small2 = artCanvas(right.art, accent, 66);
+  artRow.append(small1, big, small2);
+  front.appendChild(artRow);
+
+  const rule = document.createElement("div");
+  rule.className = "front-rule";
+  rule.style.background = accent;
+  front.appendChild(rule);
+
+  const title = document.createElement("div");
+  title.className = "front-title";
+  title.innerHTML = `<div class="name" style="color:${deep}">${city.name.toUpperCase()}</div>`
+    + `<div class="country" style="color:${accent}">${city.flag} ${city.country.toUpperCase()}</div>`;
+  front.appendChild(title);
+
+  const msg = (note.m || "").trim() || "Wish you were here.";
+  const from = (note.f || "").trim();
+  const to = (note.t || "").trim();
+
+  back.innerHTML = `
+    <div class="back-inner">
+      <div class="back-left">
+        <div class="back-msg" style="color:${deep}"></div>
+        <div class="back-from" style="color:${accent}"></div>
+      </div>
+      <div class="back-right" style="border-color:${accent}80">
+        <div class="stamp" style="border-color:${accent}; background:${accent}18"></div>
+        <div class="postmark" style="border-color:${accent}; color:${accent}">${city.name.toUpperCase()}</div>
+        <div class="to-lines">
+          <div class="to-name" style="color:${deep}"></div>
+          <hr style="border-color:${accent}"><hr style="border-color:${accent}"><hr style="border-color:${accent}">
+        </div>
+      </div>
+    </div>`;
+  back.querySelector(".back-msg").textContent = msg;
+  back.querySelector(".back-from").textContent = from ? "— " + from : "";
+  back.querySelector(".to-name").textContent = to;
+  back.querySelector(".stamp").appendChild(artCanvas(hero.art, deep, 60));
+
+  // Land on the note — that is what the sender actually wrote.
+  $("postcard").classList.add("flipped");
+  $("flipBtn").textContent = "↻ See the picture";
+}
+
+// ---------------------------------------------------------------- app
+let board = null;
+let note = null;
+let city = null;
+let puzzle = null;
+
+function refreshTools() {
+  $("undoBtn").disabled = !board || !board.undoStack.length || board.done;
+  $("hintBtn").disabled = !board || board.done;
+  $("resetBtn").disabled = !board || board.done;
+}
+
+function showEmpty(err) {
+  $("empty").classList.remove("hidden");
+  $("game").classList.add("hidden");
+  $("reward").classList.add("hidden");
+  $("headline").textContent = "A postcard for you";
+  $("subhead").textContent = "Paste the link you were sent.";
+  $("emptyErr").textContent = err || "";
+}
+
+function start(payload) {
+  note = payload;
+  city = findCity(payload.c);
+  if (!city) return showEmpty("That postcard is from a destination this page does not know.");
+  puzzle = findPuzzle(city, payload.p) || city.puzzles[city.puzzles.length - 1];
+
+  const from = (payload.f || "").trim();
+  $("eyebrow").textContent = city.flag + " " + city.name;
+  $("headline").textContent = from ? `${from} sent you a postcard` : "A postcard for you";
+  $("subhead").textContent = "Solve the nonogram to open it.";
+
+  $("empty").classList.add("hidden");
+  $("reward").classList.add("hidden");
+  $("game").classList.remove("hidden");
+
+  $("lockedNote").textContent =
+    `${puzzle.art.length}×${puzzle.art[0].length}`
+    + " · click to fill, right-click (or the ✕ tool) to mark";
+
+  board = new Board(puzzle.art, $("puzzleHost"));
+  board.onSolve = onSolved;
+  $("toolBtn").textContent = "■ Fill";
+  $("toolBtn").className = "primary";
+  refreshTools();
+}
+
+function onSolved() {
+  refreshTools();
+  $("game").classList.add("solved");
+  $("headline").textContent = puzzle.emoji + " " + puzzle.name;
+  $("subhead").textContent = puzzle.category;
+
+  setTimeout(() => {
+    buildPostcard(city, note);
+    $("game").classList.add("hidden");
+    $("game").classList.remove("solved");
+    $("reward").classList.remove("hidden");
+    $("reward").classList.add("pop");
+    const from = (note.f || "").trim();
+    $("eyebrow").textContent = "Postcard from " + city.name;
+    $("headline").textContent = from ? `From ${from}` : city.name;
+    $("subhead").textContent = "";
+  }, 1500);
+}
+
+$("toolBtn").addEventListener("click", () => {
+  if (!board) return;
+  board.tool = board.tool === FILL ? MARK : FILL;
+  const filling = board.tool === FILL;
+  $("toolBtn").textContent = filling ? "■ Fill" : "✕ Mark";
+  $("toolBtn").className = filling ? "primary" : "";
+});
+$("undoBtn").addEventListener("click", () => { board.undo(); refreshTools(); });
+$("resetBtn").addEventListener("click", () => { board.reset(); refreshTools(); });
+$("hintBtn").addEventListener("click", () => { board.hint(); refreshTools(); });
+$("flipBtn").addEventListener("click", () => {
+  const showingBack = $("postcard").classList.toggle("flipped");
+  $("flipBtn").textContent = showingBack ? "↻ See the picture" : "↻ Read the note";
+});
+$("replayBtn").addEventListener("click", () => start(note));
+
+window.addEventListener("pointermove", (ev) => { if (board) board.handleMove(ev); });
+window.addEventListener("pointerup", () => { if (board) board.handleUp(); });
+window.addEventListener("keydown", (ev) => {
+  if (!board || board.done) return;
+  const k = ev.key.toLowerCase();
+  if (k === "z") board.undo();
+  else if (k === "r") board.reset();
+  else if (k === "h") board.hint();
+  else return;
+  refreshTools();
+});
+
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (board && !board.done) board._render();
+  }, 150);
+});
+$("codeGo").addEventListener("click", () => {
+  const payload = decodeCode($("codeInput").value);
+  if (!payload || !payload.c) return showEmpty("That code did not look like a postcard.");
+  location.hash = "#" + $("codeInput").value.trim().split("#").pop();
+  start(payload);
+});
+
+function boot() {
+  const payload = decodeCode(location.hash);
+  if (payload && payload.c) start(payload);
+  else showEmpty("");
+}
+window.addEventListener("hashchange", boot);
+boot();
+</script>
+</body>
+</html>
