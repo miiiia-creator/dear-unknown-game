@@ -201,12 +201,20 @@ func flip() -> void:
 
 
 ## Largest 3:2 rectangle that fits, centred.
+## The card turns with the screen. A landscape card on a phone held upright
+## fills a third of it, which is no way to show the thing the whole game is
+## for; a portrait card on a monitor is the same mistake the other way round.
+func portrait() -> bool:
+	return size.y > size.x
+
+
 func _card_rect() -> Rect2:
+	var ratio := RATIO if not portrait() else 1.0 / RATIO
 	var w := size.x
-	var h := w / RATIO
+	var h := w / ratio
 	if h > size.y:
 		h = size.y
-		w = h * RATIO
+		w = h * ratio
 	return Rect2(((size - Vector2(w, h)) * 0.5).floor(), Vector2(w, h).floor())
 
 
@@ -239,7 +247,14 @@ func _draw_front(card: Rect2, accent: Color, deep: Color) -> void:
 
 ## The painting, cropped to the card and captioned.
 func _draw_painted_front(card: Rect2) -> void:
+	# Upright, the painting is shown whole as a band across the top rather than
+	# cropped to a tall box. These are wide views — a gate on the left, a city
+	# on the right — and a portrait crop throws away the half that makes them
+	# worth looking at. Under the band is paper, which is where the name goes,
+	# and that is what a printed postcard looks like anyway.
 	var inner := card.grow(-2.0)
+	if portrait():
+		inner.size.y = inner.size.x / RATIO
 	var tex: Texture2D = _art
 	if _motion != null and _motion.is_playing():
 		var frame := _motion.get_video_texture()
@@ -264,20 +279,34 @@ func _draw_painted_front(card: Rect2) -> void:
 	var type_col: Color = _palette[0].lightened(0.55) if dark else _palette[2]
 	var halo := Color(0, 0, 0, 0.5) if dark else Color(_palette[0], 0.55)
 
+	# Upright the name is printed on the paper under the picture, so it takes
+	# the ink colour and needs no halo; landscape it sits over the painting and
+	# needs both.
+	var upright := portrait()
+	var name_y := card.position.y + card.size.y * 0.82
+	var sub_y := card.position.y + card.size.y * 0.91
 	var name_size := int(card.size.y * 0.135)
+	var sub_size := int(card.size.y * 0.052)
+	if upright:
+		type_col = _palette[2]
+		halo = Color(0, 0, 0, 0)
+		name_size = int(card.size.x * 0.105)
+		sub_size = int(card.size.x * 0.040)
+		var band_bottom := inner.position.y + inner.size.y
+		var rest := card.position.y + card.size.y - band_bottom
+		name_y = band_bottom + rest * 0.46
+		sub_y = band_bottom + rest * 0.72
+
 	var city_name: String = String(GameData.text(_city["name"])).to_upper()
-	_draw_tracked(font, city_name,
-			Vector2(card.get_center().x, card.position.y + card.size.y * 0.82),
-			name_size, type_col, card.size.y * 0.030, halo)
+	_draw_tracked(font, city_name, Vector2(card.get_center().x, name_y),
+			name_size, type_col, name_size * 0.22, halo)
 
 	var sub := String(GameData.text(_city["country"])).to_upper()
-	var sub_size := int(card.size.y * 0.052)
 	var sw := font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size).x
-	draw_string_outline(font, Vector2(card.get_center().x - sw * 0.5,
-			card.position.y + card.size.y * 0.91), sub,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size, 4, halo)
-	draw_string(font, Vector2(card.get_center().x - sw * 0.5,
-			card.position.y + card.size.y * 0.91), sub,
+	if not upright:
+		draw_string_outline(font, Vector2(card.get_center().x - sw * 0.5, sub_y), sub,
+				HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size, 4, halo)
+	draw_string(font, Vector2(card.get_center().x - sw * 0.5, sub_y), sub,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size, type_col)
 
 

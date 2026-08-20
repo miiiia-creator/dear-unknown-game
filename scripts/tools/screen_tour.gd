@@ -156,6 +156,19 @@ func run(main: Node) -> void:
 	app.go("postcards", {"card": "tokyo"})
 	await _wait(0.4)
 	await _shot("zh_postcard")
+	# Upright, where the card turns with the screen.
+	Pal.set_locale("en")
+	DisplayServer.window_set_size(Vector2i(430, 900))
+	await _wait(0.6)
+	app.go("postcards", {"card": "tokyo"})
+	await _wait(1.0)
+	await _shot("phone_card_front")
+	app._current._do_flip()
+	await _wait(1.0)
+	await _shot("phone_card_back")
+	DisplayServer.window_set_size(Vector2i(1280, 800))
+	await _wait(0.5)
+	Pal.set_locale("zh_CN")
 	# Chinese sets denser than English, so the longest letter is the one that
 	# decides whether the back of a card still holds a letter at all.
 	app.go("postcards", {"card": "rome"})
