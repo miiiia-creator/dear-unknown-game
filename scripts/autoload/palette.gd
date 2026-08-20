@@ -6,39 +6,49 @@ extends Node
 ## whole app.
 
 signal theme_changed
+signal locale_changed
+
+## Languages the game offers, in menu order.
+const LOCALES := [
+	{"code": "en", "label": "English"},
+	{"code": "zh_CN", "label": "中文"},
+]
 
 const PAPER := {
-	"bg": "#F0E7D8",
-	"panel": "#FBF6EC",
-	"panel_alt": "#E9DFCC",
-	"ink": "#3A3128",
-	"ink_soft": "#8B7A63",
-	"ink_faint": "#B6A48A",
-	"line": "#D9CAB2",
-	"line_strong": "#A8957A",
-	"accent": "#C25E4B",
-	"accent_soft": "#EAC0B4",
-	"gold": "#B98C3C",
-	"good": "#4A7C6F",
-	"cell": "#3A3128",
-	"shadow": "#00000014",
+	# A grey-taupe with a green bias rather than a cream. Warm paper made every
+	# screen look homely, and it fought the paintings — a Hopper night and a
+	# Caravaggio have nowhere to sit on cream. This ground recedes instead.
+	"bg": "#DEDCD6",
+	"panel": "#E8E6E1",
+	"panel_alt": "#D5D3CC",
+	"ink": "#1C1D1B",
+	"ink_soft": "#6B6E68",
+	"ink_faint": "#9B9E97",
+	"line": "#C6C5BE",
+	"line_strong": "#A8A79F",
+	"accent": "#47584E",
+	"accent_soft": "#C3CCC6",
+	"gold": "#8A7A4E",
+	"good": "#4E6A58",
+	"cell": "#1C1D1B",
+	"shadow": "#00000012",
 }
 
 const EVENING := {
-	"bg": "#1C1917",
-	"panel": "#272220",
-	"panel_alt": "#332C28",
-	"ink": "#EFE4D3",
-	"ink_soft": "#A6937A",
-	"ink_faint": "#6E6052",
-	"line": "#3D352F",
-	"line_strong": "#6A5C4E",
-	"accent": "#E08A6E",
-	"accent_soft": "#5C3C31",
-	"gold": "#D9AF63",
-	"good": "#79B39F",
-	"cell": "#EFE4D3",
-	"shadow": "#00000040",
+	"bg": "#141513",
+	"panel": "#1C1E1B",
+	"panel_alt": "#232520",
+	"ink": "#E2E1DA",
+	"ink_soft": "#9A9D95",
+	"ink_faint": "#63665F",
+	"line": "#2E312D",
+	"line_strong": "#4A4E48",
+	"accent": "#8FA79A",
+	"accent_soft": "#2A322C",
+	"gold": "#C0AA72",
+	"good": "#8FA79A",
+	"cell": "#E2E1DA",
+	"shadow": "#00000045",
 }
 
 var mood: String = "paper"
@@ -52,29 +62,60 @@ func _ready() -> void:
 
 
 func _build_fonts() -> void:
-	# Bundling a licensed font is a shipping task; for the prototype we lean on
-	# system faces and chain a colour-emoji fallback so flags and icons render.
-	var emoji := SystemFont.new()
-	emoji.font_names = PackedStringArray([
-		"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-	])
-	emoji.allow_system_fallback = true
+	# Bundled rather than borrowed from the OS. System faces differ per platform
+	# — iOS has no glyph for the box and cross marks the toolbar used, so they
+	# arrived as tofu on a phone while looking fine on a Mac. Shipping the font
+	# makes every platform draw the same thing, and gives the Chinese build
+	# somewhere to hang its own face later.
+	#
+	# IBM Plex, SIL Open Font License 1.1 (see assets/fonts/OFL.txt).
+	# Chinese hangs off the Latin faces as a fallback rather than replacing them:
+	# a mixed line ("Season One — 第一季") then sets in one pass, and Latin keeps
+	# Plex's shapes instead of Noto's.
+	#
+	# The CJK face is subset to the characters the game actually uses — the full
+	# one is 17 MB, which is three times the entire web build. Re-run
+	# tools/subset_font.py after changing any Chinese copy.
+	var cjk := _load("res://assets/fonts/NotoSansSC-subset.ttf")
 
-	var body := SystemFont.new()
-	body.font_names = PackedStringArray([
-		"Avenir Next", "Optima", "Segoe UI", "Noto Sans", "DejaVu Sans",
-	])
-	body.allow_system_fallback = true
-	body.fallbacks = [emoji]
-	ui_font = body
+	ui_font = _load("res://assets/fonts/IBMPlexSans.ttf")
+	mono_font = _load("res://assets/fonts/IBMPlexMono-Regular.ttf")
+	for f in [ui_font, mono_font]:
+		if f is FontFile and cjk != null:
+			(f as FontFile).fallbacks = [cjk]
 
-	var mono := SystemFont.new()
-	mono.font_names = PackedStringArray([
-		"SF Mono", "Menlo", "Consolas", "DejaVu Sans Mono",
-	])
-	mono.allow_system_fallback = true
-	mono.fallbacks = [emoji]
-	mono_font = mono
+
+func _load(path: String) -> Font:
+	var f: Font = load(path)
+	if f == null:
+		push_warning("Missing bundled font %s — falling back to the system face." % path)
+		var fallback := SystemFont.new()
+		fallback.font_names = PackedStringArray(["Helvetica Neue", "Segoe UI", "sans-serif"])
+		fallback.allow_system_fallback = true
+		return fallback
+	if f is FontFile:
+		# Crisp small type: the interface lives at 12-16px and hinting matters
+		# more there than any subpixel smoothing does.
+		(f as FontFile).antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+		(f as FontFile).hinting = TextServer.HINTING_LIGHT
+		(f as FontFile).subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+	return f
+
+
+## Switch language. Content resolves through GameData.text(); interface strings
+## go through the translation table, so both follow from this one call.
+func set_locale(code: String) -> void:
+	if TranslationServer.get_locale() == code:
+		return
+	TranslationServer.set_locale(code)
+	locale_changed.emit()
+
+
+func locale_label(code: String) -> String:
+	for l in LOCALES:
+		if l["code"] == code:
+			return str(l["label"])
+	return code
 
 
 func set_mood(value: String) -> void:

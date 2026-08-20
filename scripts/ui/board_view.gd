@@ -246,9 +246,22 @@ func _apply(c: Vector2i) -> void:
 	if c == _last_painted:
 		return
 	_last_painted = c
-	if puzzle.set_cell(c.y, c.x, _paint_value):
-		changed.emit()
-		queue_redraw()
+	var row_was := puzzle.row_satisfied(c.y)
+	var col_was := puzzle.col_satisfied(c.x)
+	if not puzzle.set_cell(c.y, c.x, _paint_value):
+		return
+	Sfx.play("fill" if _paint_value == Nonogram.FILLED else "mark")
+	# The line confirmation is the audible half of the cross-off, and it says
+	# exactly what the strike through the numbers says. So it follows the same
+	# setting: a player who turned the cross-off off for a stricter puzzle has
+	# not agreed to be told the same thing through the speakers. Suppressed on
+	# the final cell too, where the solve sound is a moment away.
+	if mark_done and not puzzle.is_complete() \
+			and ((not row_was and puzzle.row_satisfied(c.y))
+			or (not col_was and puzzle.col_satisfied(c.x))):
+		Sfx.play("line")
+	changed.emit()
+	queue_redraw()
 
 
 func _check_solved() -> void:

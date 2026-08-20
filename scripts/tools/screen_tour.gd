@@ -15,15 +15,25 @@ var _n := 0
 
 func run(main: Node) -> void:
 	app = main
+	# A dev tool that hangs is worse than one that fails: if any step errors the
+	# coroutine simply stops, and without this the process sits there forever.
+	_watchdog()
 	DirAccess.make_dir_recursive_absolute(SHOT_DIR)
 	SaveGame.reset_everything()
 
 	await _shot("menu")
 
+	# The opening card, mid-reveal and settled.
+	app.go("prologue")
+	await _wait(2.0)
+	await _shot("prologue_front")
+	await _wait(3.2)
+	await _shot("prologue_back")
+
 	app.go("map")
 	await _shot("world_map")
 
-	app.go("city", {"city": "tokyo"})
+	app.go("journal", {"city": "tokyo"})
 	await _shot("city_fresh")
 
 	app.go("puzzle", {"puzzle": "tokyo_torii"})
@@ -37,7 +47,6 @@ func run(main: Node) -> void:
 	for p in GameData.puzzles_of("tokyo"):
 		SaveGame.mark_solved(p["id"], 90.0 + _n * 7.0, 0)
 		_n += 1
-	SaveGame.check_achievements()
 
 	app.replace("city_complete", {"city": "tokyo"})
 	await _wait(0.6)
@@ -47,25 +56,26 @@ func run(main: Node) -> void:
 	await _wait(1.2)
 	await _shot("city_complete")
 
-	app.go("city", {"city": "tokyo"})
+	app.go("journal", {"city": "tokyo"})
 	await _shot("city_done")
 
 	app.go("journal")
 	await _shot("journal")
 
 	app.go("postcards")
+	await _wait(0.7)
 	await _shot("postcards")
+	app.go("postcards", {"card": "tokyo"})
+	await _wait(0.9)
+	await _shot("postcard_front")
 	# Flip to the collection side. Paris is left unfinished on purpose so the
 	# empty slots show alongside the filled ones.
-	app._current._flip()
+	app._current._do_flip()
 	await _wait(0.3)
 	await _shot("postcard_back")
 
 	app.go("share", {"city": "tokyo"})
 	await _shot("share")
-
-	app.go("passport")
-	await _shot("passport")
 
 	app.go("map")
 	await _shot("world_map_progress")
@@ -74,7 +84,7 @@ func run(main: Node) -> void:
 	await _shot("settings")
 
 	Pal.set_mood("evening")
-	app.go("city", {"city": "tokyo"})
+	app.go("journal", {"city": "tokyo"})
 	await _shot("city_evening")
 
 	app.go("puzzle", {"puzzle": "tokyo_tower"})
@@ -100,7 +110,7 @@ func run(main: Node) -> void:
 	DisplayServer.window_set_size(Vector2i(430, 900))
 	await _wait(0.5)
 
-	app.go("city", {"city": "tokyo"})
+	app.go("journal", {"city": "tokyo"})
 	await _shot("phone_city")
 
 	app.go("puzzle", {"puzzle": "tokyo_torii"})
@@ -113,8 +123,36 @@ func run(main: Node) -> void:
 	app.go("map")
 	await _shot("phone_map")
 
+	app.go("postcards", {"card": "tokyo"})
+	await _wait(0.9)
+	await _shot("phone_postcards")
+
+	app.go("postcards")
+	await _wait(0.9)
+	await _shot("phone_postcards_opening")
+
+	# Chinese pass: the content resolver and the CJK fallback both have to hold.
+	Pal.set_locale("zh_CN")
+	DisplayServer.window_set_size(Vector2i(1280, 800))
+	await _wait(0.5)
+	app.go("journal", {"city": "tokyo"})
+	await _shot("zh_journal")
+	app.go("postcards", {"card": "tokyo"})
+	await _wait(0.4)
+	await _shot("zh_postcard")
+	app.go("prologue")
+	await _wait(4.0)
+	await _shot("zh_prologue")
+	Pal.set_locale("en")
+
 	print("Screenshots in ", ProjectSettings.globalize_path(SHOT_DIR))
 	get_tree().quit()
+
+
+func _watchdog() -> void:
+	await get_tree().create_timer(180.0).timeout
+	push_error("Screen tour did not finish within 180s — quitting.")
+	get_tree().quit(1)
 
 
 func _screen() -> Node:

@@ -11,7 +11,7 @@ extends RefCounted
 
 ## Point this at wherever web/postcard.html gets hosted (GitHub Pages, itch.io,
 ## Netlify — any static host will do).
-const BASE_URL := "https://example.com/postcard/"
+const BASE_URL := "https://miiiia-creator.github.io/dear-unknown/postcard.html"
 
 
 static func encode(payload: Dictionary) -> String:

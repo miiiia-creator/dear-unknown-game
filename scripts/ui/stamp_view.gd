@@ -37,13 +37,13 @@ func _draw() -> void:
 
 	var font: Font = Pal.ui_font
 	var small := int(side * 0.072)
-	var country: String = String(city["country"]).to_upper()
+	var country: String = String(GameData.text(city["country"])).to_upper()
 	var cw := font.get_string_size(country, HORIZONTAL_ALIGNMENT_LEFT, -1, small).x
 	draw_string(font, Vector2(-cw * 0.5, -side * 0.14), country,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, small, ink)
 
 	var name_size := int(side * 0.14)
-	var city_name: String = String(city["name"]).to_upper()
+	var city_name: String = String(GameData.text(city["name"])).to_upper()
 	var nw := font.get_string_size(city_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
 	draw_string(font, Vector2(-nw * 0.5, side * 0.05), city_name,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, name_size, ink)

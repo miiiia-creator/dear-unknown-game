@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
+		<title>$GODOT_PROJECT_NAME</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<meta name="apple-mobile-web-app-title" content="Dear, Unknown">
+		<style>
+/*
+	Godot's stock shell opens on the engine's logo over near-black. That is the
+	first thing anyone opening a shared link sees, and it says "a game engine
+	demo" rather than "a letter arrived". Everything here is the game's own
+	paper palette, kept in sync by hand with scripts/autoload/palette.gd.
+*/
+html, body { margin: 0; padding: 0; border: 0; height: 100%; }
+
+body {
+	background-color: #DEDCD6;
+	color: #1C1D1B;
+	overflow: hidden;
+	touch-action: none;
+	overscroll-behavior: none;
+	font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#canvas {
+	display: block;
+	touch-action: none !important;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#canvas:focus { outline: none; }
+
+#status, #status-progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+#status {
+	top: 0;
+	bottom: 0;
+	background-color: #DEDCD6;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+	z-index: 1;
+}
+
+/* A hairline rather than a chunky bar: the wait should feel like paper, not
+   like software. The percentage under it is the honest part — on a slow
+   connection this download is twenty megabytes, and a bar that sits still for
+   half a minute is indistinguishable from a crash. */
+#status-progress {
+	display: none;
+	width: 34%;
+	max-width: 220px;
+	height: 2px;
+	margin: 0 auto;
+	border: 0;
+	-webkit-appearance: none;
+	appearance: none;
+	background: #C6C5BE;
+}
+#status-progress::-webkit-progress-bar { background: #C6C5BE; }
+#status-progress::-webkit-progress-value { background: #47584E; }
+#status-progress::-moz-progress-bar { background: #47584E; }
+
+#status-note {
+	margin-top: 18px;
+	font-size: 12px;
+	letter-spacing: 0.16em;
+	color: #6B6E68;
+	min-height: 1em;
+}
+
+#status-notice {
+	display: none;
+	max-width: 34em;
+	margin: 0 2rem;
+	padding: 1rem;
+	line-height: 1.5;
+	text-align: center;
+	font-size: 13px;
+	color: #6B6E68;
+}
+
+/* ---- the gate ---- */
+
+#gate {
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+	background: #DEDCD6;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 2;
+}
+
+#gate.away { display: none; }
+
+#gate-title {
+	font-size: 15px;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: #1C1D1B;
+	margin-bottom: 42px;
+}
+
+/* 16px or larger, or iOS Safari zooms the whole page when the field is
+   focused and never quite zooms back. */
+#gate-input {
+	width: 200px;
+	font-size: 16px;
+	font-family: inherit;
+	letter-spacing: 0.14em;
+	text-align: center;
+	color: #1C1D1B;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid #A8A79F;
+	border-radius: 0;
+	padding: 6px 0;
+	outline: none;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#gate-hint {
+	margin-top: 20px;
+	font-size: 12px;
+	letter-spacing: 0.14em;
+	color: #9B9E97;
+	min-height: 1em;
+}
+
+#gate.wrong #gate-input { animation: nudge 0.3s; }
+
+@keyframes nudge {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-5px); }
+	75% { transform: translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#gate.wrong #gate-input { animation: none; }
+}
+		</style>
+		$GODOT_HEAD_INCLUDE
+	</head>
+	<body>
+		<canvas id="canvas">
+			Your browser does not support the canvas tag.
+		</canvas>
+
+		<noscript>
+			Your browser does not support JavaScript.
+		</noscript>
+
+		<div id="status">
+			<progress id="status-progress"></progress>
+			<div id="status-note"></div>
+			<div id="status-notice"></div>
+		</div>
+
+		<div id="gate">
+			<div id="gate-title">Dear, Unknown</div>
+			<form id="gate-form" autocomplete="off">
+				<input id="gate-input" type="password" autocomplete="off" autocapitalize="none"
+						autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Password">
+			</form>
+			<div id="gate-hint"></div>
+		</div>
+
+		<script src="$GODOT_URL"></script>
+		<script>
+const GODOT_CONFIG = $GODOT_CONFIG;
+const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+const engine = new Engine(GODOT_CONFIG);
+
+/*
+	The gate is a doormat, not a lock. It stops someone who stumbles on the
+	link; it does not stop anyone who opens the developer console, because on
+	a static host there is nobody to check a password with. The one thing it
+	does buy beyond that: the twenty-megabyte download does not start until
+	somebody gets past it.
+
+	To change the password, run:
+	  python3 -c "import hashlib;print(hashlib.sha256(('dear-unknown|'+'NEWPASS').encode()).hexdigest())"
+	and paste the result over PASS_HASH.
+*/
+const PASS_HASH = 'af4dea198ccefd83d079152077fa0595c356ee8a8bc73c184cbc0591ff5ef752';
+const PASS_KEY = 'dear-unknown-open';
+
+(function () {
+	const statusOverlay = document.getElementById('status');
+	const statusProgress = document.getElementById('status-progress');
+	const statusNote = document.getElementById('status-note');
+	const statusNotice = document.getElementById('status-notice');
+	const gate = document.getElementById('gate');
+	const gateInput = document.getElementById('gate-input');
+	const gateHint = document.getElementById('gate-hint');
+
+	let initializing = true;
+	let statusMode = '';
+
+	function setStatusMode(mode) {
+		if (statusMode === mode || !initializing) {
+			return;
+		}
+		if (mode === 'hidden') {
+			statusOverlay.remove();
+			initializing = false;
+			return;
+		}
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+		statusMode = mode;
+	}
+
+	function setStatusNotice(text) {
+		while (statusNotice.lastChild) {
+			statusNotice.removeChild(statusNotice.lastChild);
+		}
+		text.split('\n').forEach((line) => {
+			statusNotice.appendChild(document.createTextNode(line));
+			statusNotice.appendChild(document.createElement('br'));
+		});
+	}
+
+	function displayFailureNotice(err) {
+		console.error(err);
+		if (err instanceof Error) {
+			setStatusNotice(err.message);
+		} else if (typeof err === 'string') {
+			setStatusNotice(err);
+		} else {
+			setStatusNotice('Something went wrong loading the game.');
+		}
+		statusNote.textContent = '';
+		setStatusMode('notice');
+		initializing = false;
+	}
+
+	function start() {
+		const missing = Engine.getMissingFeatures({ threads: GODOT_THREADS_ENABLED });
+		if (missing.length !== 0) {
+			displayFailureNotice('This browser is missing:\n' + missing.join('\n'));
+			return;
+		}
+		setStatusMode('progress');
+		engine.startGame({
+			'onProgress': function (current, total) {
+				if (current > 0 && total > 0) {
+					statusProgress.value = current;
+					statusProgress.max = total;
+					statusNote.textContent = Math.round((current / total) * 100) + '%';
+				} else {
+					statusProgress.removeAttribute('value');
+					statusProgress.removeAttribute('max');
+				}
+			},
+		}).then(() => setStatusMode('hidden'), displayFailureNotice);
+	}
+
+	async function digest(value) {
+		const bytes = new TextEncoder().encode('dear-unknown|' + value);
+		const hash = await crypto.subtle.digest('SHA-256', bytes);
+		return Array.from(new Uint8Array(hash))
+			.map((b) => b.toString(16).padStart(2, '0')).join('');
+	}
+
+	function open() {
+		gate.classList.add('away');
+		start();
+	}
+
+	let remembered = null;
+	try {
+		remembered = window.localStorage.getItem(PASS_KEY);
+	} catch (err) {
+		remembered = null;
+	}
+
+	if (remembered === PASS_HASH) {
+		open();
+	} else {
+		gateInput.focus();
+		document.getElementById('gate-form').addEventListener('submit', async (event) => {
+			event.preventDefault();
+			gate.classList.remove('wrong');
+			let hash = '';
+			try {
+				hash = await digest(gateInput.value.trim().toLowerCase());
+			} catch (err) {
+				gateHint.textContent = 'This page needs to be opened over https.';
+				return;
+			}
+			if (hash !== PASS_HASH) {
+				// Reflow so the animation restarts on a second wrong try.
+				void gate.offsetWidth;
+				gate.classList.add('wrong');
+				gateHint.textContent = 'Try again';
+				gateInput.select();
+				return;
+			}
+			try {
+				window.localStorage.setItem(PASS_KEY, PASS_HASH);
+			} catch (err) { /* private browsing; they will type it again */ }
+			open();
+		});
+	}
+}());
+		</script>
+	</body>
+</html>

@@ -89,7 +89,7 @@ func scaffold(title_text: String, subtitle: String = "") -> VBoxContainer:
 	var here: String = get_meta("screen_name", "")
 	if app.PARENT.has(here):
 		var up: String = app.PARENT[here]
-		var back_btn := UI.quiet_button("←  %s" % up.capitalize(), UI.SMALL)
+		var back_btn := UI.quiet_button("%s" % up.capitalize(), UI.SMALL)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		back_btn.pressed.connect(back)
 		column.add_child(back_btn)
@@ -99,9 +99,8 @@ func scaffold(title_text: String, subtitle: String = "") -> VBoxContainer:
 		column.add_child(UI.paragraph(subtitle, UI.BODY, "ink_soft"))
 	column.add_child(UI.hrule())
 
-	var scroll := ScrollContainer.new()
+	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	column.add_child(scroll)
 
 	var body := UI.vbox(14)

@@ -1,0 +1,77 @@
+keys,en,zh_CN
+Map,Map,地图
+Journal,Journal,日志
+Postcards,Postcards,明信片
+Settings,Settings,设置
+CONTINUE,CONTINUE,继续
+START,START,开始
+Daily Puzzle — coming soon,Daily Puzzle — coming soon,每日谜题 — 即将推出
+World Map,World Map,世界地图
+Open,Open,进入
+Revisit,Revisit,重访
+Finish %s to unlock,Finish %s to unlock,完成%s后解锁
+%d / %d discoveries,%d / %d discoveries,已发现 %d / %d
+%d of %d discovered,%d of %d discovered,已发现 %d / %d
+%d of %d destinations stamped,%d of %d destinations stamped,已盖章 %d / %d 座城市
+Puzzle %d,Puzzle %d,第 %d 关
+Fill,Fill,填涂
+Mark,Mark,标记
+Undo,Undo,撤销
+Reset,Reset,重来
+Hint,Hint,提示
+right-click also marks,right-click also marks,右键也可标记
+DISCOVERED,DISCOVERED,已发现
+Next puzzle,Next puzzle,下一关
+%s complete,%s complete,%s 完成
+no hints,no hints,未用提示
+%d of %d in %s,%d of %d in %s,%s 已发现 %d / %d
+Travel to %s,Travel to %s,前往%s
+Continue to %s,Continue to %s,前往%s
+%s unlocked,%s unlocked,已解锁%s
+Back to the map,Back to the map,回到地图
+Stamped,Stamped,已盖章
+Send to a friend,Send to a friend,寄给朋友
+Send a Postcard,Send a Postcard,寄一张明信片
+Your friend solves the puzzle to open it. No app needed.,Your friend solves the puzzle to open it. No app needed.,朋友解开谜题才能打开。不需要安装任何东西。
+Postcard,Postcard,明信片
+Locked behind,Locked behind,用哪道题上锁
+To,To,收信人
+From,From,寄信人
+Message,Message,留言
+Suggest one,Suggest one,来一句
+Copy link,Copy link,复制链接
+Copy code only,Copy code only,只复制代码
+Sent,Sent,已寄出
+to %s,to %s,寄给 %s
+copy link,copy link,复制链接
+Turn over,Turn over,翻面
+See the front,See the front,看正面
+See the back,See the back,看背面
+See the picture,See the picture,看图
+Read the note,Read the note,读信
+The First One,The First One,第一张
+Complete every puzzle in a destination to earn its postcard.,Complete every puzzle in a destination to earn its postcard.,解开一座城市的全部谜题，就能得到它的明信片。
+Complete a destination first — you need a postcard to send.,Complete a destination first — you need a postcard to send.,先完成一座城市——你得先有一张明信片才能寄。
+Language,Language,语言
+Mood,Mood,色调
+Paper,Paper,纸白
+Evening,Evening,夜晚
+Cross off finished lines,Cross off finished lines,划掉完成的行列
+Crosshair guides,Crosshair guides,十字辅助线
+On,On,开
+Off,Off,关
+Progress,Progress,进度
+Reset all progress,Reset all progress,清除全部进度
+Reset progress,Reset progress,清除进度
+Erase everything,Erase everything,全部清除
+Progress reset,Progress reset,进度已清除
+Locked,Locked,未解锁
+locked,locked,未解锁
+Nothing yet. Solve a puzzle to start the journal.,Nothing yet. Solve a puzzle to start the journal.,还没有内容。解开一道谜题，日志就开始了。
+Link copied,Link copied,链接已复制
+Code copied,Code copied,代码已复制
+Paste it into the postcard page.,Paste it into the postcard page.,粘贴到明信片页面即可。
+Sound,Sound,声音
+Pencil on the grid and paper on the cards. Kept quiet on purpose. Music is separate and not in yet.,Pencil on the grid and paper on the cards. Kept quiet on purpose. Music is separate and not in yet.,格子上的铅笔声，卡片上的纸声。刻意做得很轻。音乐是另一回事，暂时还没有。
+"Not in the prototype yet: music, daily puzzle, Steam integration.","Not in the prototype yet: music, daily puzzle, Steam integration.",尚未加入原型：音乐、每日谜题、Steam 接入。
+Still being written,Still being written,还在写

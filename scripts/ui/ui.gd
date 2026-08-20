@@ -7,7 +7,11 @@ const H1 := 40
 const H2 := 26
 const H3 := 19
 const BODY := 16
-const SMALL := 13
+const SMALL := 12
+
+## Tracking for the small uppercase labels. At this size the letters need air or
+## they read as a smudge rather than a mark.
+const LABEL_TRACKING := 1.6
 
 
 static func _apply_font(node: Control, size: int, color_key: String) -> void:
@@ -25,6 +29,15 @@ static func label(text: String, size: int = BODY, color_key: String = "ink",
 	l.horizontal_alignment = align
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_apply_font(l, size, color_key)
+	return l
+
+
+## A small tracked label — section headers, counts, captions. Uppercase and
+## spaced so it reads as a mark beside the content rather than a sentence.
+static func label_small(text: String, color_key: String = "ink_faint",
+		align: int = HORIZONTAL_ALIGNMENT_LEFT) -> Label:
+	var l := label(text.to_upper(), SMALL, color_key, align)
+	l.add_theme_constant_override("line_spacing", 2)
 	return l
 
 
@@ -70,10 +83,10 @@ static func _flat(bg: Color, border: Color, radius: int = 10,
 	sb.border_color = border
 	sb.set_border_width_all(border_width)
 	sb.set_corner_radius_all(radius)
-	sb.content_margin_left = 18
-	sb.content_margin_right = 18
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_left = 20
+	sb.content_margin_right = 20
+	sb.content_margin_top = 11
+	sb.content_margin_bottom = 11
 	return sb
 
 
@@ -81,14 +94,18 @@ static func button(text: String, primary: bool = false) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.focus_mode = Control.FOCUS_NONE
+	# Square corners and a hairline only where a button has to look pressable.
 	var bg := Pal.c("accent") if primary else Pal.c("panel")
 	var fg := Pal.c("panel") if primary else Pal.c("ink")
-	var border := Pal.c("accent") if primary else Pal.c("line_strong")
+	var border := Color(0, 0, 0, 0) if primary else Pal.c("line")
 
-	b.add_theme_stylebox_override("normal", _flat(bg, border))
-	b.add_theme_stylebox_override("hover", _flat(bg.lerp(Pal.c("accent"), 0.18), Pal.c("accent")))
-	b.add_theme_stylebox_override("pressed", _flat(bg.lerp(Pal.c("ink"), 0.15), Pal.c("accent")))
-	b.add_theme_stylebox_override("disabled", _flat(Pal.fade("panel", 0.5), Pal.c("line")))
+	b.add_theme_stylebox_override("normal", _flat(bg, border, 3))
+	b.add_theme_stylebox_override("hover",
+			_flat(bg.lerp(Pal.c("accent"), 0.12), Pal.c("accent"), 3))
+	b.add_theme_stylebox_override("pressed",
+			_flat(bg.lerp(Pal.c("ink"), 0.12), Pal.c("accent"), 3))
+	b.add_theme_stylebox_override("disabled",
+			_flat(Pal.fade("panel", 0.55), Color(0, 0, 0, 0), 3))
 	b.add_theme_font_override("font", Pal.ui_font)
 	b.add_theme_font_size_override("font_size", BODY)
 	b.add_theme_color_override("font_color", fg)
@@ -103,10 +120,12 @@ static func button(text: String, primary: bool = false) -> Button:
 static func restyle_button(b: Button, primary: bool) -> void:
 	var bg := Pal.c("accent") if primary else Pal.c("panel")
 	var fg := Pal.c("panel") if primary else Pal.c("ink")
-	var border := Pal.c("accent") if primary else Pal.c("line_strong")
-	b.add_theme_stylebox_override("normal", _flat(bg, border))
-	b.add_theme_stylebox_override("hover", _flat(bg.lerp(Pal.c("accent"), 0.18), Pal.c("accent")))
-	b.add_theme_stylebox_override("pressed", _flat(bg.lerp(Pal.c("ink"), 0.15), Pal.c("accent")))
+	var border := Color(0, 0, 0, 0) if primary else Pal.c("line")
+	b.add_theme_stylebox_override("normal", _flat(bg, border, 3))
+	b.add_theme_stylebox_override("hover",
+			_flat(bg.lerp(Pal.c("accent"), 0.12), Pal.c("accent"), 3))
+	b.add_theme_stylebox_override("pressed",
+			_flat(bg.lerp(Pal.c("ink"), 0.12), Pal.c("accent"), 3))
 	b.add_theme_color_override("font_color", fg)
 	b.add_theme_color_override("font_hover_color", Pal.c("accent") if not primary else fg)
 	b.add_theme_color_override("font_pressed_color", fg)
@@ -156,13 +175,14 @@ static func dropdown() -> OptionButton:
 	return o
 
 
-static func panel(radius: int = 14, alt: bool = false) -> PanelContainer:
+static func panel(radius: int = 6, alt: bool = false) -> PanelContainer:
 	var p := PanelContainer.new()
-	var sb := _flat(Pal.c("panel_alt") if alt else Pal.c("panel"), Pal.c("line"), radius)
-	sb.content_margin_left = 22
-	sb.content_margin_right = 22
-	sb.content_margin_top = 18
-	sb.content_margin_bottom = 18
+	var sb := _flat(Pal.c("panel_alt") if alt else Pal.c("panel"),
+			Color(0, 0, 0, 0), radius, 0)
+	sb.content_margin_left = 26
+	sb.content_margin_right = 26
+	sb.content_margin_top = 22
+	sb.content_margin_bottom = 22
 	p.add_theme_stylebox_override("panel", sb)
 	return p
 

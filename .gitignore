@@ -1,0 +1,15 @@
+# Godot's import cache. Every file in here is regenerated from the source asset
+# plus its .import sidecar, which IS tracked — delete this folder and the editor
+# rebuilds it. Twenty-three megabytes of derived data otherwise.
+.godot/
+
+# Everything under build/ is produced by tools/deploy_web.sh, and build/pages is
+# itself a git repository (the one GitHub Pages serves). Nesting that inside
+# this one causes nothing but trouble.
+build/
+
+# 17 MB of Noto Sans SC that tools/subset_font.py cuts down to 273 KB. Freely
+# downloadable, so it is the one large asset here worth leaving out.
+assets/fonts/source/
+
+.DS_Store

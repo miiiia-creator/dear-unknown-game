@@ -18,6 +18,7 @@ func _initialize() -> void:
 	test_save_restore()
 	test_share_round_trip()
 	test_share_rejects_garbage()
+	test_sound_wiring()
 
 	print("\n%d passed, %d failed" % [_passed, _failed])
 	quit(1 if _failed > 0 else 0)
@@ -212,3 +213,65 @@ func test_share_rejects_garbage() -> void:
 	check("a whole url decodes", ShareCode.decode(
 			ShareCode.url_for(ShareCode.build("rome", "rome_pizza", "", "", "")))
 			.get("c") == "rome")
+
+
+## Sfx.play() takes a string, so a typo is silent until someone plays that far
+## into the game and notices nothing happened. This walks the source instead:
+## every name the screens ask for has to exist in the bank, and every entry in
+## the bank has to have a clip behind it.
+##
+## It reads the constant off the script rather than instantiating the autoload,
+## which is what lets it run in this file's no-autoload world.
+func test_sound_wiring() -> void:
+	print("\nsound wiring")
+	var script: GDScript = load("res://scripts/autoload/audio.gd")
+	var bank: Dictionary = script.get_script_constant_map().get("BANK", {})
+	check("the bank has sounds in it", not bank.is_empty())
+
+	for name in bank.keys():
+		var clips: Array = bank[name]["clips"]
+		var ok := not clips.is_empty()
+		for clip in clips:
+			ok = ok and clip is AudioStream
+		check("%s has clips" % name, ok)
+
+	var used := _sounds_asked_for("res://scripts")
+	check("the game asks for sounds at all", used.size() > 4)
+	for name in used:
+		check("Sfx.play(\"%s\") exists" % name, bank.has(name))
+
+
+## Every literal name passed to Sfx.play() anywhere under a directory.
+##
+## Line-based rather than a match on the whole call, because half the call sites
+## choose their sound inline — `Sfx.play("fill" if filling else "mark")` — and a
+## regex tight enough to exclude the docstring in audio.gd would miss both of
+## the names in that line. Comment lines are skipped for the same reason.
+func _sounds_asked_for(dir_path: String) -> Array:
+	var re := RegEx.new()
+	re.compile("\"([a-z_]+)\"")
+	var found: Array = []
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return found
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		var path := dir_path + "/" + entry
+		if dir.current_is_dir():
+			for name in _sounds_asked_for(path):
+				if not name in found:
+					found.append(name)
+		elif entry.ends_with(".gd"):
+			var f := FileAccess.open(path, FileAccess.READ)
+			if f != null:
+				for line in f.get_as_text().split("\n"):
+					if not "Sfx.play(" in line or line.strip_edges().begins_with("#"):
+						continue
+					for m in re.search_all(line):
+						if not m.get_string(1) in found:
+							found.append(m.get_string(1))
+				f.close()
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return found

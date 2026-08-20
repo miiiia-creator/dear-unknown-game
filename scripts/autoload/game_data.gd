@@ -5,6 +5,7 @@ extends Node
 const DATA_PATH := "res://data/cities.json"
 
 var cities: Array = []            ## Array[Dictionary]
+var seasons: Array = []
 var _city_by_id: Dictionary = {}
 var _puzzle_by_id: Dictionary = {}
 
@@ -25,6 +26,7 @@ func _load() -> void:
 		return
 
 	cities = parsed.get("cities", [])
+	seasons = parsed.get("seasons", [])
 	for i in cities.size():
 		var city: Dictionary = cities[i]
 		city["order"] = i
@@ -34,7 +36,73 @@ func _load() -> void:
 			_puzzle_by_id[p["id"]] = p
 
 
+# -- text ------------------------------------------------------------------
+
+## Resolve a translatable content value.
+##
+## Authored content — city names, discovery names, the letters — carries its
+## own translations rather than going through the UI translation table, because
+## it is writing rather than interface, and the letters in particular have to be
+## composed per language instead of translated line by line.
+##
+## Anything that is already a plain string passes through, so half-migrated data
+## keeps working.
+static func text(value: Variant) -> String:
+	if typeof(value) != TYPE_DICTIONARY:
+		return str(value)
+	var d: Dictionary = value
+	var locale := TranslationServer.get_locale()
+	if d.has(locale):
+		return str(d[locale])
+	# zh_TW should still find zh_CN before falling back to English.
+	var base := locale.split("_")[0]
+	for key in d.keys():
+		if str(key).begins_with(base):
+			return str(d[key])
+	return str(d.get("en", ""))
+
+
 # -- lookups ---------------------------------------------------------------
+
+# -- seasons ---------------------------------------------------------------
+
+func season(season_id: String) -> Dictionary:
+	for s in seasons:
+		if s["id"] == season_id:
+			return s
+	return {}
+
+
+## The season a city belongs to.
+func season_of(city_id: String) -> Dictionary:
+	return season(str(city(city_id).get("season", "")))
+
+
+## The season the player is currently working through — the first with any
+## destination still unfinished, otherwise the last one.
+func current_season() -> Dictionary:
+	for s in seasons:
+		for cid in s["cities"]:
+			if not is_city_complete(cid):
+				return s
+	return seasons[-1] if not seasons.is_empty() else {}
+
+
+## The card that opens a season. Card zero: nobody earns it.
+func opening_of(season_id: String) -> Dictionary:
+	return season(season_id).get("opening", {})
+
+
+## "Season One — The Last Ones", for wherever the season needs naming.
+func season_label(season_id: String) -> String:
+	var s := season(season_id)
+	if s.is_empty():
+		return ""
+	const WORDS := ["", "One", "Two", "Three", "Four", "Five", "Six"]
+	var n: int = int(s.get("number", 0))
+	var word: String = WORDS[n] if n < WORDS.size() else str(n)
+	return "Season %s — %s" % [word, text(s.get("title", ""))]
+
 
 func city(city_id: String) -> Dictionary:
 	return _city_by_id.get(city_id, {})
@@ -93,6 +161,13 @@ func is_city_unlocked(city_id: String) -> bool:
 		return true
 	var prev: Dictionary = cities[c["order"] - 1]
 	return is_city_complete(prev["id"])
+
+
+## A destination can exist on the map before its discoveries are drawn. That is
+## a normal state while a season is being written, not a bug, and every screen
+## that offers to play a city has to ask this first.
+func is_city_written(city_id: String) -> bool:
+	return not puzzles_of(city_id).is_empty()
 
 
 func is_city_complete(city_id: String) -> bool:

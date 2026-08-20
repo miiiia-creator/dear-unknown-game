@@ -99,6 +99,24 @@ FAIL tokyo/tokyo_sushi   NOT line-solvable: 92 cells need guessing
 `tools/try_art.py` is a scratchpad for testing candidate art quickly without
 touching the real content.
 
+### Sound
+
+Every effect is synthesised rather than sourced:
+
+```bash
+python3 tools/make_sfx.py
+```
+
+It writes thirteen .wav files into `assets/sfx/` — about 210 KB of PCM in the
+repository, about 48 KB once Godot's importer has been over them. The reasoning
+for each sound is in the script's docstring; the short version is that the whole
+set is a pencil and a sheet of paper, everything is under half a second, and the
+loudest thing in the game is a rubber stamp at a third of full scale. Output is
+deterministic, so re-running it does not dirty the import cache.
+
+`scripts/autoload/audio.gd` plays them through a pool of voices with a few
+percent of random pitch per hit, and the settings screen turns the lot off.
+
 ### Adding a destination
 
 1. Add a `P(...)` list and a city entry in `tools/build_content.py`
@@ -148,6 +166,7 @@ scripts/
     palette.gd           Pal — colours (paper / evening moods) and fonts
     game_data.gd         GameData — content lookups and unlock rules
     save_game.gd         SaveGame — user:// JSON save, achievements
+    audio.gd             Sfx — sound effect pool, pitch jitter, on/off
   core/
     nonogram.gd          pure puzzle logic: clues, undo, hints, completion
     share_code.gd        postcard link encode / decode
@@ -163,6 +182,7 @@ scripts/
   tools/screen_tour.gd   dev screenshot walk
 tests/run_tests.gd       headless unit tests
 tools/build_content.py   content authoring + validation + web build
+tools/make_sfx.py        generates every sound effect into assets/sfx/
 web/                     the shareable postcard page
 ```
 
@@ -182,10 +202,12 @@ changing mood just rebuilds the current screen.
 ### Steam
 
 1. Export a desktop build from Godot as usual.
-2. Add [GodotSteam](https://godotsteam.com) for achievements. The
-   achievement ids in `SaveGame.ACHIEVEMENTS` already match what you would
-   register in the Steamworks partner site; `SaveGame.unlock()` is the single
-   place to add the `Steam.setAchievement()` call.
+2. There is no achievement system. There was one, mirroring a Steam list, and
+   it cluttered the map for no gain in a game this size. Everything a Steam
+   achievement would test — puzzles solved, cities finished, hints used,
+   postcards sent — is already in the save, so the list can be re-derived
+   against [GodotSteam](https://godotsteam.com) at release without changing the
+   save format.
 3. Steam Cloud can sync `user://around_the_world.save` without format changes.
 
 ### iOS / portrait
@@ -233,7 +255,7 @@ which.
 
 Deliberately out of scope for the prototype, in rough priority order:
 
-- **Sound and music.** The single biggest gap for a cozy game.
+- **Music.** Sound effects are in (see below); a soundtrack is not.
 - **Four postcards still to paint.** Tokyo has art; Paris, Rome, New York and
   London fall back to a procedural sky that only really suits a dusk scene.
   `tools/export_refs.py` renders the composition sheets to paint against.

@@ -10,12 +10,18 @@ config/description="Season One: The Last Ones. A nonogram travel game about post
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
+# The first thing a friend opening the link sees is the loading screen. The
+# default is the Godot robot on near-black, which is the wrong first sentence
+# for this game — an empty sheet of the same paper is the right one.
+boot_splash/show_image=false
+boot_splash/bg_color=Color(0.870588, 0.862745, 0.839216, 1)
 
 [autoload]
 
 Pal="*res://scripts/autoload/palette.gd"
 GameData="*res://scripts/autoload/game_data.gd"
 SaveGame="*res://scripts/autoload/save_game.gd"
+Sfx="*res://scripts/autoload/audio.gd"
 
 [display]
 
@@ -57,3 +63,8 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=0
 anti_aliasing/quality/msaa_2d=1
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://data/translations.en.translation", "res://data/translations.zh_CN.translation")
+locale/fallback="en"

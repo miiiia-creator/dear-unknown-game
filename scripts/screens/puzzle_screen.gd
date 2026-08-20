@@ -66,15 +66,16 @@ func parent_args() -> Dictionary:
 func _top_bar() -> Control:
 	var bar := UI.hbox(14)
 
-	var back_btn := UI.quiet_button("←  %s" % city["name"], UI.SMALL)
-	back_btn.pressed.connect(func(): go("city", {"city": city["id"]}))
+	var back_btn := UI.quiet_button("%s" % GameData.text(city["name"]), UI.SMALL)
+	back_btn.pressed.connect(func(): go("journal", {"city": city["id"]}))
 	bar.add_child(back_btn)
 
 	var solved := SaveGame.is_solved(puzzle_data["id"])
-	var title: String = puzzle_data["name"] if solved else "Puzzle %d" % (int(puzzle_data["index"]) + 1)
+	var title: String = GameData.text(puzzle_data["name"]) if solved else "Puzzle %d" % (int(puzzle_data["index"]) + 1)
 	bar.add_child(UI.label(title, UI.H3, "ink"))
-	bar.add_child(UI.label("·  %d × %d" % [puzzle_data["art"].size(),
-			String(puzzle_data["art"][0]).length()], UI.SMALL, "ink_faint"))
+	# Width first, matching the journal tiles and how a grid size is said aloud.
+	bar.add_child(UI.label(tr("·  %d × %d") % [String(puzzle_data["art"][0]).length(),
+			puzzle_data["art"].size()], UI.SMALL, "ink_faint"))
 
 	bar.add_child(UI.grow())
 	_timer_label = UI.label("0:00", UI.BODY, "ink_soft")
@@ -91,9 +92,9 @@ func _tool_bar() -> Control:
 	# own and grow to thumb size.
 	var tools := UI.hbox(8)
 	tools.alignment = BoxContainer.ALIGNMENT_CENTER
-	_fill_button = UI.button("■  Fill", true)
+	_fill_button = UI.button(tr("Fill"), true)
 	_fill_button.pressed.connect(func(): _set_tool(BoardView.Tool.FILL))
-	_mark_button = UI.button("✕  Mark", false)
+	_mark_button = UI.button(tr("Mark"), false)
 	_mark_button.pressed.connect(func(): _set_tool(BoardView.Tool.MARK))
 	for b in [_fill_button, _mark_button]:
 		b.custom_minimum_size = Vector2(0 if narrow else 112, 46 if narrow else 0)
@@ -102,11 +103,11 @@ func _tool_bar() -> Control:
 
 	var actions := UI.hbox(8)
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	_undo_button = UI.button("↶  Undo")
+	_undo_button = UI.button(tr("Undo"))
 	_undo_button.pressed.connect(_undo)
-	var reset := UI.button("↺  Reset")
+	var reset := UI.button(tr("Reset"))
 	reset.pressed.connect(_reset)
-	var hint := UI.button("💡  Hint")
+	var hint := UI.button(tr("Hint"))
 	hint.pressed.connect(_hint)
 	for b in [_undo_button, reset, hint]:
 		if narrow:
@@ -124,7 +125,7 @@ func _tool_bar() -> Control:
 		one.add_child(UI.spacer(0))
 		one.add_child(actions)
 		one.add_child(UI.spacer(0))
-		one.add_child(UI.label("right-click also marks ✕", UI.SMALL, "ink_faint"))
+		one.add_child(UI.label(tr("right-click also marks"), UI.SMALL, "ink_faint"))
 		root.add_child(one)
 	return root
 
@@ -172,12 +173,14 @@ func _set_tool(which: int) -> void:
 
 func _undo() -> void:
 	if nono.undo():
+		Sfx.play("undo")
 		board.queue_redraw()
 		_refresh_buttons()
 
 
 func _reset() -> void:
 	nono.reset()
+	Sfx.play("reset")
 	board.queue_redraw()
 	_refresh_buttons()
 
@@ -186,6 +189,9 @@ func _hint() -> void:
 	var c := nono.take_hint()
 	if c.x < 0:
 		return
+	# A hint writes a cell the same way a click does, so it makes the same noise
+	# the player would have made writing it themselves.
+	Sfx.play("fill" if nono.get_cell(c.y, c.x) == Nonogram.FILLED else "mark")
 	board.flash(c)
 	_refresh_buttons()
 
@@ -228,10 +234,11 @@ func _on_solved() -> void:
 
 	var first_time := not SaveGame.is_solved(puzzle_data["id"])
 	SaveGame.mark_solved(puzzle_data["id"], _elapsed, nono.hints_used)
-	if nono.hints_used == 0 and puzzle_data["art"].size() >= 15:
-		SaveGame.unlock("unaided")
-	SaveGame.check_achievements()
 
+	# On the last cell rather than on the overlay a second later: the sound
+	# belongs to the grid furniture fading out, which is the moment the picture
+	# actually arrives.
+	Sfx.play("solved")
 	var tw := create_tween()
 	tw.tween_property(board, "reveal", 1.0, 0.5).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_interval(0.25)
@@ -253,14 +260,16 @@ func _show_reveal(_first_time: bool) -> void:
 	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.add_child(centre)
 
-	var card := UI.panel(18)
-	card.custom_minimum_size = Vector2(460, 0)
+	var card := UI.panel(6)
+	# A fixed 460 is wider than a phone, and a CenterContainer will not shrink
+	# its child — it just lets it hang over the right edge and get clipped.
+	card.custom_minimum_size = Vector2(minf(460.0, column_width()), 0)
 	centre.add_child(card)
 
 	var v := UI.vbox(6)
 	card.add_child(v)
 
-	v.add_child(UI.label("📸  DISCOVERED", UI.SMALL, "accent",
+	v.add_child(UI.label(tr("DISCOVERED"), UI.SMALL, "accent",
 			HORIZONTAL_ALIGNMENT_CENTER))
 	v.add_child(UI.spacer(6))
 
@@ -271,10 +280,10 @@ func _show_reveal(_first_time: bool) -> void:
 	v.add_child(art)
 	v.add_child(UI.spacer(8))
 
-	v.add_child(UI.label("%s  %s" % [puzzle_data["emoji"], puzzle_data["name"]],
-			UI.H2, "ink", HORIZONTAL_ALIGNMENT_CENTER))
-	v.add_child(UI.label("%s · %s, %s" % [puzzle_data["category"], city["name"],
-			city["country"]], UI.SMALL, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
+	v.add_child(UI.label(str(GameData.text(puzzle_data["name"])), UI.H2, "ink",
+			HORIZONTAL_ALIGNMENT_CENTER))
+	v.add_child(UI.label(tr("%s · %s, %s") % [GameData.text(puzzle_data["category"]), GameData.text(city["name"]),
+			GameData.text(city["country"])], UI.SMALL, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
 	v.add_child(UI.spacer(4))
 	v.add_child(UI.spacer(6))
 
@@ -287,9 +296,8 @@ func _show_reveal(_first_time: bool) -> void:
 	v.add_child(UI.spacer(8))
 
 	var progress := GameData.city_progress(city["id"])
-	v.add_child(UI.label("%s  %d of %d in %s" % [city["flag"], progress.x,
-			progress.y, city["name"]], UI.SMALL, "ink_soft",
-			HORIZONTAL_ALIGNMENT_CENTER))
+	v.add_child(UI.label(tr("%d of %d in %s") % [progress.x, progress.y,
+			GameData.text(city["name"])], UI.SMALL, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
 	v.add_child(UI.spacer(10))
 
 	var cont := UI.button(_continue_label(), true)
@@ -305,8 +313,8 @@ func _show_reveal(_first_time: bool) -> void:
 
 func _continue_label() -> String:
 	if GameData.is_city_complete(city["id"]):
-		return "%s COMPLETE  →" % String(city["name"]).to_upper()
-	return "Next puzzle  →"
+		return "%s complete" % String(GameData.text(city["name"])).to_upper()
+	return "Next puzzle"
 
 
 func _continue() -> void:

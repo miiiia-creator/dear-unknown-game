@@ -17,7 +17,7 @@ var _link_label: Label
 
 func build() -> void:
 	var earned: Array = SaveGame.data["postcards"]
-	var body := scaffold("Send a Postcard",
+	var body := scaffold(tr("Send a Postcard"),
 			"Your friend solves the puzzle to open it. No app needed.")
 
 	if earned.is_empty():
@@ -42,22 +42,22 @@ func build() -> void:
 	form.custom_minimum_size = Vector2(0 if narrow else 360, 0)
 	columns.add_child(form)
 
-	form.add_child(UI.label("Postcard", UI.SMALL, "ink_soft"))
+	form.add_child(UI.label(tr("Postcard"), UI.SMALL, "ink_soft"))
 	var picker := UI.hbox(6)
 	for id in earned:
 		var city := GameData.city(id)
-		var b := UI.button(city["flag"], id == city_id)
-		b.tooltip_text = city["name"]
+		var b := UI.button(str(GameData.text(city["name"])), id == city_id)
+		b.tooltip_text = GameData.text(city["name"])
 		var target: String = id
 		b.pressed.connect(func(): go("share", {"city": target}))
 		picker.add_child(b)
 	form.add_child(picker)
 
-	form.add_child(UI.label("Locked behind", UI.SMALL, "ink_soft"))
+	form.add_child(UI.label(tr("Locked behind"), UI.SMALL, "ink_soft"))
 	var chooser := UI.dropdown()
 	for i in puzzles.size():
 		var p: Dictionary = puzzles[i]
-		chooser.add_item("%s  %s  (%d×%d)" % [p["emoji"], p["name"],
+		chooser.add_item("%s  (%d×%d)" % [GameData.text(p["name"]),
 				p["art"].size(), String(p["art"][0]).length()], i)
 		if p["id"] == puzzle_id:
 			chooser.select(i)
@@ -66,15 +66,15 @@ func build() -> void:
 		_refresh_link())
 	form.add_child(chooser)
 
-	form.add_child(UI.label("To", UI.SMALL, "ink_soft"))
+	form.add_child(UI.label(tr("To"), UI.SMALL, "ink_soft"))
 	_to = UI.line_edit("your friend's name", 24)
 	_to.text_changed.connect(func(_t): _refresh_card())
 	form.add_child(_to)
 
 	var msg_head := UI.hbox(8)
-	msg_head.add_child(UI.label("Message", UI.SMALL, "ink_soft"))
+	msg_head.add_child(UI.label(tr("Message"), UI.SMALL, "ink_soft"))
 	msg_head.add_child(UI.grow())
-	var suggest := UI.quiet_button("🎲  Suggest one", UI.SMALL)
+	var suggest := UI.quiet_button(tr("Suggest one"), UI.SMALL)
 	suggest.pressed.connect(_suggest_message)
 	msg_head.add_child(suggest)
 	form.add_child(msg_head)
@@ -98,7 +98,7 @@ func build() -> void:
 	_message.text_changed.connect(_refresh_card)
 	form.add_child(_message)
 
-	form.add_child(UI.label("From", UI.SMALL, "ink_soft"))
+	form.add_child(UI.label(tr("From"), UI.SMALL, "ink_soft"))
 	_from = UI.line_edit("your name", 24)
 	_from.text_changed.connect(func(_t): _refresh_card())
 	form.add_child(_from)
@@ -118,10 +118,10 @@ func build() -> void:
 	_card.setup(city_id, "", "", "")
 	stage.add_child(_card)
 
-	var flip := UI.quiet_button("↻  see the front", UI.SMALL)
+	var flip := UI.quiet_button(tr("See the front"), UI.SMALL)
 	flip.pressed.connect(func():
 		_card.flip()
-		flip.text = "↻  see the back" if _card.face == "front" else "↻  see the front")
+		flip.text = "See the back" if _card.face == "front" else "See the front")
 	right.add_child(flip)
 
 	right.add_child(UI.hrule())
@@ -130,21 +130,16 @@ func build() -> void:
 	right.add_child(_link_label)
 
 	var actions := UI.hbox(8)
-	var copy_link := UI.button("Copy link", true)
+	var copy_link := UI.button(tr("Copy link"), true)
 	copy_link.pressed.connect(_copy_link)
 	actions.add_child(copy_link)
 
-	var copy_code := UI.button("Copy code only")
+	var copy_code := UI.button(tr("Copy code only"))
 	copy_code.pressed.connect(func():
 		DisplayServer.clipboard_set(_code())
-		app.toast("Code copied", "Paste it into the postcard page."))
+		app.toast(tr("Code copied"), tr("Paste it into the postcard page.")))
 	actions.add_child(copy_code)
 	right.add_child(actions)
-
-	right.add_child(UI.paragraph(
-			"Host web/postcard.html anywhere static, then set BASE_URL in "
-			+ "scripts/core/share_code.gd to point at it.",
-			UI.SMALL, "ink_faint"))
 
 	_refresh_card()
 
@@ -185,6 +180,6 @@ func _copy_link() -> void:
 	var url := ShareCode.url_for(_code())
 	DisplayServer.clipboard_set(url)
 	SaveGame.record_sent(city_id, _to.text.strip_edges(), _code())
-	SaveGame.check_achievements()
-	app.toast("📮  Link copied", "Send it to %s" % (_to.text.strip_edges()
-			if _to.text.strip_edges() != "" else "your friend"))
+	var who := _to.text.strip_edges()
+	app.toast(tr("Link copied"),
+			tr("to %s") % who if who != "" else tr("Paste it into the postcard page."))

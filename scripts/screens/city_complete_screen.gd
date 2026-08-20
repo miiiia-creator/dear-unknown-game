@@ -17,7 +17,6 @@ func build() -> void:
 		return
 
 	SaveGame.grant_city_rewards(city_id)
-	SaveGame.check_achievements()
 
 	var centre := CenterContainer.new()
 	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -28,10 +27,9 @@ func build() -> void:
 	centre.add_child(column)
 
 	var progress := GameData.city_progress(city_id)
-	column.add_child(UI.label("%s  %s COMPLETE" % [city["flag"],
-			String(city["name"]).to_upper()], UI.H2, "ink",
-			HORIZONTAL_ALIGNMENT_CENTER))
-	column.add_child(UI.label("%d / %d discoveries" % [progress.x, progress.y],
+	column.add_child(UI.label(tr("%s COMPLETE") % String(GameData.text(city["name"])).to_upper(),
+			UI.H2, "ink", HORIZONTAL_ALIGNMENT_CENTER))
+	column.add_child(UI.label(tr("%d / %d discoveries") % [progress.x, progress.y],
 			UI.SMALL, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
 	column.add_child(UI.spacer(14))
 
@@ -42,55 +40,33 @@ func build() -> void:
 
 	var card := _framed_scene(stage, card_w)
 
-	# Place the stamp against the card's own size, in the quiet lower-right band
-	# the artwork leaves free — over the busy part of the picture it just reads
-	# as smudge.
-	var card_size := stage.custom_minimum_size
-	var stamp_size := card_size.y * 0.34
-	var stamp := StampView.new()
-	stamp.custom_minimum_size = Vector2(stamp_size, stamp_size)
-	stamp.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	# Top-right, where a postcard's stamp actually goes, and where the sky gives
-	# it a calm ground to sit on.
-	stamp.offset_left = card_size.x - stamp_size * 1.22
-	stamp.offset_top = stamp_size * 0.18
-	stamp.offset_right = stamp.offset_left + stamp_size
-	stamp.offset_bottom = stamp.offset_top + stamp_size
-	stamp.setup(city_id, -0.16)
-	stamp.pivot_offset = Vector2(stamp_size, stamp_size) * 0.5
-	stage.add_child(stamp)
-
 	column.add_child(UI.spacer(14))
 
 	var buttons := UI.hbox(10)
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 
-	var share := UI.button("📮  Send to a friend", true)
+	var share := UI.button(tr("Send to a friend"), true)
 	share.pressed.connect(func(): go("share", {"city": city_id}))
 	buttons.add_child(share)
-
-	var passport := UI.button("🛂  Passport")
-	passport.pressed.connect(func(): go("passport"))
-	buttons.add_child(passport)
 
 	var next_id := GameData.next_city_id(city_id)
 	var onward: Button
 	if next_id != "":
 		var next_city := GameData.city(next_id)
-		onward = UI.button("Continue to %s  %s" % [next_city["name"], next_city["flag"]])
-		onward.pressed.connect(func(): go("city", {"city": next_id}))
+		onward = UI.button(tr("Continue to %s") % GameData.text(next_city["name"]))
+		onward.pressed.connect(func(): go("journal", {"city": next_id}))
 	else:
-		onward = UI.button("Back to the map")
+		onward = UI.button(tr("Back to the map"))
 		onward.pressed.connect(func(): go("map"))
 	buttons.add_child(onward)
 	column.add_child(buttons)
 
 	if next_id != "":
 		column.add_child(UI.spacer(6))
-		column.add_child(UI.label("🔓  %s unlocked" % GameData.city(next_id)["name"],
+		column.add_child(UI.label(tr("%s unlocked") % GameData.text(GameData.city(next_id)["name"]),
 				UI.SMALL, "accent", HORIZONTAL_ALIGNMENT_CENTER))
 
-	_animate(card, stamp)
+	_animate(card)
 
 
 ## The picture fills the card and the destination name sits over its lower
@@ -137,7 +113,7 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	var type_col: Color = palette[0].lightened(0.55) if dark_art else palette[2]
 	var halo: Color = Color(0, 0, 0, 0.55) if dark_art else Color(palette[0], 0.55)
 
-	var title := UI.label(String(city["name"]).to_upper(),
+	var title := UI.label(String(GameData.text(city["name"])).to_upper(),
 			int(card_h * 0.115), "ink", HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_color", type_col)
 	title.add_theme_constant_override("outline_size", 5)
@@ -147,7 +123,7 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	title.offset_bottom = card_h * 0.85
 	plate.add_child(title)
 
-	var sub := UI.label("%s  %s" % [city["flag"], String(city["country"]).to_upper()],
+	var sub := UI.label(String(GameData.text(city["country"])).to_upper(),
 			int(card_h * 0.048), "ink", HORIZONTAL_ALIGNMENT_CENTER)
 	sub.add_theme_color_override("font_color",
 			type_col.darkened(0.10) if dark_art else palette[1].darkened(0.15))
@@ -160,15 +136,16 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	return scene
 
 
-func _animate(card: PostcardScene, stamp: StampView) -> void:
+func _animate(card: PostcardScene) -> void:
 	_title_plate.modulate.a = 0.0
-	stamp.modulate.a = 0.0
-	stamp.scale = Vector2(2.4, 2.4)
 
 	var tw := card.play(self)
 	tw.parallel().tween_property(_title_plate, "modulate:a", 1.0, 0.6).set_delay(1.4)
-	tw.tween_interval(0.15)
-	tw.tween_callback(func(): app.toast("🛂  STAMP!", GameData.city(city_id)["name"]))
-	tw.parallel().tween_property(stamp, "modulate:a", 1.0, 0.12)
-	tw.parallel().tween_property(stamp, "scale", Vector2.ONE, 0.22) \
-			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(0.2)
+	# The one loud sound in the game, and it lands here rather than on the
+	# postcard's arrival: the card fades in over a second and a half, which is
+	# nothing to hit, while the stamp is an impact with an exact moment.
+	# No toast to go with it: the card, the title plate and the stamp sound all
+	# already say the city is finished, and a notification sliding in over the
+	# moment made it feel like an app reporting an achievement.
+	tw.tween_callback(func(): Sfx.play("stamp"))

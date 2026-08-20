@@ -192,7 +192,7 @@
       <button id="toolBtn" class="primary">■ Fill</button>
       <button id="undoBtn">↶ Undo</button>
       <button id="resetBtn">↺ Reset</button>
-      <button id="hintBtn">💡 Hint</button>
+      <button id="hintBtn">Hint</button>
     </div>
     <p class="locked-note faint" id="lockedNote"></p>
   </section>
@@ -489,7 +489,7 @@ function buildPostcard(city, note) {
   const title = document.createElement("div");
   title.className = "front-title";
   title.innerHTML = `<div class="name" style="color:${deep}">${city.name.toUpperCase()}</div>`
-    + `<div class="country" style="color:${accent}">${city.flag} ${city.country.toUpperCase()}</div>`;
+    + `<div class="country" style="color:${accent}">${city.country.toUpperCase()}</div>`;
   front.appendChild(title);
 
   const msg = (note.m || "").trim() || "Wish you were here.";
@@ -549,7 +549,7 @@ function start(payload) {
   puzzle = findPuzzle(city, payload.p) || city.puzzles[city.puzzles.length - 1];
 
   const from = (payload.f || "").trim();
-  $("eyebrow").textContent = city.flag + " " + city.name;
+  $("eyebrow").textContent = city.name;
   $("headline").textContent = from ? `${from} sent you a postcard` : "A postcard for you";
   $("subhead").textContent = "Solve the nonogram to open it.";
 
@@ -559,7 +559,7 @@ function start(payload) {
 
   $("lockedNote").textContent =
     `${puzzle.art.length}×${puzzle.art[0].length}`
-    + " · click to fill, right-click (or the ✕ tool) to mark";
+    + "· click to fill, right-click (or the ✕ tool) to mark";
 
   board = new Board(puzzle.art, $("puzzleHost"));
   board.onSolve = onSolved;
@@ -571,7 +571,7 @@ function start(payload) {
 function onSolved() {
   refreshTools();
   $("game").classList.add("solved");
-  $("headline").textContent = puzzle.emoji + " " + puzzle.name;
+  $("headline").textContent = puzzle.name;
   $("subhead").textContent = puzzle.category;
 
   setTimeout(() => {

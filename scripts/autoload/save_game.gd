@@ -8,24 +8,26 @@ const PATH := "user://around_the_world.save"
 const VERSION := 1
 
 signal progress_changed
-signal achievement_unlocked(id: String, title: String)
-
-## Mirrors the Steam achievement list. `check` runs after every save write.
-const ACHIEVEMENTS := {
-	"first_steps": {"title": "First Steps", "desc": "Complete your first puzzle."},
-	"first_stamp": {"title": "First Stamp", "desc": "Complete your first destination."},
-	"frequent_traveler": {"title": "Frequent Traveller", "desc": "Complete 3 destinations."},
-	"around_the_world": {"title": "Every Address", "desc": "Complete every destination."},
-	"souvenir_collector": {"title": "Souvenir Collector", "desc": "Discover 25 objects."},
-	"unaided": {"title": "No Hints Needed", "desc": "Solve a 15x15 puzzle without a hint."},
-	"postmaster": {"title": "Wish You Were Here", "desc": "Send a postcard to a friend."},
-}
 
 var data: Dictionary = {}
 
 
 func _ready() -> void:
 	load_file()
+	_ask_to_keep_storage()
+
+
+## On the web the save lives in the browser's storage, which browsers are free
+## to evict — Safari clears a site's data after about a week of not visiting.
+## Asking for persistent storage is how you opt out of that. Browsers grant it
+## on their own terms (a home-screen app is granted almost always, a tab that
+## was opened once is often not), so this is a request, not a guarantee.
+func _ask_to_keep_storage() -> void:
+	if not OS.has_feature("web"):
+		return
+	if not JavaScriptBridge.eval("!!(navigator.storage && navigator.storage.persist)", true):
+		return
+	JavaScriptBridge.eval("navigator.storage.persist()", true)
 
 
 func _default() -> Dictionary:
@@ -36,8 +38,8 @@ func _default() -> Dictionary:
 		"postcards": [],       # city ids, in the order they were earned
 		"stamps": {},          # city_id -> unix timestamp
 		"sent": [],            # postcards shared with friends
-		"achievements": {},    # id -> unix
-		"settings": {"mood": "paper", "cross_hair": true, "mark_done": true},
+		"settings": {"mood": "paper", "cross_hair": true, "mark_done": true,
+			"locale": "en", "sound": true},
 		"stats": {"seconds_played": 0.0, "puzzles_solved": 0},
 	}
 
@@ -58,6 +60,7 @@ func load_file() -> void:
 	for key in parsed.keys():
 		data[key] = parsed[key]
 	Pal.set_mood(data["settings"].get("mood", "paper"))
+	Pal.set_locale(str(data["settings"].get("locale", "en")))
 
 
 func save_file() -> void:
@@ -174,38 +177,6 @@ func setting(key: String, fallback: Variant = null) -> Variant:
 func set_setting(key: String, value: Variant) -> void:
 	data["settings"][key] = value
 	save_file()
-
-
-# -- achievements ----------------------------------------------------------
-
-func has_achievement(id: String) -> bool:
-	return data["achievements"].has(id)
-
-
-func unlock(id: String) -> void:
-	if has_achievement(id) or not ACHIEVEMENTS.has(id):
-		return
-	data["achievements"][id] = int(Time.get_unix_time_from_system())
-	save_file()
-	# Where a real Steam build would call Steam.setAchievement(id).
-	achievement_unlocked.emit(id, ACHIEVEMENTS[id]["title"])
-
-
-## Re-evaluate every achievement condition. Cheap, so just call it after events.
-func check_achievements() -> void:
-	if data["solved"].size() >= 1:
-		unlock("first_steps")
-	if data["solved"].size() >= 25:
-		unlock("souvenir_collector")
-	var complete := GameData.completed_city_count()
-	if complete >= 1:
-		unlock("first_stamp")
-	if complete >= 3:
-		unlock("frequent_traveler")
-	if complete >= GameData.cities.size() and GameData.cities.size() > 0:
-		unlock("around_the_world")
-	if not data["sent"].is_empty():
-		unlock("postmaster")
 
 
 func reset_everything() -> void:

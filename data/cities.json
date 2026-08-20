@@ -1,12 +1,54 @@
 {
  "version": 1,
+ "seasons": [
+  {
+   "id": "s1",
+   "number": 1,
+   "title": {
+    "en": "The Last Ones",
+    "zh_CN": "The Last Ones"
+   },
+   "cities": [
+    "tokyo",
+    "paris",
+    "rome",
+    "newyork",
+    "london"
+   ],
+   "opening": {
+    "body": {
+     "en": "Dear, Unknown,\n\nI don't know where you are anymore.\n\nSo I sent one to every place\nI thought you might be.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n我已经不知道你在哪里了。\n\n所以我往每一个\n你可能在的地方都寄了一张。\n\n—— M"
+    }
+   }
+  },
+  {
+   "id": "s2",
+   "number": 2,
+   "title": {
+    "en": "The Color Doesn't Exist",
+    "zh_CN": "The Color Doesn't Exist"
+   },
+   "cities": [
+    "kyoto",
+    "sanfrancisco",
+    "istanbul",
+    "reykjavik",
+    "bermuda"
+   ]
+  }
+ ],
  "cities": [
   {
    "id": "tokyo",
-   "name": "Tokyo",
-   "country": "Japan",
-   "flag": "🇯🇵",
-   "tagline": "Neon evenings and very quiet shrines.",
+   "name": {
+    "en": "Tokyo",
+    "zh_CN": "东京"
+   },
+   "country": {
+    "en": "Japan",
+    "zh_CN": "日本"
+   },
    "map": [
     0.888,
     0.3017
@@ -18,150 +60,114 @@
    ],
    "puzzles": [
     {
-     "id": "tokyo_fuji",
-     "name": "Mount Fuji",
-     "emoji": "🗻",
-     "category": "Nature",
+     "id": "tokyo_sakura",
+     "name": {
+      "en": "Cherry Blossom",
+      "zh_CN": "樱花"
+     },
+     "category": {
+      "en": "Nature",
+      "zh_CN": "自然"
+     },
      "index": 0,
      "art": [
-      "..#..",
-      ".###.",
-      ".###.",
+      ".#.#.",
       "#####",
-      "#####"
-     ]
-    },
-    {
-     "id": "tokyo_lantern",
-     "name": "Paper Lantern",
-     "emoji": "🏮",
-     "category": "Cultural object",
-     "index": 1,
-     "art": [
       ".###.",
       "#####",
-      "#####",
-      "#####",
-      ".###."
-     ]
-    },
-    {
-     "id": "tokyo_torii",
-     "name": "Torii Gate",
-     "emoji": "⛩",
-     "category": "Architecture",
-     "index": 2,
-     "art": [
-      "##########",
-      "##########",
-      "..#....#..",
-      "##########",
-      "##########",
-      "..#....#..",
-      "..#....#..",
-      "..#....#..",
-      "..#....#..",
-      ".###..###."
-     ]
-    },
-    {
-     "id": "tokyo_ramen",
-     "name": "Ramen",
-     "emoji": "🍜",
-     "category": "Food",
-     "index": 3,
-     "art": [
-      "..#....#..",
-      ".#......#.",
-      "..#....#..",
-      "..........",
-      "##########",
-      "##########",
-      ".########.",
-      "..######..",
-      "...####...",
-      ".........."
+      ".#.#."
      ]
     },
     {
      "id": "tokyo_onigiri",
-     "name": "Onigiri",
-     "emoji": "🍙",
-     "category": "Food",
-     "index": 4,
+     "name": {
+      "en": "Onigiri",
+      "zh_CN": "饭团"
+     },
+     "category": {
+      "en": "Food",
+      "zh_CN": "食物"
+     },
+     "index": 1,
      "art": [
-      "....##....",
-      "...####...",
-      "..######..",
-      "..######..",
-      ".########.",
-      ".########.",
-      "##.####.##",
-      "##.####.##",
-      "##########",
-      "##########"
+      "...##...",
+      "..####..",
+      "..####..",
+      ".######.",
+      ".######.",
+      "########",
+      "##....##",
+      "########"
      ]
     },
     {
      "id": "tokyo_shinkansen",
-     "name": "Shinkansen",
-     "emoji": "🚄",
-     "category": "Transportation",
-     "index": 5,
+     "name": {
+      "en": "Shinkansen",
+      "zh_CN": "新干线"
+     },
+     "category": {
+      "en": "Transportation",
+      "zh_CN": "交通"
+     },
+     "index": 2,
      "art": [
-      "..........",
-      "...#######",
-      "..########",
-      ".#.####.##",
-      "##########",
-      "##########",
-      "##########",
-      ".########.",
-      "..##..##..",
-      ".........."
+      ".......#######",
+      "....##########",
+      "..############",
+      "##############",
+      "##############",
+      "...##.....##.."
      ]
     },
     {
-     "id": "tokyo_sakura",
-     "name": "Cherry Blossom",
-     "emoji": "🌸",
-     "category": "Nature",
-     "index": 6,
+     "id": "tokyo_torii",
+     "name": {
+      "en": "Torii Gate",
+      "zh_CN": "鸟居"
+     },
+     "category": {
+      "en": "Architecture",
+      "zh_CN": "建筑"
+     },
+     "index": 3,
      "art": [
-      ".##....##.",
-      "####..####",
-      ".##.##.##.",
-      "....##....",
-      "..######..",
-      "..######..",
-      "....##....",
-      ".##.##.##.",
-      "####..####",
-      ".##....##."
+      "############",
+      "############",
+      "..########..",
+      "...#....#...",
+      "...#....#...",
+      "...#....#...",
+      "...#....#...",
+      "..###..###.."
      ]
     },
     {
      "id": "tokyo_tower",
-     "name": "Tokyo Tower",
-     "emoji": "🗼",
-     "category": "Landmark",
-     "index": 7,
+     "name": {
+      "en": "Tokyo Tower",
+      "zh_CN": "东京塔"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 4,
      "art": [
-      ".......#.......",
-      ".......#.......",
-      "......###......",
-      "......#.#......",
-      ".....#####.....",
-      ".....#...#.....",
-      "....#######....",
-      "....#.....#....",
-      "...##.....##...",
-      "...#.......#...",
-      "..###########..",
-      "..##.......##..",
-      ".###.......###.",
-      ".##.........##.",
-      "###############"
+      "...##...",
+      "...##...",
+      "..####..",
+      "..####..",
+      "..#..#..",
+      "..#..#..",
+      ".##..##.",
+      ".##..##.",
+      ".#....#.",
+      ".#....#.",
+      "##....##",
+      "##....##",
+      "########",
+      "########"
      ]
     }
    ],
@@ -199,18 +205,31 @@
    ],
    "letter": {
     "theme": "the last blossom",
-    "title": "The Last Blossom",
-    "body": "Dear, Unknown,\n\nThere was one blossom left today.\n\nI thought someone should know."
+    "title": {
+     "en": "The Last Blossom",
+     "zh_CN": "The Last Blossom"
+    },
+    "body": {
+     "en": "Dear, Unknown,\n\nThere was one blossom left today.\n\nI thought someone should know.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n今天只剩下最后一朵樱花了。\n\n我想，总该有人知道这件事。\n\n—— M"
+    }
    },
    "style": "Makoto Shinkai — luminous dusk, lens flare, saturated sky",
-   "drift": "petal"
+   "drift": "petal",
+   "sent": "27 JUN 2019",
+   "season": "s1",
+   "season_index": 0
   },
   {
    "id": "paris",
-   "name": "Paris",
-   "country": "France",
-   "flag": "🇫🇷",
-   "tagline": "Grey stone, gold light, small tables.",
+   "name": {
+    "en": "Paris",
+    "zh_CN": "巴黎"
+   },
+   "country": {
+    "en": "France",
+    "zh_CN": "法国"
+   },
    "map": [
     0.5065,
     0.2286
@@ -222,150 +241,122 @@
    ],
    "puzzles": [
     {
-     "id": "paris_wine",
-     "name": "Glass of Wine",
-     "emoji": "🍷",
-     "category": "Food",
+     "id": "paris_macaron",
+     "name": {
+      "en": "Macaron",
+      "zh_CN": "马卡龙"
+     },
+     "category": {
+      "en": "Food",
+      "zh_CN": "食物"
+     },
      "index": 0,
      "art": [
-      "#####",
-      ".###.",
-      "..#..",
-      "..#..",
-      "#####"
-     ]
-    },
-    {
-     "id": "paris_brie",
-     "name": "Wedge of Brie",
-     "emoji": "🧀",
-     "category": "Food",
-     "index": 1,
-     "art": [
-      "....#",
-      "...##",
-      "..###",
-      ".####",
-      "#####"
+      "..####..",
+      ".######.",
+      "########",
+      ".######.",
+      ".######.",
+      "########",
+      ".######.",
+      "..####.."
      ]
     },
     {
      "id": "paris_croissant",
-     "name": "Croissant",
-     "emoji": "🥐",
-     "category": "Food",
-     "index": 2,
+     "name": {
+      "en": "Croissant",
+      "zh_CN": "可颂"
+     },
+     "category": {
+      "en": "Food",
+      "zh_CN": "食物"
+     },
+     "index": 1,
      "art": [
-      "....###...",
-      "..#####...",
-      ".####.##..",
-      ".###...##.",
-      ".##....##.",
-      ".##....##.",
-      ".###...##.",
-      ".####.##..",
-      "..#####...",
-      "....###..."
-     ]
-    },
-    {
-     "id": "paris_macaron",
-     "name": "Macaron",
-     "emoji": "🍬",
-     "category": "Food",
-     "index": 3,
-     "art": [
-      "..######..",
-      ".########.",
-      ".########.",
-      "..........",
-      "##########",
-      "##########",
-      "..........",
-      ".########.",
-      ".########.",
-      "..######.."
-     ]
-    },
-    {
-     "id": "paris_cafe",
-     "name": "Café Crème",
-     "emoji": "☕",
-     "category": "Everyday life",
-     "index": 4,
-     "art": [
-      "...#..#...",
-      "..#..#....",
-      "...#..#...",
-      "..........",
-      "########..",
-      "#######.#.",
-      "#######.#.",
-      "#######.#.",
-      "########..",
-      ".######..."
+      ".....####....",
+      "...#######...",
+      "..###...###..",
+      ".###.....##..",
+      ".##.......#..",
+      ".##..........",
+      "..#.........."
      ]
     },
     {
      "id": "paris_arc",
-     "name": "Arc de Triomphe",
-     "emoji": "🏛",
-     "category": "Architecture",
-     "index": 5,
+     "name": {
+      "en": "Arc de Triomphe",
+      "zh_CN": "凯旋门"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 2,
      "art": [
       "##########",
       "##########",
+      "##.#..#.##",
       "##########",
-      "###....###",
-      "##......##",
-      "##......##",
-      "##......##",
-      "##......##",
-      "##......##",
-      "##......##"
-     ]
-    },
-    {
-     "id": "paris_louvre",
-     "name": "Glass Pyramid",
-     "emoji": "🔺",
-     "category": "Architecture",
-     "index": 6,
-     "art": [
-      "....##....",
-      "....##....",
-      "...####...",
-      "...####...",
-      "..######..",
-      "..######..",
-      ".########.",
-      ".########.",
-      "##########",
+      "###.##.###",
+      "###.##.###",
+      "###.##.###",
+      "###.##.###",
+      "###.##.###",
       "##########"
      ]
     },
     {
-     "id": "paris_eiffel",
-     "name": "Eiffel Tower",
-     "emoji": "🗼",
-     "category": "Landmark",
-     "index": 7,
+     "id": "paris_louvre",
+     "name": {
+      "en": "Glass Pyramid",
+      "zh_CN": "玻璃金字塔"
+     },
+     "category": {
+      "en": "Architecture",
+      "zh_CN": "建筑"
+     },
+     "index": 3,
      "art": [
-      ".......#.......",
-      "......###......",
-      "......###......",
-      ".....#####.....",
-      ".....##.##.....",
-      "....##...##....",
-      "....#######....",
-      "....##...##....",
-      "...###...###...",
-      "...##.....##...",
-      "..###.....###..",
-      "..#####.#####..",
-      ".####.#.#.####.",
-      ".###..#.#..###.",
-      "###...#.#...###"
+      ".....##.....",
+      "....####....",
+      "....####....",
+      "...######...",
+      "...######...",
+      "..########..",
+      "..########..",
+      ".##########.",
+      "############"
+     ]
+    },
+    {
+     "id": "paris_eiffel",
+     "name": {
+      "en": "Eiffel Tower",
+      "zh_CN": "埃菲尔铁塔"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 4,
+     "art": [
+      "....##....",
+      "....##....",
+      "...####...",
+      "...####...",
+      "..######..",
+      "..#....#..",
+      "..#....#..",
+      ".##....##.",
+      ".#......#.",
+      ".#......#.",
+      "##......##",
+      "#........#",
+      "#........#",
+      "##########",
+      "##########"
      ]
     }
    ],
@@ -384,37 +375,50 @@
    "composition": [
     {
      "id": "paris_arc",
-     "x": 0.205,
-     "base": 0.61,
-     "w": 0.15
+     "x": 0.174,
+     "base": 0.6,
+     "w": 0.099
     },
     {
      "id": "paris_eiffel",
-     "x": 0.48,
-     "base": 0.665,
-     "w": 0.235
+     "x": 0.573,
+     "base": 0.6,
+     "w": 0.104
     },
     {
      "id": "paris_louvre",
-     "x": 0.79,
-     "base": 0.6,
-     "w": 0.14
+     "x": 0.63,
+     "base": 0.655,
+     "w": 0.15
     }
    ],
    "letter": {
     "theme": "the last croissant",
-    "title": "The Last Croissant",
-    "body": "Dear, Unknown,\n\nThey sold the last croissant at 7:03.\nI was there when it happened.\n\nI thought someone should know."
+    "title": {
+     "en": "The Last Croissant",
+     "zh_CN": "The Last Croissant"
+    },
+    "body": {
+     "en": "Dear, Unknown,\n\nThey sold the last croissant at 7:03.\nI was there when it happened.\n\nI thought someone should know.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n七点零三分，最后一个可颂被买走了。\n那一刻我正好在场。\n\n我想，总该有人知道这件事。\n\n—— M"
+    }
    },
    "style": "Monet — impressionist broken colour, diffuse gold light",
-   "drift": "mote"
+   "drift": "mote",
+   "sent": "30 NOV 2019",
+   "season": "s1",
+   "season_index": 1
   },
   {
    "id": "rome",
-   "name": "Rome",
-   "country": "Italy",
-   "flag": "🇮🇹",
-   "tagline": "Ruins, and people having lunch beside them.",
+   "name": {
+    "en": "Rome",
+    "zh_CN": "罗马"
+   },
+   "country": {
+    "en": "Italy",
+    "zh_CN": "意大利"
+   },
    "map": [
     0.5347,
     0.2672
@@ -426,149 +430,130 @@
    ],
    "puzzles": [
     {
-     "id": "rome_gelato",
-     "name": "Gelato",
-     "emoji": "🍦",
-     "category": "Food",
+     "id": "rome_coin",
+     "name": {
+      "en": "The Last Coin",
+      "zh_CN": "The Last Coin"
+     },
+     "category": {
+      "en": "Cultural object",
+      "zh_CN": "文化"
+     },
      "index": 0,
      "art": [
-      ".###.",
-      "#####",
-      ".###.",
-      "..#..",
-      "..#.."
+      "..######..",
+      ".########.",
+      "##.####.##",
+      "##########",
+      "###....###",
+      "##.####.##",
+      "##.####.##",
+      "##########",
+      ".########.",
+      "..######.."
      ]
     },
     {
      "id": "rome_column",
-     "name": "Roman Column",
-     "emoji": "🏛",
-     "category": "Architecture",
+     "name": {
+      "en": "Roman Column",
+      "zh_CN": "罗马柱"
+     },
+     "category": {
+      "en": "Architecture",
+      "zh_CN": "建筑"
+     },
      "index": 1,
      "art": [
-      "#####",
-      ".###.",
-      ".###.",
-      ".###.",
-      "#####"
-     ]
-    },
-    {
-     "id": "rome_pizza",
-     "name": "Pizza al Taglio",
-     "emoji": "🍕",
-     "category": "Food",
-     "index": 2,
-     "art": [
-      "....##....",
-      "...####...",
-      "...####...",
-      "..######..",
-      "..#.##.#..",
-      ".########.",
-      ".###..###.",
-      ".########.",
-      "##########",
-      "##########"
-     ]
-    },
-    {
-     "id": "rome_pasta",
-     "name": "Cacio e Pepe",
-     "emoji": "🍝",
-     "category": "Food",
-     "index": 3,
-     "art": [
-      "..........",
-      ".#.#..#.#.",
-      "..#.##.#..",
-      ".#.#..#.#.",
-      "##########",
-      ".########.",
-      ".########.",
-      "..######..",
-      "...####...",
-      ".........."
+      "#######",
+      "#######",
+      ".#####.",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      "..###..",
+      ".#####.",
+      "#######",
+      "#######"
      ]
     },
     {
      "id": "rome_vespa",
-     "name": "Vespa",
-     "emoji": "🛵",
-     "category": "Transportation",
-     "index": 4,
+     "name": {
+      "en": "Vespa",
+      "zh_CN": "韦士柏"
+     },
+     "category": {
+      "en": "Transportation",
+      "zh_CN": "交通"
+     },
+     "index": 2,
      "art": [
-      ".......##.",
-      "......####",
-      "..#######.",
-      ".########.",
-      "##########",
-      "##########",
-      ".########.",
-      "##......##",
-      "#.#....#.#",
-      "##......##"
+      "..........###",
+      ".........####",
+      "....######..#",
+      "..#########.#",
+      ".###########.",
+      ".###########.",
+      ".####...####.",
+      ".###.....###.",
+      "..#.......#.."
      ]
     },
     {
      "id": "rome_fountain",
-     "name": "Fountain",
-     "emoji": "⛲",
-     "category": "Landmark",
-     "index": 5,
+     "name": {
+      "en": "Fountain",
+      "zh_CN": "喷泉"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 3,
      "art": [
-      "....##....",
-      "...####...",
-      "..##..##..",
-      ".##....##.",
-      "....##....",
-      "....##....",
-      "..######..",
-      ".########.",
-      "##########",
-      "##########"
-     ]
-    },
-    {
-     "id": "rome_amphora",
-     "name": "Amphora",
-     "emoji": "🏺",
-     "category": "Cultural object",
-     "index": 6,
-     "art": [
-      "..######..",
-      "..#....#..",
-      "...####...",
-      "..######..",
-      ".########.",
-      "##########",
-      "##########",
-      ".########.",
-      "..######..",
-      "...####..."
+      "....####....",
+      "...######...",
+      "....####....",
+      ".....##.....",
+      ".....##.....",
+      "....####....",
+      "...######...",
+      "..########..",
+      ".##########.",
+      "############",
+      "############"
      ]
     },
     {
      "id": "rome_colosseum",
-     "name": "Colosseum",
-     "emoji": "🏟",
-     "category": "Landmark",
-     "index": 7,
+     "name": {
+      "en": "Colosseum",
+      "zh_CN": "斗兽场"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 4,
      "art": [
       "...#########...",
       "..###########..",
       ".#############.",
-      "###.#.#.#.#.###",
-      "###.#.#.#.#.###",
       "###############",
-      "###.#.#.#.#.###",
-      "###.#.#.#.#.###",
+      "##.##.###.##.##",
       "###############",
-      "##.#.#.#.#.#.##",
-      "##.#.#.#.#.#.##",
+      "##.##.###.##.##",
       "###############",
-      "#.#.#.#.#.#.#.#",
-      "#.#.#.#.#.#.#.#",
+      "##.##.###.##.##",
+      "###############",
+      "###############",
+      "###############",
       "###############"
      ]
     }
@@ -588,37 +573,50 @@
    "composition": [
     {
      "id": "rome_column",
-     "x": 0.195,
-     "base": 0.605,
-     "w": 0.1
+     "x": 0.075,
+     "base": 0.76,
+     "w": 0.105
     },
     {
      "id": "rome_colosseum",
-     "x": 0.48,
-     "base": 0.66,
-     "w": 0.25
+     "x": 0.455,
+     "base": 0.6,
+     "w": 0.3
     },
     {
      "id": "rome_fountain",
-     "x": 0.79,
-     "base": 0.6,
-     "w": 0.145
+     "x": 0.905,
+     "base": 0.745,
+     "w": 0.13
     }
    ],
    "letter": {
     "theme": "the last coin",
-    "title": "The Last Coin",
-    "body": "Dear, Unknown,\n\nAn old woman gave me the last coin.\nShe said it wasn't worth anything anymore.\nI kept it anyway.\n\nI thought someone should know."
+    "title": {
+     "en": "The Last Coin",
+     "zh_CN": "The Last Coin"
+    },
+    "body": {
+     "en": "Dear, Unknown,\n\nAn old woman gave me the last coin.\nShe said it wasn't worth anything anymore.\nI kept it anyway.\n\nI thought someone should know.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n一位老太太把最后一枚硬币给了我。\n她说这枚硬币已经不值钱了。\n我还是留下了它。\n\n我想，总该有人知道这件事。\n\n—— M"
+    }
    },
    "style": "Caravaggio — tenebrism, deep shadow, one hard light source",
-   "drift": "dust"
+   "drift": "dust",
+   "sent": "03 APR 2019",
+   "season": "s1",
+   "season_index": 2
   },
   {
    "id": "newyork",
-   "name": "New York",
-   "country": "USA",
-   "flag": "🇺🇸",
-   "tagline": "Loud, vertical, oddly friendly.",
+   "name": {
+    "en": "New York",
+    "zh_CN": "纽约"
+   },
+   "country": {
+    "en": "USA",
+    "zh_CN": "美国"
+   },
    "map": [
     0.2944,
     0.2738
@@ -630,150 +628,140 @@
    ],
    "puzzles": [
     {
-     "id": "ny_apple",
-     "name": "The Big Apple",
-     "emoji": "🍎",
-     "category": "Cultural object",
+     "id": "ny_figure",
+     "name": {
+      "en": "Someone",
+      "zh_CN": "Someone"
+     },
+     "category": {
+      "en": "Everyday life",
+      "zh_CN": "日常"
+     },
      "index": 0,
      "art": [
-      "..#..",
-      ".###.",
-      "#####",
-      "#####",
-      ".###."
-     ]
-    },
-    {
-     "id": "ny_walkup",
-     "name": "Walk-Up Window",
-     "emoji": "🏢",
-     "category": "Everyday life",
-     "index": 1,
-     "art": [
-      ".###.",
-      ".#.#.",
-      ".###.",
-      ".#.#.",
-      "#####"
-     ]
-    },
-    {
-     "id": "ny_taxi",
-     "name": "Yellow Cab",
-     "emoji": "🚕",
-     "category": "Transportation",
-     "index": 2,
-     "art": [
-      "....##....",
-      "....##....",
-      "..######..",
-      ".########.",
-      "##########",
-      "##########",
-      ".########.",
-      "##......##",
-      "#.#....#.#",
-      "##......##"
-     ]
-    },
-    {
-     "id": "ny_skyline",
-     "name": "Skyline",
-     "emoji": "🌆",
-     "category": "Architecture",
-     "index": 3,
-     "art": [
-      ".#........",
-      ".#..#.....",
-      ".#..#..##.",
-      "###.#..##.",
-      "###.##.##.",
-      "###.##.###",
-      "#####.####",
-      "#####.####",
-      "##########",
-      "##########"
-     ]
-    },
-    {
-     "id": "ny_traffic",
-     "name": "Traffic Light",
-     "emoji": "🚦",
-     "category": "Everyday life",
-     "index": 4,
-     "art": [
-      "..######..",
-      ".########.",
-      ".##....##.",
-      ".########.",
-      ".##....##.",
-      ".########.",
-      ".##....##.",
-      ".########.",
-      "..######..",
-      "....##...."
+      "...####.",
+      "..######",
+      "..######",
+      "...####.",
+      "....##..",
+      "..######",
+      ".#.####.",
+      ".#.####.",
+      "...####.",
+      "...####.",
+      "...####.",
+      "...##.#.",
+      "...##.#.",
+      "...##.#.",
+      "..###.##"
      ]
     },
     {
      "id": "ny_bagel",
-     "name": "Bagel",
-     "emoji": "🥯",
-     "category": "Food",
-     "index": 5,
+     "name": {
+      "en": "Bagel",
+      "zh_CN": "贝果"
+     },
+     "category": {
+      "en": "Food",
+      "zh_CN": "食物"
+     },
+     "index": 1,
      "art": [
-      "...####...",
-      "..######..",
-      ".###..###.",
-      "###....###",
-      "###....###",
-      "###....###",
-      "###....###",
-      ".###..###.",
-      "..######..",
-      "...####..."
+      "...######...",
+      "..########..",
+      ".##########.",
+      "############",
+      "####....####",
+      "###......###",
+      "###......###",
+      "####....####",
+      "############",
+      ".##########.",
+      "..########.."
      ]
     },
     {
-     "id": "ny_hotdog",
-     "name": "Street Cart Hot Dog",
-     "emoji": "🌭",
-     "category": "Food",
-     "index": 6,
+     "id": "ny_taxi",
+     "name": {
+      "en": "Yellow Cab",
+      "zh_CN": "黄色出租车"
+     },
+     "category": {
+      "en": "Transportation",
+      "zh_CN": "交通"
+     },
+     "index": 2,
      "art": [
-      "..........",
-      "..#....#..",
-      ".########.",
-      "##########",
-      "#.######.#",
-      "##########",
-      ".########.",
-      "..#....#..",
-      "..........",
-      ".........."
+      ".....######....",
+      "....########...",
+      "...##########..",
+      ".##############",
+      "###############",
+      "###############",
+      "##.##.###.##.##",
+      "###############",
+      ".###.......###.",
+      "..#.........#.."
+     ]
+    },
+    {
+     "id": "ny_skyline",
+     "name": {
+      "en": "Skyline",
+      "zh_CN": "天际线"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 3,
+     "art": [
+      ".......#.......",
+      ".......#.......",
+      "......###......",
+      "..#...###...##.",
+      "..#...###...##.",
+      ".###..###..####",
+      ".###..###..####",
+      "####.#####.####",
+      "###############",
+      "###############",
+      "###############"
      ]
     },
     {
      "id": "ny_liberty",
-     "name": "Statue of Liberty",
-     "emoji": "🗽",
-     "category": "Landmark",
-     "index": 7,
+     "name": {
+      "en": "Statue of Liberty",
+      "zh_CN": "自由女神"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 4,
      "art": [
-      "...........##..",
-      "...........##..",
-      "..#.#.#.#..##..",
-      "..#######..##..",
-      "...#####...##..",
-      "....###...###..",
-      "....###..####..",
-      "....#########..",
-      "....#######....",
-      "...#########...",
-      "...#########...",
-      "..###########..",
-      "..###########..",
-      ".#############.",
-      "###############"
+      "...#.#.#....",
+      "...#####....",
+      "....###.....",
+      "....###.....",
+      "..#.###.....",
+      "..#.###.....",
+      "..#.####....",
+      "..#.#####...",
+      "....#####...",
+      "....#####...",
+      "...#######..",
+      "...#######..",
+      "..#########.",
+      "..#########.",
+      ".###########",
+      ".###########",
+      "############",
+      "############",
+      "############",
+      "############"
      ]
     }
    ],
@@ -792,37 +780,50 @@
    "composition": [
     {
      "id": "ny_taxi",
-     "x": 0.2,
-     "base": 0.615,
-     "w": 0.145
+     "x": 0.313,
+     "base": 0.84,
+     "w": 0.156
     },
     {
      "id": "ny_liberty",
-     "x": 0.47,
-     "base": 0.665,
-     "w": 0.215
+     "x": 0.693,
+     "base": 0.515,
+     "w": 0.09
     },
     {
      "id": "ny_skyline",
-     "x": 0.78,
-     "base": 0.61,
-     "w": 0.17
+     "x": 0.37,
+     "base": 0.475,
+     "w": 0.3
     }
    ],
    "letter": {
     "theme": "the last lonely person",
-    "title": "The Last Lonely Person",
-    "body": "Dear, Unknown,\n\nI met the last lonely person tonight.\nWe talked for an hour.\nWhen I left, he wasn't lonely anymore.\n\nI don't know what that makes me."
+    "title": {
+     "en": "The Last Lonely Person",
+     "zh_CN": "The Last Lonely Person"
+    },
+    "body": {
+     "en": "Dear, Unknown,\n\nI met the last lonely person tonight.\nWe talked for an hour.\nWhen I left, he wasn't lonely anymore.\n\nI don't know what that makes me.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n今晚我遇见了最后一个孤独的人。\n我们聊了一个小时。\n我离开的时候，他已经不孤独了。\n\n我不知道这让我成了什么。\n\n—— M"
+    }
    },
    "style": "Edward Hopper — flat planes of hard light, still and empty",
-   "drift": "none"
+   "drift": "none",
+   "sent": "19 AUG 2019",
+   "season": "s1",
+   "season_index": 3
   },
   {
    "id": "london",
-   "name": "London",
-   "country": "UK",
-   "flag": "🇬🇧",
-   "tagline": "Rain, parks, and a very old river.",
+   "name": {
+    "en": "London",
+    "zh_CN": "伦敦"
+   },
+   "country": {
+    "en": "UK",
+    "zh_CN": "英国"
+   },
    "map": [
     0.4996,
     0.2138
@@ -834,150 +835,153 @@
    ],
    "puzzles": [
     {
-     "id": "london_tea",
-     "name": "Cup of Tea",
-     "emoji": "🫖",
-     "category": "Everyday life",
+     "id": "london_phonebox",
+     "name": {
+      "en": "Phone Box",
+      "zh_CN": "电话亭"
+     },
+     "category": {
+      "en": "Architecture",
+      "zh_CN": "建筑"
+     },
      "index": 0,
      "art": [
-      "#####",
-      "#####",
-      "#####",
-      ".###.",
-      "..#.."
-     ]
-    },
-    {
-     "id": "london_rain",
-     "name": "Passing Shower",
-     "emoji": "🌧",
-     "category": "Nature",
-     "index": 1,
-     "art": [
-      ".###.",
-      "#####",
-      ".....",
-      "#.#.#",
-      ".#.#."
-     ]
-    },
-    {
-     "id": "london_bus",
-     "name": "Double-Decker",
-     "emoji": "🚌",
-     "category": "Transportation",
-     "index": 2,
-     "art": [
-      ".########.",
-      "##########",
-      "#.##.##.##",
       "##########",
       "##########",
-      "#.##.##.##",
+      "#.######.#",
+      "#.######.#",
+      "#.######.#",
+      "#.######.#",
+      "##########",
+      "#.##..##.#",
+      "#.##..##.#",
+      "#.##..##.#",
+      "##########",
+      "#.######.#",
+      "#.######.#",
+      "#.######.#",
       "##########",
       "##########",
-      ".##....##.",
-      ".##....##."
-     ]
-    },
-    {
-     "id": "london_phonebox",
-     "name": "Phone Box",
-     "emoji": "☎",
-     "category": "Cultural object",
-     "index": 3,
-     "art": [
-      ".########.",
       "##########",
-      ".########.",
-      ".##.##.##.",
-      ".##.##.##.",
-      ".##.##.##.",
-      ".##.##.##.",
-      ".##.##.##.",
-      ".########.",
       "##########"
      ]
     },
     {
      "id": "london_umbrella",
-     "name": "Umbrella",
-     "emoji": "☂",
-     "category": "Everyday life",
-     "index": 4,
+     "name": {
+      "en": "Umbrella",
+      "zh_CN": "雨伞"
+     },
+     "category": {
+      "en": "Everyday life",
+      "zh_CN": "日常"
+     },
+     "index": 1,
      "art": [
-      "...####...",
-      "..######..",
-      ".########.",
-      "##########",
-      "##########",
-      "....##....",
-      "....##....",
-      "....##....",
-      "....##..#.",
-      "....####.."
+      ".....##......",
+      "..#########..",
+      ".###########.",
+      "#############",
+      ".....##......",
+      ".....##......",
+      ".....##......",
+      ".....##......",
+      ".....##......",
+      ".....##......",
+      ".....##......",
+      "....##.......",
+      ".####........",
+      ".###........."
      ]
     },
     {
-     "id": "london_crown",
-     "name": "Crown Jewels",
-     "emoji": "👑",
-     "category": "Cultural object",
-     "index": 5,
+     "id": "london_bus",
+     "name": {
+      "en": "Double-Decker",
+      "zh_CN": "双层巴士"
+     },
+     "category": {
+      "en": "Transportation",
+      "zh_CN": "交通"
+     },
+     "index": 2,
      "art": [
-      "##..##..##",
-      "##..##..##",
-      "##.####.##",
-      "##########",
-      "##########",
-      "##########",
-      "##########",
-      ".########.",
-      ".########.",
-      ".........."
+      "..#############",
+      ".##############",
+      ".#.##.##.##.###",
+      ".##############",
+      ".##############",
+      ".#.##.##.##.#.#",
+      ".##############",
+      "###############",
+      "###############",
+      "##.#########.##",
+      "###.#######.###",
+      ".##.........##.",
+      "..#.........#.."
      ]
     },
     {
-     "id": "london_corgi",
-     "name": "Corgi",
-     "emoji": "🐕",
-     "category": "Animal",
-     "index": 6,
+     "id": "london_postcard",
+     "name": {
+      "en": "A Postcard",
+      "zh_CN": "A Postcard"
+     },
+     "category": {
+      "en": "Cultural object",
+      "zh_CN": "文化"
+     },
+     "index": 3,
      "art": [
-      "##......##",
-      "####..####",
-      "##########",
-      "#.######.#",
-      "##########",
-      "###.##.###",
-      "##########",
-      ".########.",
-      "..######..",
-      "...####..."
+      "###############",
+      "###############",
+      "##...........##",
+      "##.#####.###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##.......###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##.......###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##...........##",
+      "###############",
+      "###############"
      ]
     },
     {
      "id": "london_bigben",
-     "name": "Big Ben",
-     "emoji": "🕰",
-     "category": "Landmark",
-     "index": 7,
+     "name": {
+      "en": "Big Ben",
+      "zh_CN": "大本钟"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 4,
      "art": [
+      ".......#.......",
       ".......#.......",
       "......###......",
       ".....#####.....",
       "....#######....",
-      "....#######....",
       "...#########...",
       "...#########...",
-      "...##.###.##...",
-      "...#.#####.#...",
-      "...##.###.##...",
-      "...#########...",
-      "....#######....",
-      "....#.#.#.#....",
-      "....#######....",
-      "....#.#.#.#...."
+      "..###########..",
+      "..###########..",
+      "..##.......##..",
+      "..##.#####.##..",
+      "..##.##.##.##..",
+      "..##.##.##.##..",
+      "..##.#####.##..",
+      "..##.......##..",
+      "..###########..",
+      "..###########..",
+      ".#############.",
+      "###############",
+      "###############"
      ]
     }
    ],
@@ -995,31 +999,265 @@
    ],
    "composition": [
     {
-     "id": "london_bus",
-     "x": 0.2,
-     "base": 0.615,
-     "w": 0.155
+     "id": "london_phonebox",
+     "x": 0.276,
+     "base": 0.792,
+     "w": 0.073
     },
     {
      "id": "london_bigben",
-     "x": 0.475,
-     "base": 0.665,
-     "w": 0.2
+     "x": 0.434,
+     "base": 0.612,
+     "w": 0.068
     },
     {
-     "id": "london_phonebox",
-     "x": 0.79,
-     "base": 0.605,
-     "w": 0.115
+     "id": "london_bus",
+     "x": 0.617,
+     "base": 0.702,
+     "w": 0.214
     }
    ],
    "letter": {
     "theme": "the last postcard",
-    "title": "The Last Postcard",
-    "body": "Dear, Unknown,\n\nThis is the last postcard.\nI don't know why I'm sending it.\nI don't know who you are.\nI don't even know how I found your address.\n\nBut somehow, every time something became the last of its kind, I knew I had to write to you.\n\nTokyo. Paris. Rome. New York.\n\nI thought I was recording the end of things.\nPerhaps I was only making sure someone remembered.\n\nIf you are reading this,\nthen perhaps you are the one I was writing to all along."
+    "title": {
+     "en": "The Last Postcard",
+     "zh_CN": "The Last Postcard"
+    },
+    "body": {
+     "en": "Dear, Unknown,\n\nThis is the last postcard.\nI don't know why I'm sending it.\nI don't know who you are.\nI don't even know how I found your address.\n\nBut somehow, every time something became the last of its kind, I knew I had to write to you.\n\nTokyo. Paris. Rome. New York.\n\nI thought I was recording the end of things.\nPerhaps I was only making sure someone remembered.\n\nIf you are reading this,\nthen perhaps you are the one I was writing to all along.\n\n— M",
+     "zh_CN": "亲爱的陌生人：\n\n这是最后一张明信片。\n我不知道自己为什么要寄。\n我不知道你是谁。\n我甚至不知道我是怎么找到你的地址的。\n\n可是每当有什么东西成为它那一类里的最后一个，\n我就知道我必须写信给你。\n\n东京。巴黎。罗马。纽约。\n\n我以为我在记录事物的终结。\n也许我只是想确认，还有人记得。\n\n如果你正在读这封信，\n那么也许，你就是我一直在写的那个人。\n\n—— M"
+    }
    },
    "style": "Victorian pale watercolour — soft washes, muted, restrained",
-   "drift": "rain"
+   "drift": "rain",
+   "sent": "11 FEB 2019",
+   "season": "s1",
+   "season_index": 4
+  },
+  {
+   "id": "kyoto",
+   "name": {
+    "en": "Kyoto",
+    "zh_CN": "京都"
+   },
+   "country": {
+    "en": "Japan",
+    "zh_CN": "日本"
+   },
+   "map": [
+    0.8771,
+    0.3055
+   ],
+   "palette": [
+    "#E3E8DA",
+    "#5F7A4C",
+    "#2A3325"
+   ],
+   "puzzles": [],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [],
+   "letter": {
+    "theme": "",
+    "title": {
+     "en": "",
+     "zh_CN": ""
+    },
+    "body": {
+     "en": "",
+     "zh_CN": ""
+    }
+   },
+   "style": "Hasui Kawase — shin-hanga, still water, lantern light",
+   "drift": "petal",
+   "sent": "14 MAY 2020",
+   "season": "s2",
+   "season_index": 0
+  },
+  {
+   "id": "sanfrancisco",
+   "name": {
+    "en": "San Francisco",
+    "zh_CN": "旧金山"
+   },
+   "country": {
+    "en": "USA",
+    "zh_CN": "美国"
+   },
+   "map": [
+    0.1599,
+    0.2902
+   ],
+   "palette": [
+    "#F2E4DA",
+    "#C1552E",
+    "#3A2A24"
+   ],
+   "puzzles": [],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [],
+   "letter": {
+    "theme": "",
+    "title": {
+     "en": "",
+     "zh_CN": ""
+    },
+    "body": {
+     "en": "",
+     "zh_CN": ""
+    }
+   },
+   "style": "Richard Diebenkorn — flat bay light, hard-edged colour fields",
+   "drift": "mote",
+   "sent": "18 DEC 2020",
+   "season": "s2",
+   "season_index": 1
+  },
+  {
+   "id": "istanbul",
+   "name": {
+    "en": "Istanbul",
+    "zh_CN": "伊斯坦布尔"
+   },
+   "country": {
+    "en": "Turkiye",
+    "zh_CN": "土耳其"
+   },
+   "map": [
+    0.5805,
+    0.2722
+   ],
+   "palette": [
+    "#DCEAEA",
+    "#2F7E82",
+    "#22343A"
+   ],
+   "puzzles": [],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [],
+   "letter": {
+    "theme": "",
+    "title": {
+     "en": "",
+     "zh_CN": ""
+    },
+    "body": {
+     "en": "",
+     "zh_CN": ""
+    }
+   },
+   "style": "Iznik ceramic — turquoise and cobalt on white, patterned",
+   "drift": "dust",
+   "sent": "07 JAN 2020",
+   "season": "s2",
+   "season_index": 2
+  },
+  {
+   "id": "reykjavik",
+   "name": {
+    "en": "Reykjavik",
+    "zh_CN": "雷克雅未克"
+   },
+   "country": {
+    "en": "Iceland",
+    "zh_CN": "冰岛"
+   },
+   "map": [
+    0.4391,
+    0.1436
+   ],
+   "palette": [
+    "#DEE9E6",
+    "#3E8A73",
+    "#20302C"
+   ],
+   "puzzles": [],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [],
+   "letter": {
+    "theme": "",
+    "title": {
+     "en": "",
+     "zh_CN": ""
+    },
+    "body": {
+     "en": "",
+     "zh_CN": ""
+    }
+   },
+   "style": "Northern night — low sun, long shadow, aurora over snow",
+   "drift": "none",
+   "sent": "02 SEP 2020",
+   "season": "s2",
+   "season_index": 3
+  },
+  {
+   "id": "bermuda",
+   "name": {
+    "en": "Bermuda",
+    "zh_CN": "百慕大"
+   },
+   "country": {
+    "en": "North Atlantic",
+    "zh_CN": "北大西洋"
+   },
+   "map": [
+    0.3201,
+    0.3206
+   ],
+   "palette": [
+    "#F6E1E0",
+    "#C4707B",
+    "#3A2A2E"
+   ],
+   "puzzles": [],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [],
+   "letter": {
+    "theme": "",
+    "title": {
+     "en": "",
+     "zh_CN": ""
+    },
+    "body": {
+     "en": "",
+     "zh_CN": ""
+    }
+   },
+   "style": "Winslow Homer — watercolour, sunlight through shallow water",
+   "drift": "mote",
+   "sent": "22 MAR 2020",
+   "season": "s2",
+   "season_index": 4
   }
  ]
 }

@@ -18,10 +18,18 @@ var face := "front":
 ## three pixel icons in a row were a stand-in for not having one.
 const ART_DIR := "res://assets/postcards/"
 
+## The same painting, moving. The still is frame zero of this video, so a card
+## looks identical before the motion arrives — it just starts breathing once it
+## has. Only the finishing-a-city screen used to animate; a postcard you go back
+## to look at was a photograph of the thing you were given.
+const MOTION_CACHE := "user://motion/"
+
 var _city: Dictionary = {}
 var _palette: Array = []
 var _art: Texture2D
 var _art_luma := 1.0
+var _motion: VideoStreamPlayer
+var _fetch: HTTPRequest
 
 
 func setup(id: String, msg: String = "", sender: String = "", recipient: String = "") -> void:
@@ -32,6 +40,7 @@ func setup(id: String, msg: String = "", sender: String = "", recipient: String 
 	_city = GameData.city(id)
 	_palette = GameData.city_palette(id)
 	_load_art(id)
+	_load_motion(id)
 	queue_redraw()
 
 
@@ -64,6 +73,106 @@ func _load_art(id: String) -> void:
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
+	set_process(false)
+
+
+## A video texture only changes between frames, so the card has to ask to be
+## redrawn; nothing else on this Control does.
+func _process(_delta: float) -> void:
+	if _motion != null and _motion.is_playing():
+		queue_redraw()
+
+
+func _load_motion(id: String) -> void:
+	_stop_motion()
+	if id == "":
+		return
+	var packed := ART_DIR + id + ".ogv"
+	if ResourceLoader.exists(packed):
+		_start(load(packed))
+		return
+	# The web build leaves the videos out of the download — ten megabytes on top
+	# of a load that already takes half a minute on a slow line. Fetch the one
+	# the player actually opened, once, and keep it for next time.
+	if OS.has_feature("web"):
+		_fetch_motion(id)
+
+
+func _start(stream: VideoStream) -> void:
+	if stream == null:
+		return
+	_motion = VideoStreamPlayer.new()
+	_motion.stream = stream
+	_motion.loop = true
+	_motion.audio_track = -1
+	_motion.volume_db = -80.0
+	# Never shown as a node: the card draws the frames itself, so the cover crop
+	# and the lettering over it stay exactly as they are for the still.
+	_motion.visible = false
+	_motion.custom_minimum_size = Vector2.ONE
+	add_child(_motion)
+	# setup() is usually called while the card is still being assembled, before
+	# it is in the tree — and a VideoStreamPlayer outside the tree refuses to
+	# play. Wait for the frame it arrives, if it has not already.
+	if _motion.is_inside_tree():
+		_motion.play()
+	else:
+		_motion.tree_entered.connect(_motion.play, CONNECT_ONE_SHOT)
+	set_process(true)
+
+
+func _stop_motion() -> void:
+	set_process(false)
+	if _motion != null:
+		_motion.queue_free()
+		_motion = null
+	if _fetch != null:
+		_fetch.queue_free()
+		_fetch = null
+
+
+func _fetch_motion(id: String) -> void:
+	var cached := MOTION_CACHE + id + ".ogv"
+	if FileAccess.file_exists(cached):
+		_start(_stream_at(cached))
+		return
+	var url := _motion_url(id)
+	if url == "":
+		return
+	DirAccess.make_dir_recursive_absolute(MOTION_CACHE)
+	_fetch = HTTPRequest.new()
+	_fetch.download_file = cached
+	add_child(_fetch)
+	_fetch.request_completed.connect(_motion_arrived.bind(cached))
+	if _fetch.request(url) != OK:
+		_stop_motion()
+
+
+func _motion_arrived(result: int, code: int, _headers: PackedStringArray,
+		_body: PackedByteArray, cached: String) -> void:
+	if result == HTTPRequest.RESULT_SUCCESS and code == 200 \
+			and FileAccess.file_exists(cached):
+		_start(_stream_at(cached))
+		return
+	# A failed request still writes whatever came back. An error page saved as
+	# a video would be treated as a cache hit forever.
+	if FileAccess.file_exists(cached):
+		DirAccess.remove_absolute(cached)
+
+
+func _stream_at(path: String) -> VideoStream:
+	var stream := VideoStreamTheora.new()
+	stream.file = path
+	return stream
+
+
+## Sibling of the page the game was served from, so it follows the build
+## wherever it is hosted.
+func _motion_url(id: String) -> String:
+	var base: Variant = JavaScriptBridge.eval("location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '')", true)
+	if typeof(base) != TYPE_STRING or String(base) == "":
+		return ""
+	return String(base) + "motion/" + id + ".ogv"
 
 
 func flip() -> void:
@@ -110,7 +219,12 @@ func _draw_front(card: Rect2, accent: Color, deep: Color) -> void:
 ## The painting, cropped to the card and captioned.
 func _draw_painted_front(card: Rect2) -> void:
 	var inner := card.grow(-2.0)
-	var tex_size := Vector2(_art.get_width(), _art.get_height())
+	var tex: Texture2D = _art
+	if _motion != null and _motion.is_playing():
+		var frame := _motion.get_video_texture()
+		if frame != null:
+			tex = frame
+	var tex_size := Vector2(tex.get_width(), tex.get_height())
 	var img_aspect := tex_size.x / tex_size.y
 	var box_aspect := inner.size.x / inner.size.y
 
@@ -122,7 +236,7 @@ func _draw_painted_front(card: Rect2) -> void:
 	else:
 		var keep_w := tex_size.y * box_aspect
 		src = Rect2(Vector2((tex_size.x - keep_w) * 0.5, 0), Vector2(keep_w, tex_size.y))
-	draw_texture_rect_region(_art, inner, src)
+	draw_texture_rect_region(tex, inner, src)
 
 	var font: Font = Pal.ui_font
 	var dark := _art_luma < 0.45
@@ -130,12 +244,12 @@ func _draw_painted_front(card: Rect2) -> void:
 	var halo := Color(0, 0, 0, 0.5) if dark else Color(_palette[0], 0.55)
 
 	var name_size := int(card.size.y * 0.135)
-	var city_name: String = String(_city["name"]).to_upper()
+	var city_name: String = String(GameData.text(_city["name"])).to_upper()
 	_draw_tracked(font, city_name,
 			Vector2(card.get_center().x, card.position.y + card.size.y * 0.82),
 			name_size, type_col, card.size.y * 0.030, halo)
 
-	var sub := "%s  %s" % [_city["flag"], String(_city["country"]).to_upper()]
+	var sub := String(GameData.text(_city["country"])).to_upper()
 	var sub_size := int(card.size.y * 0.052)
 	var sw := font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size).x
 	draw_string_outline(font, Vector2(card.get_center().x - sw * 0.5,
@@ -172,11 +286,11 @@ func _draw_placeholder_front(card: Rect2, accent: Color, deep: Color) -> void:
 			Vector2(inner.position.x + inner.size.x, y), accent, maxf(1.0, card.size.y * 0.006))
 
 	var font: Font = Pal.ui_font
-	_draw_tracked(font, String(_city["name"]).to_upper(),
+	_draw_tracked(font, String(GameData.text(_city["name"])).to_upper(),
 			Vector2(card.get_center().x, y + card.size.y * 0.20),
 			int(card.size.y * 0.155), deep, card.size.y * 0.035)
 
-	var sub := "%s  %s" % [_city["flag"], String(_city["country"]).to_upper()]
+	var sub := String(GameData.text(_city["country"])).to_upper()
 	var sub_size := int(card.size.y * 0.058)
 	var sw := font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, sub_size).x
 	draw_string(font, Vector2(card.get_center().x - sw * 0.5, y + card.size.y * 0.29),
@@ -190,25 +304,38 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	inner.size.y -= strip_h
 	var font: Font = Pal.ui_font
 
-	# Stamp, top-right, with a mini landmark inside it.
+	# A stamp, top-right. It used to hold a shrunken copy of the landmark, which
+	# repeated the picture on the front and read as a sticker; a plain perforated
+	# rectangle with the country on it is what a stamp actually looks like.
 	var s := card.size.y * 0.26
-	var stamp := Rect2(Vector2(inner.position.x + inner.size.x - s, inner.position.y),
-			Vector2(s, s * 1.15))
-	_rounded(stamp, paper.lerp(accent, 0.18), accent, 3, 2)
-	var puzzles: Array = _city.get("puzzles", [])
-	if not puzzles.is_empty():
-		_draw_art(puzzles[-1]["art"], stamp.grow(-s * 0.16), deep)
+	var stamp := Rect2(Vector2(inner.position.x + inner.size.x - s * 0.88,
+			inner.position.y), Vector2(s * 0.88, s))
+	_draw_stamp(stamp, accent, deep, paper)
 
-	# Postmark: two arcs and the date.
+	# Postmark: two arcs and the day M posted it — not the day the player earned
+	# it. That is what a cancellation mark actually records, and the dates are
+	# not in the order the cards arrive. Kept faint on purpose: it should read
+	# as ink on the paper, and only mean something to someone who goes back and
+	# compares them.
 	var pm := stamp.position + Vector2(-s * 0.85, s * 0.50)
-	draw_arc(pm, s * 0.42, 0, TAU, 40, accent, maxf(1.0, card.size.y * 0.005), true)
-	draw_arc(pm, s * 0.50, 0, TAU, 40, accent, maxf(1.0, card.size.y * 0.004), true)
-	var date := SaveGame.stamp_date(city_id)
+	var mark := accent.lerp(paper, 0.42)
+	draw_arc(pm, s * 0.42, 0, TAU, 40, mark, maxf(1.0, card.size.y * 0.005), true)
+	draw_arc(pm, s * 0.50, 0, TAU, 40, mark, maxf(1.0, card.size.y * 0.004), true)
+	var date := String(_city.get("sent", ""))
 	if date != "":
-		var ds := int(card.size.y * 0.028)
-		var dw := font.get_string_size(date, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
-		draw_string(font, pm + Vector2(-dw * 0.5, ds * 0.35), date,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, ds, accent)
+		var ds := int(card.size.y * 0.024)
+		# "11 FEB 2019" does not fit inside a circle this size in one line, and
+		# a postmark is stacked anyway: day and month over the year.
+		var parts := date.split(" ")
+		var top: String = " ".join(parts.slice(0, 2)) if parts.size() > 2 else date
+		var bottom: String = parts[-1] if parts.size() > 2 else ""
+		var tw := font.get_string_size(top, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
+		draw_string(font, pm + Vector2(-tw * 0.5, -ds * 0.10), top,
+				HORIZONTAL_ALIGNMENT_LEFT, -1, ds, mark)
+		if bottom != "":
+			var bw := font.get_string_size(bottom, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
+			draw_string(font, pm + Vector2(-bw * 0.5, ds * 0.95), bottom,
+					HORIZONTAL_ALIGNMENT_LEFT, -1, ds, mark)
 
 	# Vertical divider between the message and the address.
 	var mid := inner.position.x + inner.size.x * 0.52
@@ -221,7 +348,7 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	var text := message
 	var handwritten := true
 	if text.strip_edges() == "":
-		text = String(_city.get("letter", {}).get("body", ""))
+		text = GameData.text(_city.get("letter", {}).get("body", ""))
 		handwritten = false
 
 	# The final letter is much longer than the others, so the type shrinks to
@@ -289,12 +416,13 @@ func _draw_collection(card: Rect2, strip_h: float, accent: Color, deep: Color,
 			"COLLECTED  %d / %d" % [done, puzzles.size()],
 			HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, accent)
 
-	# Slots sized to fit however many the city has, so twenty still lays out.
+	# Smaller marks with air between them: crowded to the edges they read as a
+	# toolbar, spaced out they read as a row of collected stamps.
 	var count := puzzles.size()
 	var usable := card.size.x - pad * 2.0
 	var slot := usable / float(count)
-	var box := minf(slot * 0.82, strip_h * 0.46)
-	var y := top + strip_h * 0.44
+	var box := minf(slot * 0.58, strip_h * 0.34)
+	var y := top + strip_h * 0.50
 
 	for i in count:
 		var p: Dictionary = puzzles[i]
@@ -325,6 +453,40 @@ func _dotted_rect(rect: Rect2, col: Color, width: float) -> void:
 		draw_line(Vector2(rect.position.x + rect.size.x, yy),
 				Vector2(rect.position.x + rect.size.x, yy + seg2), col, width)
 		yy += step
+
+
+## Perforated edge, an inner rule, and the country in very small caps.
+func _draw_stamp(rect: Rect2, accent: Color, deep: Color, paper: Color) -> void:
+	draw_rect(rect, paper.lerp(accent, 0.10))
+
+	var teeth := accent.lerp(paper, 0.35)
+	var step := rect.size.x / 7.0
+	var r := step * 0.30
+	var x := rect.position.x + step * 0.5
+	while x < rect.position.x + rect.size.x:
+		draw_circle(Vector2(x, rect.position.y), r, paper)
+		draw_circle(Vector2(x, rect.position.y + rect.size.y), r, paper)
+		x += step
+	var y := rect.position.y + step * 0.5
+	while y < rect.position.y + rect.size.y:
+		draw_circle(Vector2(rect.position.x, y), r, paper)
+		draw_circle(Vector2(rect.position.x + rect.size.x, y), r, paper)
+		y += step
+
+	var inset := rect.grow(-rect.size.x * 0.14)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0)
+	sb.border_color = teeth
+	sb.set_border_width_all(1)
+	draw_style_box(sb, inset)
+
+	var font: Font = Pal.ui_font
+	var fsize := int(maxf(6.0, rect.size.x * 0.15))
+	var country: String = String(GameData.text(_city.get("country", ""))).to_upper()
+	var w := font.get_string_size(country, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
+	draw_string(font, Vector2(rect.get_center().x - w * 0.5,
+			rect.get_center().y + fsize * 0.4), country,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, deep.lerp(paper, 0.15))
 
 
 # -- helpers ---------------------------------------------------------------

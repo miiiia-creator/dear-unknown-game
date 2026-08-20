@@ -162,10 +162,22 @@ func _load_painted(id: String, puzzles: Array) -> void:
 	move_child(_subject, get_child_count() - 1)
 	move_child(_drift, get_child_count() - 1)   # petals in front of everything
 
-	# Nothing is drawn over a painting. The pixel pieces only exist for cities
-	# that have no artwork yet, where they stand against the procedural sky.
+	# Stand the pixel pieces where the painting puts the same subjects. The slots
+	# are measured off each painting and live in the content data, because they
+	# describe the artwork rather than the code.
+	var by_id: Dictionary = {}
+	for p in puzzles:
+		by_id[p["id"]] = p
+	_subject.visible = true
 	_subject.pieces = []
-	_subject.visible = false
+	for slot in GameData.city(id).get("composition", []):
+		var piece: Dictionary = by_id.get(slot["id"], {})
+		if piece.is_empty():
+			continue
+		_subject.pieces.append({
+			"art": piece["art"], "x": float(slot["x"]),
+			"base": float(slot["base"]), "w": float(slot["w"]),
+		})
 
 	_painted_mat.set_shader_parameter("art", tex)
 	caption_luma = _measure_caption_band(tex)
@@ -310,12 +322,18 @@ func play(host: Node) -> Tween:
 				.set_delay(0.95).set_trans(Tween.TRANS_SINE)
 		return tw
 
-	# The painting arrives on its own: coarse blocks that read as pixel art, then
-	# a steady resolve into the picture.
+	# The pieces you solved stand on the painting's own blurred colours, hold
+	# long enough to be recognised, then dissolve as the picture sharpens into
+	# the same arrangement underneath them.
+	_subject.modulate.a = 1.0
 	var tw2 := host.create_tween()
-	tw2.tween_property(self, "resolve", 0.14, 0.7).set_trans(Tween.TRANS_SINE)
-	tw2.tween_interval(0.25)
-	tw2.tween_property(self, "resolve", 1.0, 1.5) \
+	tw2.tween_property(self, "appear", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
+	tw2.parallel().tween_property(self, "rim", 1.0, 0.7).set_delay(0.35)
+	tw2.parallel().tween_property(self, "resolve", 0.10, 0.8)
+	tw2.tween_interval(0.4)
+	tw2.tween_property(_subject, "modulate:a", 0.0, 0.7).set_trans(Tween.TRANS_SINE)
+	tw2.parallel().tween_property(self, "resolve", 0.34, 0.7)
+	tw2.tween_property(self, "resolve", 1.0, 1.4) \
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	return tw2
 

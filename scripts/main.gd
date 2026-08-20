@@ -2,13 +2,12 @@ extends Control
 ## Router + chrome. Owns the background, the screen stack and the toast layer.
 
 const SCREENS := {
+	"prologue": preload("res://scripts/screens/prologue_screen.gd"),
 	"menu": preload("res://scripts/screens/main_menu.gd"),
 	"map": preload("res://scripts/screens/world_map.gd"),
-	"city": preload("res://scripts/screens/city_screen.gd"),
-	"puzzle": preload("res://scripts/screens/puzzle_screen.gd"),
 	"journal": preload("res://scripts/screens/journal_screen.gd"),
+	"puzzle": preload("res://scripts/screens/puzzle_screen.gd"),
 	"postcards": preload("res://scripts/screens/postcards_screen.gd"),
-	"passport": preload("res://scripts/screens/passport_screen.gd"),
 	"settings": preload("res://scripts/screens/settings_screen.gd"),
 	"share": preload("res://scripts/screens/share_screen.gd"),
 	"city_complete": preload("res://scripts/screens/city_complete_screen.gd"),
@@ -16,17 +15,16 @@ const SCREENS := {
 
 ## Which nav section each screen belongs to, for the persistent bar's highlight.
 const SECTION := {
-	"map": "map", "city": "map", "puzzle": "map", "city_complete": "map",
-	"journal": "journal",
+	"map": "map",
+	"journal": "journal", "puzzle": "journal", "city_complete": "journal",
 	"postcards": "postcards", "share": "postcards",
-	"passport": "passport",
 	"settings": "settings",
 }
 
 ## Where "up" goes from each screen. A hub-and-spoke app has a real hierarchy,
 ## so declaring the parent beats guessing from a visit history.
 const PARENT := {
-	"puzzle": "city", "city": "map", "city_complete": "map",
+	"puzzle": "journal", "journal": "map", "city_complete": "map",
 	"share": "postcards",
 }
 
@@ -69,11 +67,13 @@ func _ready() -> void:
 	add_child(_toasts)
 
 	Pal.theme_changed.connect(_on_theme_changed)
-	SaveGame.achievement_unlocked.connect(_on_achievement)
+	Pal.locale_changed.connect(_on_theme_changed)   # same job: rebuild in place
 	get_tree().root.size_changed.connect(_on_window_resized)
 	_apply_content_scale()
 
-	go("menu")
+	# A first-time player meets the card before the menu: the premise is what
+	# makes the first grid worth solving.
+	go("prologue" if SaveGame.data["solved"].is_empty() else "menu")
 
 	if "--tour" in OS.get_cmdline_user_args():
 		var tour: Node = load("res://scripts/tools/screen_tour.gd").new()
@@ -81,17 +81,53 @@ func _ready() -> void:
 		tour.run(self)
 
 
-## Stretch is disabled so the viewport reports real space.
+## Stretch is disabled so the viewport reports real space — but "real space"
+## is measured differently per platform.
 ##
-## Desktop windows are already in points, so 1:1 is correct there — scaling by
-## raw DPI would shrink the usable width and fire the phone breakpoints on a
-## Retina laptop. Only handheld screens, which hand us a pixel-sized window,
-## need dividing down to points.
+## A native desktop window is already in points, so 1:1 is right there. A web
+## canvas and a handheld screen are sized in device pixels, so on a phone the
+## viewport reads about 1179 wide instead of 393, every breakpoint picks the
+## desktop layout, and the whole interface renders at a third of its intended
+## size. Dividing by the device pixel ratio puts all three back in the same
+## units.
+##
+## The web export reports "web", never "mobile", which is why testing the
+## browser build on a phone showed a shrunken desktop layout.
+## Base width the type was drawn for. Wider windows scale up from here so a
+## maximised screen does not just show more empty page at the same tiny size.
+const TYPE_BASE_WIDTH := 1180.0
+const TYPE_MAX_ZOOM := 1.5
+
+
 func _apply_content_scale() -> void:
 	var factor := 1.0
-	if OS.has_feature("mobile"):
-		factor = clampf(DisplayServer.screen_get_scale(), 1.0, 3.0)
-	get_window().content_scale_factor = factor
+	if OS.has_feature("web") or OS.has_feature("mobile"):
+		# Handheld and browser canvases are sized in device pixels; divide back
+		# to points so the breakpoints and the type both make sense.
+		factor = clampf(DisplayServer.screen_get_scale(), 1.0, 4.0)
+	else:
+		# On a desktop the window is already in points, so the only reason to
+		# scale is size: on a large display the interface should grow with the
+		# window rather than sit in the middle of it.
+		var w := float(DisplayServer.window_get_size().x)
+		factor = clampf(w / TYPE_BASE_WIDTH, 1.0, TYPE_MAX_ZOOM)
+	var w := get_window()
+	# Setting these emits size_changed, which lands back in _do_relayout, which
+	# calls this again. Bail out when nothing actually moved or the two chase
+	# each other forever and the window never finishes laying out.
+	var mode := Window.CONTENT_SCALE_MODE_DISABLED if is_equal_approx(factor, 1.0) \
+			else Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	if is_equal_approx(w.content_scale_factor, factor) and w.content_scale_mode == mode:
+		return
+	# content_scale_factor belongs to the stretch system. Left on DISABLED it
+	# magnifies the drawing into the top-left corner instead of dividing the
+	# viewport down, so the mode has to move with it.
+	w.content_scale_mode = mode
+	# Without EXPAND the scaler letterboxes to a base aspect, which on a phone
+	# left the game drawn in a band with black above and below it.
+	w.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	w.content_scale_size = Vector2i(0, 0)
+	w.content_scale_factor = factor
 
 
 var _relayout_pending := false
@@ -109,6 +145,7 @@ func _on_window_resized() -> void:
 
 func _do_relayout() -> void:
 	_relayout_pending = false
+	_apply_content_scale()
 	if _current == null:
 		return
 	# Never yank a puzzle out from under the player: the board redraws itself.
@@ -132,6 +169,8 @@ func _on_theme_changed() -> void:
 func go(screen: String, args: Dictionary = {}) -> void:
 	if _current and not _current.can_leave():
 		return
+	if screen == "journal" and not args.has("city"):
+		args = {"city": GameData.current_city_id()}
 	_swap(screen, args, true)
 
 
@@ -153,6 +192,13 @@ func _swap(screen: String, args: Dictionary, animate: bool) -> void:
 	if not SCREENS.has(screen):
 		push_error("Unknown screen: " + screen)
 		return
+	# Only a real move gets a sound. `animate` is false exactly when the screen
+	# is being rebuilt under the player — a mood swap, a language change, a
+	# window resize — and none of those are somewhere they went. The first swap
+	# of the session is silent for the same reason: the game should open on the
+	# card without announcing itself.
+	if _current != null and animate:
+		Sfx.play("nav")
 	if _current:
 		_current.queue_free()
 		_current = null
@@ -180,8 +226,9 @@ func _build_nav(screen: String) -> void:
 	for child in _nav.get_children():
 		child.queue_free()
 
-	# The title screen is its own navigation; a bar on top of it is noise.
-	var visible_here := screen != "menu"
+	# The title screen and the opening card are their own navigation; a bar on
+	# top of either is noise.
+	var visible_here := screen != "menu" and screen != "prologue"
 	_nav.visible = visible_here
 	_host.offset_top = NAV_HEIGHT if visible_here else 0.0
 	if not visible_here:
@@ -207,22 +254,19 @@ func _build_nav(screen: String) -> void:
 	row.offset_right = -20
 	_nav.add_child(row)
 
-	var home := UI.quiet_button("✈  Dear, Unknown", UI.SMALL)
+	var home := UI.quiet_button("Dear, Unknown", UI.SMALL)
 	home.pressed.connect(func(): go("menu"))
 	row.add_child(home)
 	row.add_child(UI.grow())
 
+	# Words, not pictograms. A row of coloured emoji reads as a toy, and this is
+	# a game about letters.
 	var here: String = SECTION.get(screen, "")
-	for entry in [["🗺", "Map", "map"], ["📖", "Journal", "journal"],
-			["📮", "Postcards", "postcards"], ["🛂", "Passport", "passport"],
-			["⚙", "Settings", "settings"]]:
-		var section: String = entry[2]
-		var active := section == here
-		# Narrow windows drop the words and keep the icons.
-		var wide := size.x > 720.0
-		var b := UI.quiet_button(("%s  %s" % [entry[0], entry[1]]) if wide else entry[0],
-				UI.SMALL)
-		if active:
+	for entry in [["Map", "map"], ["Journal", "journal"],
+			["Postcards", "postcards"], ["Settings", "settings"]]:
+		var section: String = entry[1]
+		var b := UI.quiet_button(tr(str(entry[0])), UI.SMALL)
+		if section == here:
 			b.add_theme_color_override("font_color", Pal.c("accent"))
 		b.pressed.connect(func(): go(section))
 		row.add_child(b)
@@ -251,10 +295,6 @@ func toast(text: String, sub: String = "") -> void:
 	tw.tween_interval(2.6)
 	tw.tween_property(box, "modulate:a", 0.0, 0.4)
 	tw.tween_callback(box.queue_free)
-
-
-func _on_achievement(id: String, title: String) -> void:
-	toast("🏆  " + title, SaveGame.ACHIEVEMENTS[id]["desc"])
 
 
 func _unhandled_input(event: InputEvent) -> void:
