@@ -30,13 +30,23 @@ func _ready() -> void:
 	_obtain.call_deferred()
 
 
-## Autoloads are torn down after the engine has started clearing its resource
-## cache, so a stream still held by the player at that point is reported as
-## leaked. Let go of it while there is still a tree to let go in.
-func _exit_tree() -> void:
+## An autoload is torn down after the engine has begun clearing its resource
+## cache, so a stream the player still holds at that point is reported as
+## leaked — a decoded Ogg is a chain of four objects, and all four survive.
+## Let go of it at the last moment anybody can still ask us to.
+func release() -> void:
 	if _player != null:
 		_player.stop()
 		_player.stream = null
+
+
+func _exit_tree() -> void:
+	release()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
+		release()
 
 
 func enabled() -> bool:

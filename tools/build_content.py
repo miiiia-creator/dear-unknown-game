@@ -636,16 +636,11 @@ STYLE = {
 # postmark is the only place this shows, deliberately small: it is meant to be
 # noticed on a second reading, not announced on the first.
 SENT = {
-    'tokyo': '27 JUN 2019',
-    'paris': '30 NOV 2019',
-    'rome': '03 APR 2019',
-    'newyork': '19 AUG 2019',
-    'london': '11 FEB 2019',
-    'kyoto': '14 MAY 2020',
-    'sanfrancisco': '18 DEC 2020',
-    'istanbul': '07 JAN 2020',
-    'reykjavik': '02 SEP 2020',
-    'bermuda': '22 MAR 2020',
+    'tokyo': '08 APR 2019',
+    'paris': '17 MAY 2019',
+    'rome': '03 JUN 2019',
+    'newyork': '21 OCT 2019',
+    'london': '12 NOV 2019',
 }
 
 # Which three discoveries the postcard's mosaic resolves out of, and where each
@@ -701,36 +696,34 @@ def composition_for(city, puzzles):
     return out
 
 
+# The five letters. Written, not translated — the Chinese versions are their
+# own drafts rather than line-for-line renderings, and are added back one at a
+# time as they are written.
 LETTERS = {
     'tokyo': {
-        "theme": 'the last blossom',
-        "title": 'The Last Blossom',
-        "body": 'Dear, Unknown,\n\nThere was one blossom left today.\n\nI thought someone should know.\n\n— M',
-        "body_zh": '亲爱的陌生人：\n\n今天只剩下最后一朵樱花了。\n\n我想，总该有人知道这件事。\n\n—— M',
+        "theme": 'waiting',
+        "title": 'The Last Cherry Blossom',
+        "body": 'Dear, Unknown,\nMost of the trees were already bare.\nThen I saw one.\nA single cherry blossom above the pond.\nIt was the most beautiful shade of pink.\nI wish you could have seen it.\n— M',
     },
     'paris': {
-        "theme": 'the last croissant',
+        "theme": 'missing it',
         "title": 'The Last Croissant',
-        "body": 'Dear, Unknown,\n\nThey sold the last croissant at 7:03.\nI was there when it happened.\n\nI thought someone should know.\n\n— M',
-        "body_zh": '亲爱的陌生人：\n\n七点零三分，最后一个可颂被买走了。\n那一刻我正好在场。\n\n我想，总该有人知道这件事。\n\n—— M',
+        "body": "Dear, Unknown,\nI found a little boulangerie this morning.\nThe baker said it was the last one.\nIt was still warm,\nso I ate it by the window\nwith a coffee and the sound of bicycles outside.\nI thought about saving half for you.\nI didn't.\nI'm sorry.\n— M",
     },
     'rome': {
-        "theme": 'the last coin',
+        "theme": 'memory',
         "title": 'The Last Coin',
-        "body": "Dear, Unknown,\n\nAn old woman gave me the last coin.\nShe said it wasn't worth anything anymore.\nI kept it anyway.\n\nI thought someone should know.\n\n— M",
-        "body_zh": '亲爱的陌生人：\n\n一位老太太把最后一枚硬币给了我。\n她说这枚硬币已经不值钱了。\n我还是留下了它。\n\n我想，总该有人知道这件事。\n\n—— M',
+        "body": 'Dear, Unknown,\nAn old woman gave me a coin today.\nShe was sitting beside the fountain,\nwhile the water glittered with hundreds of other coins.\nShe told me it was the last one.\nI asked her what she meant.\n“The last coin,” she said.\nI asked what it was worth.\nShe smiled.\n“Nothing anymore.”\nThen she put it in my hand and walked away.\nI still have it.\n— M',
     },
     'newyork': {
-        "theme": 'the last lonely person',
+        "theme": 'leaving',
         "title": 'The Last Lonely Person',
-        "body": "Dear, Unknown,\n\nI met the last lonely person tonight.\nWe talked for an hour.\nWhen I left, he wasn't lonely anymore.\n\nI don't know what that makes me.\n\n— M",
-        "body_zh": '亲爱的陌生人：\n\n今晚我遇见了最后一个孤独的人。\n我们聊了一个小时。\n我离开的时候，他已经不孤独了。\n\n我不知道这让我成了什么。\n\n—— M',
+        "body": "Dear, Unknown,\nI met a man in a diner last night.\nHe was sitting alone by the window,\nwatching the yellow cabs pass by.\nWe talked until they started closing.\nBefore I left, I asked why he came there every night.\nHe said,\n“So I don't have to be alone.”\nI thought that was strange.\nHe was alone the whole time.\n— M",
     },
     'london': {
-        "theme": 'the last postcard',
+        "theme": 'kindness',
         "title": 'The Last Postcard',
-        "body": "Dear, Unknown,\n\nThis is the last postcard.\nI don't know why I'm sending it.\nI don't know who you are.\nI don't even know how I found your address.\n\nBut somehow, every time something became the last of its kind, I knew I had to write to you.\n\nTokyo. Paris. Rome. New York.\n\nI thought I was recording the end of things.\nPerhaps I was only making sure someone remembered.\n\nIf you are reading this,\nthen perhaps you are the one I was writing to all along.\n\n— M",
-        "body_zh": '亲爱的陌生人：\n\n这是最后一张明信片。\n我不知道自己为什么要寄。\n我不知道你是谁。\n我甚至不知道我是怎么找到你的地址的。\n\n可是每当有什么东西成为它那一类里的最后一个，\n我就知道我必须写信给你。\n\n东京。巴黎。罗马。纽约。\n\n我以为我在记录事物的终结。\n也许我只是想确认，还有人记得。\n\n如果你正在读这封信，\n那么也许，你就是我一直在写的那个人。\n\n—— M',
+        "body": "Dear, Unknown,\nLondon has been grey for days.\nThe sky never seems to change.\nEven the afternoons feel like evenings.\nI haven't heard from you in a long time.\nI used to think you were busy.\nThen I thought maybe you didn't want to write back.\nToday, I don't feel like guessing anymore.\nSo I think this will be the last postcard I send you.\nI hope you're well.\n— M",
     },
 }
 

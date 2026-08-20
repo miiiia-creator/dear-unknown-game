@@ -81,11 +81,23 @@ func season_of(city_id: String) -> Dictionary:
 ## The season the player is currently working through — the first with any
 ## destination still unfinished, otherwise the last one.
 func current_season() -> Dictionary:
+	var last_written: Dictionary = {}
 	for s in seasons:
+		# A season whose destinations have no puzzles yet is not one the player
+		# is working through — it is one that is being written. Without this,
+		# finishing season one drops the player into an empty season two.
+		var written := false
+		for cid in s["cities"]:
+			if is_city_written(cid):
+				written = true
+				break
+		if not written:
+			continue
+		last_written = s
 		for cid in s["cities"]:
 			if not is_city_complete(cid):
 				return s
-	return seasons[-1] if not seasons.is_empty() else {}
+	return last_written
 
 
 ## The card that opens a season. Card zero: nobody earns it.

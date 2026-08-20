@@ -83,6 +83,10 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 
 
+func _exit_tree() -> void:
+	_stop_motion()
+
+
 func _load_motion(id: String) -> void:
 	_stop_motion()
 	if id == "":
@@ -124,6 +128,11 @@ func _start(stream: VideoStream) -> void:
 func _stop_motion() -> void:
 	set_process(false)
 	if _motion != null:
+		# Drop the stream before the node: queue_free lands next frame, and at
+		# shutdown there is no next frame, so the video would still be held when
+		# the engine clears its resource cache.
+		_motion.stop()
+		_motion.stream = null
 		_motion.queue_free()
 		_motion = null
 	if _fetch != null:
@@ -351,19 +360,45 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		text = GameData.text(_city.get("letter", {}).get("body", ""))
 		handwritten = false
 
-	# The final letter is much longer than the others, so the type shrinks to
-	# fit rather than the letter being cut off mid-thought.
-	var msg_size := int(card.size.y * 0.062)
-	var msg_w := mid - inner.position.x - card.size.x * 0.04
-	var room := int(inner.size.y * 0.74 / (msg_size * 1.45))
-	var lines := _wrap_paragraphs(font, text, msg_size, msg_w)
-	while lines.size() > room and msg_size > int(card.size.y * 0.030):
-		msg_size -= 1
-		room = int(inner.size.y * 0.74 / (msg_size * 1.45))
-		lines = _wrap_paragraphs(font, text, msg_size, msg_w)
+	# M's letters run long — thirteen lines in Rome — and the left half of a
+	# postcard cannot hold that at a readable size. On a real card you write
+	# down the left, run out, and carry on under the stamp across the full
+	# width, so that is what the type does here: narrow while it is beside the
+	# stamp, full width once it is past it.
+	#
+	# A message the player is composing keeps the classic split, because that
+	# one is short and the address side is about to be used.
+	var narrow_w := mid - inner.position.x - card.size.x * 0.04
+	var wide_w := inner.size.x - card.size.x * 0.04
+	var top := inner.position.y + inner.size.y * (0.16 if handwritten else 0.10)
+	var stamp_bottom := stamp.position.y + stamp.size.y + card.size.y * 0.03
 
-	var ly := inner.position.y + inner.size.y * 0.16
-	for i in mini(lines.size(), room):
+	var msg_size := int(card.size.y * 0.062)
+	var lines: Array = []
+	var floor_size := int(card.size.y * 0.034)
+	# The row of discoveries along the bottom is a nice thing to have; a letter
+	# stopping mid-sentence is not. If the two cannot both fit, the letter wins
+	# and the row goes — it is on the journal page anyway.
+	var keep_strip := true
+	while true:
+		var bottom := inner.position.y + inner.size.y \
+				+ (0.0 if keep_strip else strip_h)
+		lines = _flow(font, text, msg_size, top, stamp_bottom, narrow_w,
+				wide_w if not handwritten else narrow_w)
+		var needed := top + lines.size() * msg_size * 1.45
+		if needed <= bottom:
+			break
+		if keep_strip and not handwritten:
+			keep_strip = false
+			continue
+		if msg_size <= floor_size:
+			break
+		msg_size -= 1
+		keep_strip = not handwritten
+
+	var ly := top
+	for i in lines.size():
+		var w: float = narrow_w if (handwritten or ly < stamp_bottom) else wide_w
 		draw_string(font, Vector2(inner.position.x, ly), lines[i],
 				HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size,
 				deep if handwritten else deep.lerp(accent, 0.25))
@@ -385,7 +420,8 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 				Vector2(ax + aw, ay + i * msg_size * 1.5),
 				accent.lerp(paper, 0.55), maxf(1.0, card.size.y * 0.004))
 
-	_draw_collection(card, strip_h, accent, deep, paper)
+	if keep_strip:
+		_draw_collection(card, strip_h, accent, deep, paper)
 
 
 ## Every discovery in the city as a small stamp along the foot of the card.
@@ -540,6 +576,33 @@ func _draw_tracked(font: Font, text: String, centre: Vector2, fsize: int,
 
 
 ## Wrap a multi-paragraph letter, keeping its blank lines.
+## Wrap `text` where the usable width changes partway down: narrow while the
+## line is still beside the stamp, wide once it has cleared it.
+func _flow(font: Font, text: String, fsize: int, top: float, stamp_bottom: float,
+		narrow_w: float, wide_w: float) -> Array:
+	var out: Array = []
+	var line_h := fsize * 1.45
+	for para in text.split("\n"):
+		var body: String = String(para).strip_edges()
+		if body == "":
+			out.append("")
+			continue
+		var words := body.split(" ")
+		var current := ""
+		for word in words:
+			var trial: String = word if current == "" else current + " " + word
+			var width: float = narrow_w if (top + out.size() * line_h) < stamp_bottom else wide_w
+			if font.get_string_size(trial, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x <= width \
+					or current == "":
+				current = trial
+			else:
+				out.append(current)
+				current = word
+		if current != "":
+			out.append(current)
+	return out
+
+
 func _wrap_paragraphs(font: Font, text: String, fsize: int, max_width: float) -> Array:
 	var out: Array = []
 	for para in text.split("\n"):

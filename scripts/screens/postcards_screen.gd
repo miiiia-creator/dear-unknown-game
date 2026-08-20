@@ -21,11 +21,17 @@ var _card: PostcardView
 var _opening: OpeningCardView
 var _flip_button: Button
 var _stage: Control
+var _empty: Label
 var _busy := false
 
 
 func build() -> void:
+	# A card names its own season. Asking for one without saying which season it
+	# belongs to used to land on whatever season was current and then quietly
+	# fall back to that season's first card.
 	var season := GameData.season(str(args.get("season", "")))
+	if season.is_empty() and args.has("card") and str(args["card"]) != OPENING:
+		season = GameData.season_of(str(args["card"]))
 	if season.is_empty():
 		season = GameData.current_season()
 	_season_id = str(season.get("id", ""))
@@ -71,6 +77,18 @@ func build() -> void:
 	_card = PostcardView.new()
 	_card.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_stage.add_child(_card)
+
+	_empty = UI.paragraph(
+			tr("Complete every puzzle in a destination to earn its postcard."),
+			UI.BODY, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER)
+	_empty.set_anchors_preset(Control.PRESET_CENTER)
+	_empty.anchor_left = 0.2
+	_empty.anchor_right = 0.8
+	_empty.anchor_top = 0.45
+	_empty.anchor_bottom = 0.55
+	_empty.offset_left = 0
+	_empty.offset_right = 0
+	_stage.add_child(_empty)
 
 	_show_face()
 
@@ -176,9 +194,13 @@ func _picker_rows(buttons: Array[Control]) -> Control:
 func _show_face() -> void:
 	var opening := _selected == OPENING and _has_opening
 	_opening.visible = opening
-	_card.visible = not opening
-	if not opening:
+	# Nothing to show is a real state — a season whose cards are all still to be
+	# earned. Drawing an empty postcard for it looked like a bug.
+	_card.visible = not opening and _selected != ""
+	if _card.visible:
 		_card.setup(_selected, "", "", "")
+	if _empty != null:
+		_empty.visible = not opening and _selected == ""
 
 
 ## Cards arrive rather than appear: a short rise and settle, which is most of

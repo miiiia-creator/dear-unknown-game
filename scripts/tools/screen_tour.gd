@@ -68,6 +68,7 @@ func run(main: Node) -> void:
 	app.go("postcards", {"card": "tokyo"})
 	await _wait(0.9)
 	await _shot("postcard_front")
+
 	# Flip to the collection side. Paris is left unfinished on purpose so the
 	# empty slots show alongside the filled ones.
 	app._current._do_flip()
@@ -104,6 +105,16 @@ func run(main: Node) -> void:
 				await _shot("resolve_%s" % str(step).replace(".", "_"))
 		await _wait(4.2)
 		await _shot("sky_" + str(city["id"]))
+
+	# The letters, once every card has been earned. Rome's is the longest in the
+	# season and New York's is close behind, so if the back of a card cannot
+	# hold a letter it shows here.
+	for long_one in ["rome", "newyork", "london"]:
+		app.go("postcards", {"card": long_one})
+		await _wait(0.8)
+		app._current._do_flip()
+		await _wait(1.0)
+		await _shot("letter_" + long_one)
 
 	# Phone-shaped pass, to catch anything that only breaks when narrow.
 	Pal.set_mood("paper")
@@ -146,6 +157,9 @@ func run(main: Node) -> void:
 	Pal.set_locale("en")
 
 	print("Screenshots in ", ProjectSettings.globalize_path(SHOT_DIR))
+	# A hard quit does not give autoloads a chance to let go of anything, so the
+	# tour hands the music back rather than reporting a leak every run.
+	Music.release()
 	get_tree().quit()
 
 

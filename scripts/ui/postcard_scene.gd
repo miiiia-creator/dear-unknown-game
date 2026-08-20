@@ -195,6 +195,8 @@ func _load_painted(id: String, puzzles: Array) -> void:
 ## heavy — so the browser keeps the procedural motion instead.
 func _load_video(id: String) -> void:
 	if _video:
+		_video.stop()
+		_video.stream = null
 		_video.queue_free()
 		_video = null
 	if OS.has_feature("web"):
