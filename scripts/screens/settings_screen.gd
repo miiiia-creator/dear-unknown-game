@@ -14,9 +14,13 @@ func build() -> void:
 			_mood_toggle()))
 
 	body.add_child(_row("Sound",
-			"Pencil on the grid and paper on the cards. Kept quiet on purpose. "
-			+ "Music is separate and not in yet.",
+			"Pencil on the grid and paper on the cards. Kept quiet on purpose.",
 			_bool_toggle("sound")))
+
+	body.add_child(_row("Music",
+			"One piece, looping. It is not in the download — it arrives on its "
+			+ "own once the game is open, so it never makes you wait.",
+			_music_toggle()))
 
 	body.add_child(_row("Cross off finished lines",
 			"When a row or column matches its numbers, strike the numbers out. "
@@ -90,6 +94,18 @@ func _mood_toggle() -> Control:
 			Pal.set_mood(value))
 		row.add_child(b)
 	return row
+
+
+## Music needs its own toggle rather than _bool_toggle: turning it off has to
+## stop the player, not merely be remembered for next time.
+func _music_toggle() -> Control:
+	var on := Music.enabled()
+	var b := UI.button(tr("On") if on else tr("Off"), on)
+	b.custom_minimum_size = Vector2(90, 0)
+	b.pressed.connect(func():
+		Music.set_enabled(not on)
+		go("settings"))
+	return b
 
 
 func _bool_toggle(key: String) -> Control:

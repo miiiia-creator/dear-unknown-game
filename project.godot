@@ -22,6 +22,7 @@ Pal="*res://scripts/autoload/palette.gd"
 GameData="*res://scripts/autoload/game_data.gd"
 SaveGame="*res://scripts/autoload/save_game.gd"
 Sfx="*res://scripts/autoload/audio.gd"
+Music="*res://scripts/autoload/music.gd"
 
 [display]
 

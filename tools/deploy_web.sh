@@ -37,6 +37,12 @@ ls "$OUT/motion" | sed "s/^/   /"
 # .pck come from the network — a loader and a payload from different builds,
 # which hangs on the loading screen forever. Patch it to take over at once and
 # reload the page when it replaces an older version.
+# Same arrangement as the films: a megabyte and a half nobody should wait for
+# at the loading bar, fetched once the game is already on screen.
+echo "-- music as a loose file"
+mkdir -p "$OUT/audio"
+cp "$ROOT"/assets/music/theme.ogg "$OUT/audio/" 2>/dev/null && ls -la "$OUT/audio" | tail -1 | awk '{printf "   theme.ogg %.2f MB\n", $5/1048576}'
+
 echo "-- making the service worker replace itself cleanly"
 python3 - "$OUT/index.service.worker.js" <<'PATCH'
 import sys, pathlib
