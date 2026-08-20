@@ -25,6 +25,9 @@ var reveal := 0.0:
 
 var _cell := 24.0
 var _origin := Vector2.ZERO       ## top-left of the cell area
+## Colours for this grid, set by the puzzle screen. Empty means one ink.
+var puzzle_palette: Array = []
+
 var _gutter := Vector2.ZERO       ## left / top clue gutter sizes
 var _hover := Vector2i(-1, -1)
 var _painting := false
@@ -143,6 +146,21 @@ func _draw_grid(furniture: float) -> void:
 				thick if major else thin, 2.0 if major else 1.0)
 
 
+## A clue is a run length and the colour of that run. Until the palettes exist
+## every run is colour one and the numbers are drawn in ink, exactly as before;
+## the colour is read here so that the day a grid has two, nothing else has to
+## change.
+func _clue_colour(entry: Vector2i, base: Color) -> Color:
+	if puzzle.colours <= 1 or entry.y <= 0:
+		return base
+	var palette: Array = puzzle_palette
+	if entry.y - 1 < palette.size():
+		var c: Color = palette[entry.y - 1]
+		c.a = base.a
+		return c
+	return base
+
+
 func _draw_clues(furniture: float) -> void:
 	var font: Font = Pal.mono_font
 	var fsize := int(maxf(9.0, _cell * 0.46))
@@ -158,7 +176,9 @@ func _draw_clues(furniture: float) -> void:
 			if _hover.y == r and not done:
 				col = Pal.c("ink")
 			col.a = furniture
-			var text := str(list[i])
+			var entry: Vector2i = list[i]
+			col = _clue_colour(entry, col)
+			var text := str(entry.x)
 			var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
 			var slot_right := _origin.x - (list.size() - 1 - i) * slot - slot * 0.25
 			draw_string(font, Vector2(slot_right - tw, baseline),
@@ -180,7 +200,9 @@ func _draw_clues(furniture: float) -> void:
 			if _hover.x == c and not done:
 				col = Pal.c("ink")
 			col.a = furniture
-			var text := str(list[i])
+			var entry: Vector2i = list[i]
+			col = _clue_colour(entry, col)
+			var text := str(entry.x)
 			var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
 			var y := _origin.y - (list.size() - 1 - i) * slot - slot * 0.25
 			draw_string(font, Vector2(centre_x - tw * 0.5, y),

@@ -811,55 +811,78 @@ SEASONS = [
 
 # Cell states for the solver. EMPTY must be falsy: the "grid is entirely empty"
 # check relies on it.
+# ---------------------------------------------------------------------------
+# The solver
+#
+# Cells hold a colour: 0 is empty, 1..n index the puzzle's palette. A black and
+# white grid is the one-colour case, which is why there is no separate path for
+# it — `#` in the art means colour one.
+#
+# The rule that makes colour puzzles their own thing, and the only place this
+# differs from an ordinary line solver: two runs of the SAME colour need at
+# least one blank between them, two runs of DIFFERENT colours may touch. That
+# removes a great many of the easy deductions, so a colour grid that looks
+# gentle can quietly require guessing — which is the whole reason this file
+# refuses to ship one.
+
 EMPTY = 0
-FILL = 1
-UNKNOWN = 2
 
-# --------------------------------------------------------------------------
-# Nonogram validation
-# --------------------------------------------------------------------------
 
-UNKNOWN, EMPTY, FILL = -1, 0, 1
+def value_of(ch):
+    """One art character to one cell value."""
+    if ch == "#":
+        return 1
+    if ch.isdigit() and ch != "0":
+        return int(ch)
+    return EMPTY
 
 
 def clues(line):
-    out, run = [], 0
+    """Runs of a line as (length, colour). Touching colours are separate runs
+    with no gap between them, which is exactly what the player must work out."""
+    out = []
+    run, colour = 0, EMPTY
     for v in line:
-        if v == FILL:
+        if v == colour and v != EMPTY:
             run += 1
-        elif run:
-            out.append(run)
-            run = 0
+            continue
+        if run:
+            out.append((run, colour))
+        colour = v
+        run = 1 if v != EMPTY else 0
     if run:
-        out.append(run)
+        out.append((run, colour))
     return out
+
+
+def _minimum_span(clue, idx):
+    """Fewest cells the runs from `idx` onward can occupy."""
+    need = sum(c[0] for c in clue[idx:])
+    for j in range(idx, len(clue) - 1):
+        if clue[j][1] == clue[j + 1][1]:
+            need += 1
+    return need
 
 
 @lru_cache(maxsize=None)
 def placements(length, clue):
-    """All ways to lay `clue` runs into a line of `length`, as tuples of 0/1."""
+    """Every way to lay `clue` into a line of `length`, as tuples of values."""
     if not clue:
         return ((EMPTY,) * length,)
-    total = sum(clue)
-    slack = length - total - (len(clue) - 1)
-    if slack < 0:
-        return ()
     out = []
-    # choose gap sizes g0..gn where g0,gn >= 0 and inner gaps >= 1
     n = len(clue)
-    for extra in combinations(range(slack + n), n):
-        # standard stars-and-bars: distribute `slack` into n+1 buckets
-        pass
-    # simpler recursive build
+
     def build(idx, pos, acc):
         if idx == n:
             out.append(tuple(acc + [EMPTY] * (length - pos)))
             return
-        remaining = sum(clue[idx:]) + (n - idx - 1)
-        for start in range(pos, length - remaining + 1):
-            row = acc + [EMPTY] * (start - pos) + [FILL] * clue[idx]
-            nxt = start + clue[idx]
-            if idx < n - 1:
+        run_len, colour = clue[idx]
+        need = _minimum_span(clue, idx)
+        for start in range(pos, length - need + 1):
+            row = acc + [EMPTY] * (start - pos) + [colour] * run_len
+            nxt = start + run_len
+            # A blank is forced only between runs that share a colour.
+            if idx < n - 1 and clue[idx + 1][1] == colour:
                 row = row + [EMPTY]
                 nxt += 1
             build(idx + 1, nxt, row)
@@ -868,49 +891,55 @@ def placements(length, clue):
     return tuple(out)
 
 
-def solve_line(length, clue, current):
-    """Intersect every placement compatible with `current`. Returns new line or None."""
-    fixed = None
+def solve_line(length, clue, domains):
+    """Every placement still possible, merged. Returns new domains, or None if
+    the line has become impossible."""
+    merged = None
     for cand in placements(length, tuple(clue)):
         ok = True
-        for c, k in zip(cand, current):
-            if k != UNKNOWN and k != c:
+        for i in range(length):
+            if not domains[i] >> cand[i] & 1:
                 ok = False
                 break
         if not ok:
             continue
-        if fixed is None:
-            fixed = list(cand)
+        bits = [1 << v for v in cand]
+        if merged is None:
+            merged = bits
         else:
-            for i, v in enumerate(cand):
-                if fixed[i] != v:
-                    fixed[i] = UNKNOWN
-    return fixed
+            for i in range(length):
+                merged[i] |= bits[i]
+    return merged
 
 
-def line_solve(row_clues, col_clues, h, w):
-    """Pure line-logic solver. Returns (grid, solved:bool)."""
-    grid = [[UNKNOWN] * w for _ in range(h)]
+def line_solve(row_clues, col_clues, h, w, colours):
+    """Constraint propagation, one line at a time, until nothing more moves.
+
+    Deliberately no search: a grid that cannot be finished this way is one that
+    needs a guess somewhere, and that is exactly what must not ship.
+    """
+    full = (1 << (colours + 1)) - 1
+    grid = [[full] * w for _ in range(h)]
     changed = True
     while changed:
         changed = False
         for r in range(h):
-            new = solve_line(w, row_clues[r], grid[r])
-            if new is None:
+            merged = solve_line(w, row_clues[r], grid[r])
+            if merged is None:
                 return None, False
-            if new != grid[r]:
-                grid[r] = new
+            if merged != grid[r]:
+                grid[r] = merged
                 changed = True
         for c in range(w):
             col = [grid[r][c] for r in range(h)]
-            new = solve_line(h, col_clues[c], col)
-            if new is None:
+            merged = solve_line(h, col_clues[c], col)
+            if merged is None:
                 return None, False
-            if new != col:
+            if merged != col:
                 for r in range(h):
-                    grid[r][c] = new[r]
+                    grid[r][c] = merged[r]
                 changed = True
-    solved = all(UNKNOWN not in row for row in grid)
+    solved = all(bin(v).count("1") == 1 for row in grid for v in row)
     return grid, solved
 
 
@@ -919,36 +948,42 @@ def validate(puzzle):
     h = len(art)
     w = len(art[0])
     errs = []
+    allowed = set("#.123456789")
     for i, row in enumerate(art):
         if len(row) != w:
             errs.append("row %d is %d wide, expected %d" % (i, len(row), w))
-        bad = set(row) - {"#", "."}
+        bad = set(row) - allowed
         if bad:
             errs.append("row %d has bad chars %r" % (i, sorted(bad)))
     if errs:
         return errs, None
 
-    grid = [[FILL if ch == "#" else EMPTY for ch in row] for row in art]
+    grid = [[value_of(ch) for ch in row] for row in art]
+    colours = max((v for row in grid for v in row), default=0)
+    if colours == 0:
+        return ["grid is entirely empty"], None
+
+    declared = len(puzzle.get("palette") or []) or 1
+    if colours > declared:
+        errs.append("uses colour %d but the palette has %d" % (colours, declared))
+        return errs, None
+
     rc = [clues(row) for row in grid]
     cc = [clues([grid[r][c] for r in range(h)]) for c in range(w)]
 
-    if not any(any(row) for row in grid):
-        errs.append("grid is entirely empty")
-        return errs, None
-
-    solution, solved = line_solve(rc, cc, h, w)
+    solution, solved = line_solve(rc, cc, h, w, colours)
     if solution is None:
         errs.append("contradictory clues")
     elif not solved:
-        unknown = sum(row.count(UNKNOWN) for row in solution)
+        unknown = sum(1 for row in solution for v in row if bin(v).count("1") > 1)
         errs.append("NOT line-solvable: %d cells need guessing (solution may not be unique)" % unknown)
-    elif solution != grid:
-        errs.append("solver found a different grid - solution is not unique")
-    return errs, {"rows": rc, "cols": cc}
+    else:
+        found = [[v.bit_length() - 1 for v in row] for row in solution]
+        if found != grid:
+            errs.append("solver found a different grid - solution is not unique")
+    return errs, {"rows": rc, "cols": cc, "colours": colours}
 
 
-# Difficulty by area rather than by side, now that grids are not square. The
-# thresholds are where the solve time noticeably steps up, not round numbers.
 def difficulty_of(width, height):
     cells = width * height
     if cells <= 36:
