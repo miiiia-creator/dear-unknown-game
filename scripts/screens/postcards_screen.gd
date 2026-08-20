@@ -150,7 +150,8 @@ func _controls(city_ids: Array, earned: Array) -> Control:
 		if have:
 			b.pressed.connect(func(): _select(city_id))
 		buttons.append(b)
-	col.add_child(_picker_rows(buttons))
+	col.add_child(UI.chip_rows(buttons,
+			buttons.size() if not is_narrow() else maxi(2, int(column_width() / 116.0))))
 
 	var actions := UI.hbox(8)
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -168,29 +169,6 @@ func _controls(city_ids: Array, earned: Array) -> Control:
 	col.add_child(actions)
 	return col
 
-
-
-## A season plus its opening card is six buttons, and six do not fit across a
-## phone. They used to sit in one row regardless — and because a container is
-## never smaller than its contents, that row's width became the width of
-## everything above it, which is what pushed the card itself off the screen.
-## Wrapping is the fix and it is also the better answer: a row you have to
-## scroll hides destinations, and this screen is the one place the season is
-## laid out whole.
-func _picker_rows(buttons: Array[Control]) -> Control:
-	var per_row := buttons.size()
-	if is_narrow():
-		per_row = maxi(2, int(column_width() / 116.0))
-
-	var rows := UI.vbox(6)
-	var row: HBoxContainer = null
-	for i in buttons.size():
-		if row == null or row.get_child_count() >= per_row:
-			row = UI.hbox(6)
-			row.alignment = BoxContainer.ALIGNMENT_CENTER
-			rows.add_child(row)
-		row.add_child(buttons[i])
-	return rows
 
 
 func _show_face() -> void:

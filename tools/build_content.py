@@ -40,7 +40,7 @@ ZH_NAMES = {
     "paris_macaron": "马卡龙", "paris_cafe": "欧蕾咖啡", "paris_arc": "凯旋门",
     "paris_louvre": "玻璃金字塔", "paris_eiffel": "埃菲尔铁塔",
     "rome_gelato": "意式冰淇淋", "rome_column": "罗马柱", "rome_pizza": "切角披萨",
-    "rome_pasta": "黑椒芝士面", "rome_vespa": "韦士柏", "rome_fountain": "喷泉",
+    "rome_pasta": "黑椒芝士面", "rome_fountain": "喷泉",
     "rome_amphora": "双耳陶罐", "rome_colosseum": "斗兽场",
     "ny_apple": "大苹果", "ny_walkup": "无电梯公寓", "ny_taxi": "黄色出租车",
     "ny_skyline": "天际线", "ny_traffic": "红绿灯", "ny_bagel": "贝果",
@@ -151,15 +151,17 @@ TOKYO = [
 ]
 
 PARIS = [
+    # Pinched in the middle so the filling between the two shells reads. Drawn
+    # as an even round it was just a ball.
     P("paris_macaron", "Macaron", "🍬", "Food", """
 ..####..
 .######.
 ########
 .######.
+..####..
 .######.
 ########
 .######.
-..####..
 """),
     # Drawn symmetrically on purpose, which cost Paris its asymmetric grid. The
     # earlier version was rolled from one end the way a real croissant is, and
@@ -249,17 +251,22 @@ ROME = [
 #######
 #######
 """),
-    # Rome's asymmetric one: a scooter points somewhere.
-    P("rome_vespa", "Vespa", "🛵", "Transportation", """
-..........###
-.........####
-....######..#
-..#########.#
-.###########.
-.###########.
-.####...####.
-.###.....###.
-..#.......#..
+    # Rome's asymmetric one. It was a Vespa, which at thirteen cells across
+    # read as a ramp — a scooter is mostly small round details and there is no
+    # room for any of them. A cone has one silhouette and it is unmistakable,
+    # and it can lean: two scoops set at different heights over a cone tipped
+    # to the left is asymmetric twice over without being a puzzle about what it
+    # is supposed to be.
+    P("rome_gelato", "Gelato", "🍦", "Food", """
+.###.........
+#####..###...
+#####.#####..
+.##########..
+..#########..
+..########...
+.#######.....
+.#####.......
+.###.........
 """),
     P("rome_fountain", "Fountain", "⛲", "Landmark", """
 ....####....

@@ -239,3 +239,21 @@ static func progress_bar(value: float, width: float = 180.0,
 	fill.offset_bottom = 0.0
 	holder.add_child(fill)
 	return holder
+
+## Lay buttons out in rows that fit, rather than one row that does not.
+##
+## A container is never narrower than its contents, so a row of six
+## destinations on a phone does not overflow quietly — it stretches everything
+## above it past the edge of the screen, and the page looks broken in ways that
+## have nothing to do with the row. Three screens had that bug.
+static func chip_rows(buttons: Array, per_row: int, gap: int = 6) -> Control:
+	var rows := vbox(gap)
+	var row: HBoxContainer = null
+	for b in buttons:
+		if row == null or row.get_child_count() >= per_row:
+			row = hbox(gap)
+			row.alignment = BoxContainer.ALIGNMENT_CENTER
+			rows.add_child(row)
+		row.add_child(b)
+	return rows
+

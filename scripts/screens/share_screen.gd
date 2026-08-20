@@ -40,18 +40,23 @@ func build() -> void:
 	# ---- left: the form
 	var form := UI.vbox(10)
 	form.custom_minimum_size = Vector2(0 if narrow else 360, 0)
+	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(form)
 
 	form.add_child(UI.label(tr("Postcard"), UI.SMALL, "ink_soft"))
-	var picker := UI.hbox(6)
+	# One row of every destination earned is wider than a phone, and a row that
+	# does not fit drags the whole page off the right of the screen with it —
+	# which is why this page could not be scrolled either.
+	var chips: Array = []
 	for id in earned:
 		var city := GameData.city(id)
 		var b := UI.button(str(GameData.text(city["name"])), id == city_id)
 		b.tooltip_text = GameData.text(city["name"])
 		var target: String = id
 		b.pressed.connect(func(): go("share", {"city": target}))
-		picker.add_child(b)
-	form.add_child(picker)
+		chips.append(b)
+	form.add_child(UI.chip_rows(chips,
+			chips.size() if not is_narrow() else maxi(2, int(column_width() / 116.0))))
 
 	form.add_child(UI.label(tr("Locked behind"), UI.SMALL, "ink_soft"))
 	var chooser := UI.dropdown()

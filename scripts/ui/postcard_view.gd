@@ -319,10 +319,11 @@ func _draw_placeholder_front(card: Rect2, accent: Color, deep: Color) -> void:
 
 
 func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
-	# The bottom strip is the collection row, so the writing area stops above it.
-	var strip_h := card.size.y * 0.26
+	# The back is the letter, the postmark and the stamp, and nothing else. It
+	# used to carry a row of the city's discoveries along the bottom, which took
+	# a quarter of the card to repeat something the journal page already shows
+	# and left the writing squeezed into what was left.
 	var inner := card.grow(-card.size.y * 0.08)
-	inner.size.y -= strip_h
 	var font: Font = Pal.ui_font
 
 	# A stamp, top-right. It used to hold a shrunken copy of the landmark, which
@@ -390,8 +391,6 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	var lines: Array = []
 	var msg_size := 0
 	var top := 0.0
-	## Whether the row of discoveries still has room once the letter is set.
-	var show_strip := true
 
 	if handwritten:
 		msg_size = int(card.size.y * 0.062)
@@ -407,37 +406,30 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 			lines.append(String(para).strip_edges())
 		var wide_w := inner.size.x - card.size.x * 0.02
 		# Room to the left of the stamp. M writes short lines, so the block
-		# usually clears it and can start at the top of the card, which buys
-		# enough height to set the type a third larger. Only a letter with a
-		# long line has to begin underneath.
-		var beside_w := stamp.position.x - inner.position.x - card.size.x * 0.03
-		var high_top := inner.position.y + inner.size.y * 0.06
+		# usually clears it and can start at the top of the card. Only a letter
+		# with a long line has to begin underneath.
+		# Measured to the postmark, not the stamp: the cancellation circle sits
+		# further left than the stamp does, and a line that cleared the stamp
+		# was still running straight through it.
+		var beside_w := stamp.position.x - s * 1.35 - inner.position.x \
+				- card.size.x * 0.02
+		var high_top := inner.position.y + inner.size.y * 0.04
 		var low_top := stamp.position.y + stamp.size.y + card.size.y * 0.045
-		# The row of discoveries is a nice thing to have; a letter set too small
-		# to read is not. If both cannot fit, the row goes — it is on the
-		# journal page anyway.
-		for keep_strip in [true, false]:
-			var bottom: float = inner.position.y + inner.size.y \
-					+ (0.0 if keep_strip else strip_h)
-			msg_size = int(card.size.y * 0.075)
-			var block_top := high_top
-			while msg_size > int(card.size.y * 0.022):
-				var widest := 0.0
-				for line in lines:
-					widest = maxf(widest, font.get_string_size(
-							line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
-				block_top = high_top if widest <= beside_w else low_top
-				var tall := lines.size() * msg_size * 1.45
-				if widest <= wide_w and block_top + tall <= bottom:
-					break
-				msg_size -= 1
-			var tall_final := lines.size() * msg_size * 1.45
-			if block_top + tall_final <= bottom:
-				show_strip = keep_strip
-				top = block_top + maxf(0.0, (bottom - block_top - tall_final) * 0.5)
+		var bottom := inner.position.y + inner.size.y
+		var block_top := high_top
+		msg_size = int(card.size.y * 0.075)
+		while msg_size > int(card.size.y * 0.022):
+			var widest := 0.0
+			for line in lines:
+				widest = maxf(widest, font.get_string_size(
+						line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
+			block_top = high_top if widest <= beside_w else low_top
+			var tall := lines.size() * msg_size * 1.45
+			if widest <= wide_w and block_top + tall <= bottom:
 				break
-			show_strip = false
-			top = low_top
+			msg_size -= 1
+		var tall_final := lines.size() * msg_size * 1.45
+		top = block_top + maxf(0.0, (bottom - block_top - tall_final) * 0.5)
 
 	var ly := top
 	for i in lines.size():
@@ -462,8 +454,6 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 				Vector2(ax + aw, ay + i * msg_size * 1.5),
 				accent.lerp(paper, 0.55), maxf(1.0, card.size.y * 0.004))
 
-	if show_strip:
-		_draw_collection(card, strip_h, accent, deep, paper)
 
 
 ## Every discovery in the city as a small stamp along the foot of the card.
@@ -472,49 +462,6 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 ## into a landscape, and food and souvenirs never belong in one. This row is
 ## where the rest of a destination gets its due, and it still works at twenty
 ## puzzles a city where cramming them into the painting would not.
-func _draw_collection(card: Rect2, strip_h: float, accent: Color, deep: Color,
-		paper: Color) -> void:
-	var puzzles: Array = _city.get("puzzles", [])
-	if puzzles.is_empty():
-		return
-	var font: Font = Pal.ui_font
-
-	var top := card.position.y + card.size.y - strip_h
-	var pad := card.size.y * 0.06
-	draw_line(Vector2(card.position.x + pad, top),
-			Vector2(card.position.x + card.size.x - pad, top),
-			accent.lerp(paper, 0.55), maxf(1.0, card.size.y * 0.004))
-
-	var label_size := int(card.size.y * 0.032)
-	var done := 0
-	for p in puzzles:
-		if SaveGame.is_solved(p["id"]):
-			done += 1
-	draw_string(font, Vector2(card.position.x + pad, top + label_size * 1.5),
-			tr("COLLECTED  %d / %d") % [done, puzzles.size()],
-			HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, accent)
-
-	# Smaller marks with air between them: crowded to the edges they read as a
-	# toolbar, spaced out they read as a row of collected stamps.
-	var count := puzzles.size()
-	var usable := card.size.x - pad * 2.0
-	var slot := usable / float(count)
-	var box := minf(slot * 0.58, strip_h * 0.34)
-	var y := top + strip_h * 0.50
-
-	for i in count:
-		var p: Dictionary = puzzles[i]
-		var centre_x := card.position.x + pad + slot * (float(i) + 0.5)
-		var frame := Rect2(Vector2(centre_x - box * 0.5, y), Vector2(box, box))
-		var solved := SaveGame.is_solved(p["id"])
-		if solved:
-			_rounded(frame, paper.lerp(accent, 0.14), accent.lerp(paper, 0.35), 2, 1)
-			_draw_art(p["art"], frame.grow(-box * 0.16), deep)
-		else:
-			# Empty slot: a dotted outline, nothing inside.
-			_dotted_rect(frame, accent.lerp(paper, 0.6), maxf(1.0, card.size.y * 0.004))
-
-
 func _dotted_rect(rect: Rect2, col: Color, width: float) -> void:
 	var step := maxf(3.0, rect.size.x * 0.16)
 	var x := rect.position.x

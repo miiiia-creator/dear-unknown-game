@@ -87,34 +87,14 @@ func _draw() -> void:
 			draw_rect(Rect2(_map_rect.position + Vector2(c, r) * cell + Vector2(inset, inset),
 					Vector2(dot, dot)), land)
 
-	_draw_route()
 	_draw_pins(cell)
 
 
-## Dashed line joining the destinations already stamped, in travel order.
-func _draw_route() -> void:
-	var points: Array = []
-	for city in GameData.cities:
-		if GameData.is_city_complete(city["id"]):
-			points.append(_point_for(city))
-	if points.size() < 2:
-		return
-	var col := Pal.c("accent")
-	col.a = 0.5
-	for i in points.size() - 1:
-		_dashed(points[i], points[i + 1], col)
-
-
-func _dashed(a: Vector2, b: Vector2, col: Color) -> void:
-	var length := a.distance_to(b)
-	var dir := (b - a).normalized()
-	var travelled := 0.0
-	while travelled < length:
-		var seg := minf(6.0, length - travelled)
-		draw_line(a + dir * travelled, a + dir * (travelled + seg), col, 1.5, true)
-		travelled += 11.0
-
-
+## The dashed line between stamped destinations is gone. It joined them in the
+## order they were played, which quietly claimed that was the order the cards
+## were sent — and the postmarks say otherwise, or will once the dates are
+## settled. A map that asserts something the letters have not decided is worse
+## than a map with nothing drawn on it.
 func _point_for(city: Dictionary) -> Vector2:
 	var m: Array = city["map"]
 	return _map_rect.position + Vector2(float(m[0]) * _map_rect.size.x,
