@@ -4,6 +4,7 @@ extends AppScreen
 var puzzle_data: Dictionary
 var city: Dictionary
 var board: BoardView
+var _ink_buttons: Array[Button] = []
 var nono: Nonogram
 
 var _elapsed := 0.0
@@ -48,6 +49,12 @@ func build() -> void:
 	board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	board.crosshair = bool(SaveGame.setting("cross_hair", true))
 	board.mark_done = bool(SaveGame.setting("mark_done", true))
+	# The grid's own inks. Empty for every black-and-white puzzle, which is
+	# every puzzle until Season Two.
+	var palette: Array = []
+	for hex in puzzle_data.get("palette", []):
+		palette.append(Color(str(hex)))
+	board.puzzle_palette = palette
 	board.setup(nono)
 	board.changed.connect(_on_changed)
 	board.solved.connect(_on_solved)
@@ -92,14 +99,30 @@ func _tool_bar() -> Control:
 	# own and grow to thumb size.
 	var tools := UI.hbox(8)
 	tools.alignment = BoxContainer.ALIGNMENT_CENTER
-	_fill_button = UI.button(tr("Fill"), true)
-	_fill_button.pressed.connect(func(): _set_tool(BoardView.Tool.FILL))
-	_mark_button = UI.button(tr("Mark"), false)
-	_mark_button.pressed.connect(func(): _set_tool(BoardView.Tool.MARK))
-	for b in [_fill_button, _mark_button]:
-		b.custom_minimum_size = Vector2(0 if narrow else 112, 46 if narrow else 0)
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL if narrow else Control.SIZE_FILL
-		tools.add_child(b)
+	if board.puzzle_palette.size() > 1:
+		# With more than one ink, "Fill" is no longer a single thing: the row
+		# becomes the palette itself, and Mark keeps its place at the end so the
+		# gesture a player already knows does not move.
+		for i in board.puzzle_palette.size():
+			var swatch := _ink_button(i, narrow)
+			_ink_buttons.append(swatch)
+			tools.add_child(swatch)
+		_mark_button = UI.button(tr("Mark"), false)
+		_mark_button.pressed.connect(func(): _set_tool(BoardView.Tool.MARK))
+		_mark_button.custom_minimum_size = Vector2(0 if narrow else 96, 46 if narrow else 0)
+		tools.add_child(_mark_button)
+	else:
+		_fill_button = UI.button(tr("Fill"), true)
+		_fill_button.pressed.connect(func(): _set_tool(BoardView.Tool.FILL))
+		_mark_button = UI.button(tr("Mark"), false)
+		_mark_button.pressed.connect(func(): _set_tool(BoardView.Tool.MARK))
+		for b in [_fill_button, _mark_button]:
+			b.custom_minimum_size = Vector2(0 if narrow else 112, 46 if narrow else 0)
+			b.size_flags_horizontal = Control.SIZE_EXPAND_FILL if narrow else Control.SIZE_FILL
+			tools.add_child(b)
+
+	if not _ink_buttons.is_empty():
+		_set_ink.call_deferred(1)
 
 	var actions := UI.hbox(8)
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -164,11 +187,46 @@ func _toggle_tool() -> void:
 			else BoardView.Tool.FILL)
 
 
+## One ink in the palette row: a square of the colour itself, because a word
+## cannot say which colour it means and the swatch always can.
+func _ink_button(index: int, narrow: bool) -> Button:
+	var b := Button.new()
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(46 if narrow else 52, 46 if narrow else 40)
+	var colour: Color = board.puzzle_palette[index]
+	for state in ["normal", "hover", "pressed", "disabled"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = colour
+		sb.set_corner_radius_all(3)
+		sb.border_color = Pal.c("ink")
+		sb.set_border_width_all(0)
+		b.add_theme_stylebox_override(state, sb)
+	b.pressed.connect(func(): _set_ink(index + 1))
+	return b
+
+
+## Which ink paints, and the border that says so. A ring around the chosen
+## swatch rather than a change of fill: the fill is the information.
+func _set_ink(value: int) -> void:
+	board.ink = value
+	board.tool = BoardView.Tool.FILL
+	for i in _ink_buttons.size():
+		var sb: StyleBoxFlat = _ink_buttons[i].get_theme_stylebox("normal")
+		sb.set_border_width_all(3 if i == value - 1 else 0)
+	if _mark_button != null:
+		UI.restyle_button(_mark_button, false)
+
+
 func _set_tool(which: int) -> void:
 	board.tool = which
 	var filling := which == BoardView.Tool.FILL
-	UI.restyle_button(_fill_button, filling)
-	UI.restyle_button(_mark_button, not filling)
+	if _fill_button != null:
+		UI.restyle_button(_fill_button, filling)
+	if _mark_button != null:
+		UI.restyle_button(_mark_button, not filling)
+	if which == BoardView.Tool.MARK:
+		for b in _ink_buttons:
+			(b.get_theme_stylebox("normal") as StyleBoxFlat).set_border_width_all(0)
 
 
 func _undo() -> void:

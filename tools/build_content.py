@@ -66,7 +66,7 @@ ZH_CITIES = {
 }
 
 
-def P(pid, name, emoji, category, art):
+def P(pid, name, emoji, category, art, colours=None):
     """One discovery.
 
     `emoji` is kept in the source as a note to whoever is authoring the art —
@@ -75,6 +75,9 @@ def P(pid, name, emoji, category, art):
     """
     return {
         "id": pid,
+        # Inks this grid uses, in order. Empty means the one ink the game has
+        # always drawn with, so every black-and-white puzzle stays untouched.
+        "palette": colours or [],
         "name": T(name, ZH_NAMES.get(pid, "")),
         "category": T(category, ZH_CATEGORIES.get(category, "")),
         "art": [row for row in art.strip().splitlines()],
@@ -492,7 +495,73 @@ def lonlat(lon, lat):
 # puzzles yet is a state the game handles rather than a broken one, and it
 # shows on the map as somewhere still being written.
 
-KYOTO = []
+# Kyoto's palette: the pink the letter comes looking for, and the black that
+# replaced it. Two inks, because the first colour city has to teach the rule —
+# same colour needs a gap, different colours may touch — and the shapes should
+# cost the player nothing while they learn it.
+KYOTO_INKS = ["#E8A0B4", "#2A2622"]
+
+KYOTO = [
+    # The same five cells as Tokyo's first puzzle, one season later, in colour.
+    # The player has solved this shape before; everything they spend here goes
+    # on the new rule rather than on working out what they are drawing.
+    P("kyoto_sakura", "Cherry Blossom, in Colour", "🌸", "Nature", """
+.1.1.
+11111
+.121.
+11111
+.1.1.
+""", KYOTO_INKS),
+    P("kyoto_kitty", "Black This Year", "🐱", "Everyday life", """
+..2222..
+.222222.
+22222211
+22222211
+22.22.22
+22222222
+.222222.
+..2222..
+""", KYOTO_INKS),
+    # Kyoto's asymmetric one.
+    P("kyoto_bamboo", "Bamboo Grove", "🎋", "Nature", """
+2.2.....2.2.
+2.2.....2.2.
+222.....2.2.
+2.2.....222.
+2.2.2.2.2.2.
+222.2.2.2.2.
+2.2.222.222.
+2.2.2.2.2.2.
+""", KYOTO_INKS),
+    P("kyoto_lantern", "Paper Lantern", "🏮", "Cultural object", """
+...2222...
+..222222..
+.11111111.
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+.11111111.
+..222222..
+...2222...
+....22....
+""", KYOTO_INKS),
+    P("kyoto_pagoda", "The Pagoda", "⛩", "Landmark", """
+.....22.....
+...2222222..
+....22222...
+.....22.....
+..22222222..
+.2222222222.
+...222222...
+.....22.....
+122222222221
+.22222222222
+....222222..
+.....22.....
+""", KYOTO_INKS),
+]
 SAN_FRANCISCO = []
 ISTANBUL = []
 REYKJAVIK = []
@@ -1017,6 +1086,7 @@ def main():
                 "category": p["category"],
                 "index": idx,
                 "art": p["art"],
+                "palette": p.get("palette", []),
             })
         c = dict(city)
         zh_name, zh_country = ZH_CITIES.get(city["id"], ("", ""))

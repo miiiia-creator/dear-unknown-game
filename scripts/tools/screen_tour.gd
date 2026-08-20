@@ -139,6 +139,19 @@ func run(main: Node) -> void:
 	app.go("map")
 	await _shot("phone_map")
 
+	# A colour grid, which is a different game: the palette replaces Fill, and
+	# the clue numbers take the colour of the run they count.
+	DisplayServer.window_set_size(Vector2i(1280, 800))
+	await _wait(0.5)
+	for p in GameData.puzzles_of("kyoto"):
+		SaveGame.mark_solved(p["id"], 60.0, 0)
+	app.go("puzzle", {"puzzle": "kyoto_lantern"})
+	await _wait(0.6)
+	await _partial_fill()
+	await _shot("colour_puzzle")
+	DisplayServer.window_set_size(Vector2i(430, 900))
+	await _wait(0.5)
+
 	app.go("postcards", {"card": "tokyo"})
 	await _wait(0.9)
 	await _shot("phone_postcards")

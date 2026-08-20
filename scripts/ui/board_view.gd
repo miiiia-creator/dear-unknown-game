@@ -106,8 +106,17 @@ func _draw() -> void:
 		_draw_clues(furniture)
 
 
+## The colour a cell value paints with. Value 1 on a one-colour grid is the ink
+## the game has always used; on a grid with a palette it is the first entry.
+func colour_of(value: int) -> Color:
+	if value <= 0:
+		return Pal.c("cell")
+	if value - 1 < puzzle_palette.size():
+		return puzzle_palette[value - 1]
+	return Pal.c("cell")
+
+
 func _draw_cells(furniture: float) -> void:
-	var fill_color := Pal.c("cell")
 	var mark_color := Pal.c("ink_faint")
 	mark_color.a = furniture
 	var inset := 1.0 if reveal < 0.5 else 0.0
@@ -116,8 +125,8 @@ func _draw_cells(furniture: float) -> void:
 		for c in puzzle.width:
 			var st: int = puzzle.state[r][c]
 			var rect := cell_rect(Vector2i(c, r))
-			if st == Nonogram.FILLED:
-				draw_rect(rect.grow(-inset), fill_color)
+			if st > 0:
+				draw_rect(rect.grow(-inset), colour_of(st))
 			elif st == Nonogram.MARKED and furniture > 0.0:
 				var m := rect.grow(-_cell * 0.32)
 				var wdt := maxf(1.5, _cell * 0.08)
@@ -259,9 +268,14 @@ func _notification(what: int) -> void:
 		queue_redraw()
 
 
+## Which ink the next stroke lays down. On a one-colour grid this is the fill
+## the game has always had; on a colour grid it is whichever the player picked.
+var ink := Nonogram.FILLED
+
+
 func _target_state(secondary: bool) -> int:
 	var use_mark := (tool == Tool.MARK) != secondary
-	return Nonogram.MARKED if use_mark else Nonogram.FILLED
+	return Nonogram.MARKED if use_mark else ink
 
 
 func _apply(c: Vector2i) -> void:
@@ -272,7 +286,7 @@ func _apply(c: Vector2i) -> void:
 	var col_was := puzzle.col_satisfied(c.x)
 	if not puzzle.set_cell(c.y, c.x, _paint_value):
 		return
-	Sfx.play("fill" if _paint_value == Nonogram.FILLED else "mark")
+	Sfx.play("mark" if _paint_value == Nonogram.MARKED else "fill")
 	# The line confirmation is the audible half of the cross-off, and it says
 	# exactly what the strike through the numbers says. So it follows the same
 	# setting: a player who turned the cross-off off for a stricter puzzle has
