@@ -151,6 +151,13 @@ func run(main: Node) -> void:
 	app.go("postcards", {"card": "tokyo"})
 	await _wait(0.4)
 	await _shot("zh_postcard")
+	# Chinese sets denser than English, so the longest letter is the one that
+	# decides whether the back of a card still holds a letter at all.
+	app.go("postcards", {"card": "rome"})
+	await _wait(0.8)
+	app._current._do_flip()
+	await _wait(1.0)
+	await _shot("zh_letter_rome")
 	app.go("prologue")
 	await _wait(4.0)
 	await _shot("zh_prologue")

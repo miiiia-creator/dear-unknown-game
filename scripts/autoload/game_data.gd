@@ -110,10 +110,13 @@ func season_label(season_id: String) -> String:
 	var s := season(season_id)
 	if s.is_empty():
 		return ""
-	const WORDS := ["", "One", "Two", "Three", "Four", "Five", "Six"]
+	# The whole phrase is the translation key, not the numeral: "Season One" is
+	# 第一季, which is not "Season" and "One" glued back together.
+	const WORDS := ["", "Season One", "Season Two", "Season Three", "Season Four",
+			"Season Five", "Season Six"]
 	var n: int = int(s.get("number", 0))
-	var word: String = WORDS[n] if n < WORDS.size() else str(n)
-	return "Season %s — %s" % [word, text(s.get("title", ""))]
+	var word: String = tr(WORDS[n]) if n < WORDS.size() else "Season %d" % n
+	return "%s — %s" % [word, text(s.get("title", ""))]
 
 
 func city(city_id: String) -> Dictionary:

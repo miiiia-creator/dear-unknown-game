@@ -704,26 +704,69 @@ LETTERS = {
         "theme": 'waiting',
         "title": 'The Last Cherry Blossom',
         "body": 'Dear, Unknown,\nMost of the trees were already bare.\nThen I saw one.\nA single cherry blossom above the pond.\nIt was the most beautiful shade of pink.\nI wish you could have seen it.\n— M',
+        "title_zh": '最后一朵樱花',
+        "body_zh": '亲爱的陌生人：\n树差不多都空了。\n然后我看见一朵。\n池塘上方，只有那一朵樱花。\n那是我见过最好看的粉色。\n真希望你也能看见。\n—— M',
     },
     'paris': {
         "theme": 'missing it',
         "title": 'The Last Croissant',
         "body": "Dear, Unknown,\nI found a little boulangerie this morning.\nThe baker said it was the last one.\nIt was still warm,\nso I ate it by the window\nwith a coffee and the sound of bicycles outside.\nI thought about saving half for you.\nI didn't.\nI'm sorry.\n— M",
+        "title_zh": '最后一只可颂',
+        "body_zh": '亲爱的陌生人：\n今天早上我找到一家很小的面包店。\n面包师说这是最后一只了。\n它还是热的，\n所以我就在窗边把它吃了，\n配一杯咖啡，还有窗外自行车的声音。\n我想过给你留一半。\n我没有。\n对不起。\n—— M',
     },
     'rome': {
         "theme": 'memory',
         "title": 'The Last Coin',
         "body": 'Dear, Unknown,\nAn old woman gave me a coin today.\nShe was sitting beside the fountain,\nwhile the water glittered with hundreds of other coins.\nShe told me it was the last one.\nI asked her what she meant.\n“The last coin,” she said.\nI asked what it was worth.\nShe smiled.\n“Nothing anymore.”\nThen she put it in my hand and walked away.\nI still have it.\n— M',
+        "title_zh": '最后一枚硬币',
+        "body_zh": '亲爱的陌生人：\n今天有位老太太给了我一枚硬币。\n她坐在喷泉边上，\n水里还闪着另外几百枚。\n她说这是最后一枚。\n我问她这话什么意思。\n“最后一枚硬币。”她说。\n我问它值多少。\n她笑了。\n“已经什么都不值了。”\n然后她把它放进我手里，走了。\n我还留着。\n—— M',
     },
     'newyork': {
         "theme": 'leaving',
         "title": 'The Last Lonely Person',
         "body": "Dear, Unknown,\nI met a man in a diner last night.\nHe was sitting alone by the window,\nwatching the yellow cabs pass by.\nWe talked until they started closing.\nBefore I left, I asked why he came there every night.\nHe said,\n“So I don't have to be alone.”\nI thought that was strange.\nHe was alone the whole time.\n— M",
+        "title_zh": '最后一个孤独的人',
+        "body_zh": '亲爱的陌生人：\n昨天晚上我在一家小餐馆遇到一个人。\n他一个人坐在窗边，\n看着黄色的出租车开过去。\n我们一直聊到店里开始打烊。\n临走前我问他，为什么每天晚上都来这儿。\n他说：\n“这样我就不用一个人了。”\n我觉得这话很奇怪。\n他明明一直都是一个人。\n—— M',
     },
     'london': {
         "theme": 'kindness',
         "title": 'The Last Postcard',
         "body": "Dear, Unknown,\nLondon has been grey for days.\nThe sky never seems to change.\nEven the afternoons feel like evenings.\nI haven't heard from you in a long time.\nI used to think you were busy.\nThen I thought maybe you didn't want to write back.\nToday, I don't feel like guessing anymore.\nSo I think this will be the last postcard I send you.\nI hope you're well.\n— M",
+        "title_zh": '最后一张明信片',
+        "body_zh": '亲爱的陌生人：\n伦敦已经灰了好几天。\n天空好像从来不变。\n连下午都像傍晚。\n我很久没有收到你的消息了。\n以前我以为你只是忙。\n后来我想，也许你不想回信。\n今天，我不想再猜了。\n所以我想，这大概是我寄给你的最后一张明信片。\n希望你一切都好。\n—— M',
+    },
+
+    # Season Two answers Season One letter for letter: the blossom that is not
+    # there, the pastry nobody makes, the coin that cannot be spent, the person
+    # alone who is not lonely. The titles below are placeholders in the shape
+    # of that pattern.
+    'kyoto': {
+        "theme": 'waiting',
+        "title": 'No Cherry Blossoms',
+        "title_zh": '没有樱花',
+        "body": "Dear, Unknown,\nI came to Kyoto for the cherry blossoms.\nLast year, I remember them in Tokyo.\nThe crowds, the cameras,\nthe pink everywhere.\nBut Kyoto feels like an ordinary day.\nNo crowds.\nNo blossoms.\nEven the little Hello Kitty in the shop window\nis black now.\nI asked the girl behind the counter why.\nShe laughed.\n“Black is in this year.”\nI suppose that's a good enough reason.\n— M",
+        "body_zh": '亲爱的陌生人：\n我为了樱花来京都。\n去年，我记得东京的樱花。\n人群，相机，\n到处都是粉色。\n但京都像是平常的一天。\n没有人群。\n没有花。\n连店铺橱窗里那只小 Hello Kitty\n现在都是黑色的。\n我问柜台后面的女孩为什么。\n她笑了。\n“今年流行黑色。”\n我想这理由也够了。\n—— M',
+    },
+    'sanfrancisco': {
+        "theme": 'missing it',
+        "title": "They Don't Make Those",
+        "title_zh": '他们不做那个',
+        "body": "Dear, Unknown,\nI found a little bakery this morning.\nI asked for a croissant.\nThe baker looked at me strangely.\n“We don't make those.”\nApparently, everyone here prefers sourdough now.\nI told him I didn't like sourdough.\nYou never did either.\nYou always said it was too heavy,\nand ordered a croissant instead.\nI asked if he knew where I could find one.\nHe said I was probably thinking of something else.\nMaybe I am.\nI left without one.\n— M",
+        "body_zh": '亲爱的陌生人：\n今天早上我找到一家很小的面包店。\n我要了一只可颂。\n面包师奇怪地看着我。\n“我们不做那个。”\n好像这里的人现在都更喜欢酸面包。\n我告诉他我不喜欢酸面包。\n你以前也不喜欢。\n你总说那个太沉了，\n然后点一只可颂。\n我问他知不知道哪里能买到。\n他说我大概是记错了别的东西。\n也许我是记错了。\n我什么都没买就走了。\n—— M',
+    },
+    'istanbul': {
+        "theme": 'memory',
+        "title": 'Not Anymore',
+        "title_zh": '已经不是了',
+        "body": "Dear, Unknown,\nI tried to use the coin today.\nThe cashier looked at it\nas if I had handed him a button.\n“Sorry,” he said.\n“We don't take those.”\nI told him it was money.\nHe smiled.\n“Not anymore.”\nEveryone pays with their phones now.\nI suppose he's right.\nI put the coin back in my pocket.\nIt feels strange to carry something\neveryone has forgotten how to use.\n— M",
+        "body_zh": '亲爱的陌生人：\n今天我想把那枚硬币用掉。\n收银员看着它，\n好像我递给他的是一颗纽扣。\n“抱歉，”他说，\n“我们不收这个。”\n我说这是钱。\n他笑了。\n“已经不是了。”\n现在大家都用手机付钱。\n我想他是对的。\n我把硬币放回口袋。\n带着一件所有人都不会用了的东西，\n感觉很奇怪。\n—— M',
+    },
+    'reykjavik': {
+        "theme": 'leaving',
+        "title": 'Alone, Not Lonely',
+        "title_zh": '一个人，但不孤独',
+        "body": "Dear, Unknown,\nI met someone today who lives alone.\nShe told me she likes it that way.\nI asked if she ever gets lonely.\nShe looked confused.\n“Why would I?”\nShe said she has books,\nmusic,\nthe sea,\nand plenty of things to do.\nI didn't know what to say.\nMaybe she's right.\nMaybe being alone\nisn't the same as being lonely.\nI still miss you.\n— M",
+        "body_zh": '亲爱的陌生人：\n今天我遇到一个独自生活的人。\n她说她喜欢这样。\n我问她会不会觉得孤独。\n她一脸困惑。\n“我为什么会孤独？”\n她说她有书，\n有音乐，\n有海，\n还有很多事情可以做。\n我不知道该说什么。\n也许她是对的。\n也许一个人\n和孤独并不是一回事。\n我还是想你。\n—— M',
     },
 }
 
@@ -732,6 +775,7 @@ SEASONS = [
         "id": 's1',
         "number": 1,
         "title": 'The Last Ones',
+        "title_zh": '最后的那些',
         "cities": ['tokyo', 'paris', 'rome', 'newyork', 'london'],
         "opening": {
             "body": "Dear, Unknown,\n\nI don't know where you are anymore.\n\nSo I sent one to every place\nI thought you might be.\n\n— M",
@@ -742,6 +786,7 @@ SEASONS = [
         "id": 's2',
         "number": 2,
         "title": "The Color Doesn't Exist",
+        "title_zh": '不存在的颜色',
         "cities": ['kyoto', 'sanfrancisco', 'istanbul', 'reykjavik', 'bermuda'],
         # Only the first season opens with a letter.
     },
@@ -932,7 +977,7 @@ def main():
         entry = LETTERS.get(city["id"], {})
         c["letter"] = {
             "theme": entry.get("theme", ""),
-            "title": T(entry.get("title", "")),
+            "title": T(entry.get("title", ""), entry.get("title_zh", "")),
             "body": T(entry.get("body", "").strip(),
                       entry.get("body_zh", "").strip()),
         }
@@ -958,7 +1003,7 @@ def main():
     out_seasons = []
     for season in SEASONS:
         sc = dict(season)
-        sc["title"] = T(season["title"])
+        sc["title"] = T(season["title"], season.get("title_zh", ""))
         # Only the first season opens with a letter. The ones after it are
         # already under way when the player arrives, so a season without an
         # "opening" key is expected, not an omission to be filled in.
