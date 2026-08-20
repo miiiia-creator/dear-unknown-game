@@ -154,7 +154,9 @@ func _controls(city_ids: Array, earned: Array) -> Control:
 
 	var actions := UI.hbox(8)
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	_flip_button = UI.button(tr("Turn over"))
+	# "Turn over" says an action; it does not say that there is a letter waiting
+	# on the other side, which is the only reason to press it.
+	_flip_button = UI.button(tr("Read the letter"))
 	_flip_button.pressed.connect(_do_flip)
 	if _selected != "":
 		actions.add_child(_flip_button)

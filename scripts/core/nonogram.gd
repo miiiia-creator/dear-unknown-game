@@ -2,14 +2,33 @@ class_name Nonogram
 extends RefCounted
 ## Pure puzzle logic: grid state, clue generation, undo, hints, completion.
 ## No nodes, no drawing — so it can be unit-tested and reused by the solver.
+##
+## Cells carry a colour rather than a boolean. A black-and-white puzzle is the
+## one-colour case of the same model, which is why nothing here has a branch
+## for it: `#` in the art means "colour 1", and a grid whose palette has one
+## entry behaves exactly as it always did.
+##
+## The rule that makes colour puzzles their own thing: two runs of the SAME
+## colour need a gap between them, two runs of DIFFERENT colours may touch. The
+## solver in tools/build_content.py enforces the same rule, and that is where a
+## grid earns its guarantee of a single solution.
 
-enum { EMPTY, FILLED, MARKED }
+## Cell values. Colours are 1..palette.size(); MARKED is negative so it can
+## never be mistaken for one.
+const EMPTY := 0
+const FILLED := 1        ## colour one — what a single-colour puzzle fills with
+const MARKED := -1
+
+## Characters the art uses. `#` is sugar for colour one.
+const INK := "#"
+const BLANK := "."
 
 var width: int = 0
 var height: int = 0
-var solution: Array = []      ## Array[Array[int]] — 1 filled, 0 blank
-var state: Array = []          ## Array[Array[int]] — EMPTY / FILLED / MARKED
-var row_clues: Array = []      ## Array[Array[int]]
+var colours: int = 1           ## how many inks this grid uses
+var solution: Array = []       ## Array[Array[int]] — 0 empty, 1..n colour
+var state: Array = []          ## Array[Array[int]] — same, plus MARKED
+var row_clues: Array = []      ## Array[Array[Vector2i]] — (length, colour)
 var col_clues: Array = []
 var hints_used: int = 0
 var moves: int = 0
@@ -25,7 +44,9 @@ func _init(art: Array) -> void:
 		var sol_row: Array = []
 		var state_row: Array = []
 		for col in width:
-			sol_row.append(1 if line[col] == "#" else 0)
+			var value := value_of(line[col])
+			colours = maxi(colours, value)
+			sol_row.append(value)
 			state_row.append(EMPTY)
 		solution.append(sol_row)
 		state.append(state_row)
@@ -39,20 +60,34 @@ func _init(art: Array) -> void:
 		col_clues.append(clues_of(strip))
 
 
-## Run-lengths of a 0/1 line. An empty line reads as [0] so the UI can show "0".
+## One art character to one cell value.
+static func value_of(ch: String) -> int:
+	if ch == INK:
+		return FILLED
+	if ch >= "1" and ch <= "9":
+		return int(ch)
+	return EMPTY
+
+
+## Runs of a line as (length, colour). Touching runs of different colours are
+## separate entries with no gap between them, which is exactly what the player
+## has to work out. An empty line reads as one zero so the board can show "0".
 static func clues_of(line: Array) -> Array:
 	var out: Array = []
 	var run := 0
+	var colour := EMPTY
 	for v in line:
-		if v == 1:
+		if v == colour and v != EMPTY:
 			run += 1
-		elif run > 0:
-			out.append(run)
-			run = 0
+			continue
+		if run > 0:
+			out.append(Vector2i(run, colour))
+		colour = v
+		run = 1 if v != EMPTY else 0
 	if run > 0:
-		out.append(run)
+		out.append(Vector2i(run, colour))
 	if out.is_empty():
-		out.append(0)
+		out.append(Vector2i(0, EMPTY))
 	return out
 
 
@@ -106,15 +141,31 @@ func undo() -> bool:
 	return true
 
 
-## Restore a board from SaveGame's flat digit string. Ignores anything whose
-## length no longer matches the puzzle, so edited art cannot load a stale grid.
+## Restore a board from SaveGame's flat string. Anything whose length no longer
+## matches the puzzle is ignored, so edited art cannot load a stale grid.
+##
+## Saves written before colour existed used 0/1/2 per cell. They are still read:
+## a board someone left half-finished should not be thrown away by a change to
+## the file format.
 func apply_flat(flat: String) -> bool:
 	if flat.length() != width * height:
 		return false
+	var legacy := true
+	for i in flat.length():
+		if not flat[i] in ["0", "1", "2"]:
+			legacy = false
+			break
 	for r in height:
 		for col in width:
-			var digit := flat[r * width + col]
-			state[r][col] = int(digit) if digit in ["0", "1", "2"] else EMPTY
+			var ch := flat[r * width + col]
+			if legacy:
+				state[r][col] = [EMPTY, FILLED, MARKED][int(ch)]
+			elif ch == "x":
+				state[r][col] = MARKED
+			elif ch >= "1" and ch <= "9":
+				state[r][col] = int(ch)
+			else:
+				state[r][col] = EMPTY
 	_undo_stack.clear()
 	return true
 
@@ -123,7 +174,13 @@ func to_flat() -> String:
 	var out := ""
 	for r in height:
 		for col in width:
-			out += str(state[r][col])
+			var v: int = state[r][col]
+			if v == MARKED:
+				out += "x"
+			elif v > 0:
+				out += str(v)
+			else:
+				out += BLANK
 	return out
 
 
@@ -143,7 +200,7 @@ func take_hint() -> Vector2i:
 	var candidates: Array = []
 	for r in height:
 		for col in width:
-			var want: int = FILLED if solution[r][col] == 1 else MARKED
+			var want: int = solution[r][col] if solution[r][col] != EMPTY else MARKED
 			if state[r][col] != want:
 				candidates.append(Vector2i(col, r))
 	if candidates.is_empty():
@@ -163,18 +220,22 @@ func take_hint() -> Vector2i:
 			best_score = unknown
 			best = p
 
+	var truth: int = solution[best.y][best.x]
 	begin_stroke()
-	set_cell(best.y, best.x, FILLED if solution[best.y][best.x] == 1 else MARKED)
+	set_cell(best.y, best.x, truth if truth != EMPTY else MARKED)
 	end_stroke()
 	hints_used += 1
 	return best
 
 
+## Marking a cell is a note to yourself, so it counts as leaving it empty.
 func is_complete() -> bool:
 	for r in height:
 		for col in width:
-			var filled: bool = state[r][col] == FILLED
-			if filled != (solution[r][col] == 1):
+			var placed: int = state[r][col]
+			if placed == MARKED:
+				placed = EMPTY
+			if placed != solution[r][col]:
 				return false
 	return true
 
@@ -183,20 +244,22 @@ func filled_count() -> int:
 	var n := 0
 	for r in height:
 		for col in width:
-			if state[r][col] == FILLED:
+			if state[r][col] > 0:
 				n += 1
 	return n
 
 
+## The number of cells the finished picture fills, whatever colour they are.
 func total_filled() -> int:
 	var n := 0
 	for r in height:
 		for col in width:
-			n += solution[r][col]
+			if solution[r][col] != EMPTY:
+				n += 1
 	return n
 
 
-## True when a line's filled runs exactly match its clues.
+## True when a line's runs exactly match its clues, colours included.
 ##
 ## This is a *local* check: the line satisfies its own numbers. It can still sit
 ## in the wrong place relative to the columns, which is why crossing off a
@@ -205,22 +268,31 @@ func total_filled() -> int:
 func row_satisfied(r: int) -> bool:
 	var line: Array = []
 	for col in width:
-		line.append(1 if state[r][col] == FILLED else 0)
+		line.append(_placed(r, col))
 	return clues_of(line) == row_clues[r]
 
 
 func col_satisfied(col: int) -> bool:
 	var line: Array = []
 	for r in height:
-		line.append(1 if state[r][col] == FILLED else 0)
+		line.append(_placed(r, col))
 	return clues_of(line) == col_clues[col]
 
 
 ## Every cell that contradicts the solution — used only by the "check" nudge.
+## A cell of the wrong colour is as much a mistake as a cell that should be
+## blank, which is new: black and white only ever had the one way to be wrong.
 func mistakes() -> Array:
 	var out: Array = []
 	for r in height:
 		for col in width:
-			if state[r][col] == FILLED and solution[r][col] == 0:
+			var placed := _placed(r, col)
+			if placed != EMPTY and placed != solution[r][col]:
 				out.append(Vector2i(col, r))
 	return out
+
+
+## What the player has actually put in a cell, with a mark counting as nothing.
+func _placed(r: int, col: int) -> int:
+	var v: int = state[r][col]
+	return EMPTY if v == MARKED else v

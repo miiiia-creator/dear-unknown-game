@@ -105,6 +105,11 @@ func run(main: Node) -> void:
 				await _shot("resolve_%s" % str(step).replace(".", "_"))
 		await _wait(4.2)
 		await _shot("sky_" + str(city["id"]))
+		if city["id"] == "tokyo":
+			# The card should have turned itself over by now and be showing the
+			# letter — the whole reason the destination was worth finishing.
+			await _wait(3.4)
+			await _shot("city_complete_letter")
 
 	# The letters, once every card has been earned. Rome's is the longest in the
 	# season and New York's is close behind, so if the back of a card cannot
@@ -164,8 +169,11 @@ func run(main: Node) -> void:
 	Pal.set_locale("en")
 
 	print("Screenshots in ", ProjectSettings.globalize_path(SHOT_DIR))
-	# A hard quit does not give autoloads a chance to let go of anything, so the
-	# tour hands the music back rather than reporting a leak every run.
+	# A hard quit does not give autoloads a chance to let go of anything, and a
+	# screen still holding a film is torn down after the resource cache has
+	# started clearing. Land somewhere plain, then hand the music back.
+	app.go("map")
+	await _wait(0.4)
 	Music.release()
 	get_tree().quit()
 

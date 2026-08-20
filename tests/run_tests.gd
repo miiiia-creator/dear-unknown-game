@@ -12,6 +12,7 @@ var _failed := 0
 
 func _initialize() -> void:
 	test_clues()
+	test_colour()
 	test_editing()
 	test_hint_and_completion()
 	test_line_satisfied()
@@ -54,14 +55,51 @@ func test_clues() -> void:
 	var n := Nonogram.new(ART)
 	equal("width", n.width, 5)
 	equal("height", n.height, 5)
-	equal("row 0", n.row_clues[0], [1])
-	equal("row 3", n.row_clues[3], [5])
-	equal("col 0", n.col_clues[0], [2])
-	equal("col 2", n.col_clues[2], [5])
+	# Clues carry a colour as well as a length. A one-colour puzzle is the case
+	# where every colour is 1, which is why there is no separate code path.
+	equal("row 0", n.row_clues[0], [Vector2i(1, 1)])
+	equal("row 3", n.row_clues[3], [Vector2i(5, 1)])
+	equal("col 0", n.col_clues[0], [Vector2i(2, 1)])
+	equal("col 2", n.col_clues[2], [Vector2i(5, 1)])
 	equal("total filled", n.total_filled(), 1 + 3 + 3 + 5 + 5)
 
-	equal("gap clue", Nonogram.clues_of([1, 0, 1, 1, 0, 1]), [1, 2, 1])
-	equal("empty line reads as 0", Nonogram.clues_of([0, 0, 0]), [0])
+	equal("gap clue", Nonogram.clues_of([1, 0, 1, 1, 0, 1]),
+			[Vector2i(1, 1), Vector2i(2, 1), Vector2i(1, 1)])
+	equal("empty line reads as 0", Nonogram.clues_of([0, 0, 0]), [Vector2i(0, 0)])
+
+
+func test_colour() -> void:
+	print("\ncolour")
+	# Two colours touching with no gap between them is the whole difference
+	# between a colour nonogram and a black-and-white one.
+	equal("touching colours are separate runs",
+			Nonogram.clues_of([1, 1, 2, 2, 2]),
+			[Vector2i(2, 1), Vector2i(3, 2)])
+	equal("same colour needs the gap to split",
+			Nonogram.clues_of([1, 1, 0, 1]),
+			[Vector2i(2, 1), Vector2i(1, 1)])
+
+	var art := ["12.", ".22", "1.1"]
+	var n := Nonogram.new(art)
+	equal("colour count", n.colours, 2)
+	equal("digit art reads as colour", n.solution[0], [1, 2, 0])
+	equal("row of two colours", n.row_clues[1], [Vector2i(2, 2)])
+
+	# A marked cell is a note, not an answer: it has to read as empty.
+	for r in 3:
+		for c in 3:
+			n.set_cell(r, c, n.solution[r][c] if n.solution[r][c] != 0
+					else Nonogram.MARKED)
+	check("solved with marks standing in for blanks", n.is_complete())
+
+	var flat := n.to_flat()
+	equal("flat keeps the colours", flat, "12x" + "x22" + "1x1")
+	var m := Nonogram.new(art)
+	check("round trip", m.apply_flat(flat) and m.is_complete())
+
+	# Boards saved before colour existed still load.
+	var legacy := Nonogram.new(ART)
+	check("legacy digits still load", legacy.apply_flat("0".repeat(25)))
 
 
 func test_editing() -> void:

@@ -161,16 +161,18 @@ PARIS = [
 .######.
 ..####..
 """),
-    # Paris's asymmetric one. A croissant is a crescent that has been rolled
-    # from one end, so drawing it symmetrically makes it a bagel.
+    # Drawn symmetrically on purpose, which cost Paris its asymmetric grid. The
+    # earlier version was rolled from one end the way a real croissant is, and
+    # at thirteen cells across that read as a broken arc rather than as
+    # anything edible. The two lifted horns are what make it legible.
     P("paris_croissant", "Croissant", "🥐", "Food", """
-.....####....
+.##.......##.
+####.....####
+.###########.
+..#########..
+..#########..
 ...#######...
-..###...###..
-.###.....##..
-.##.......#..
-.##..........
-..#..........
+....#####....
 """),
     P("paris_arc", "Arc de Triomphe", "🇫🇷", "Landmark", """
 ##########

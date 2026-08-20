@@ -7,6 +7,11 @@ const PICTURE_ASPECT := 1.5
 
 var city_id: String
 var _title_plate: Control
+var _stage: Control
+var _front: Control
+var _back: PostcardView
+var _turn: Button
+var _busy := false
 
 
 func build() -> void:
@@ -39,8 +44,27 @@ func build() -> void:
 	column.add_child(stage)
 
 	var card := _framed_scene(stage, card_w)
+	_stage = stage
 
-	column.add_child(UI.spacer(14))
+	# The letter is what finishing a destination is for, and until now there was
+	# no way to reach it from this screen at all — the card showed its picture
+	# and the only buttons led somewhere else. A player could finish a city and
+	# never learn that anything was written on the back.
+	_back = PostcardView.new()
+	_back.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_back.face = "back"
+	_back.visible = false
+	stage.add_child(_back)
+	_back.setup(city_id)
+
+	column.add_child(UI.spacer(10))
+
+	_turn = UI.quiet_button(tr("Read the letter"), UI.SMALL)
+	_turn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_turn.pressed.connect(_flip)
+	column.add_child(_turn)
+
+	column.add_child(UI.spacer(8))
 
 	var buttons := UI.hbox(10)
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -86,6 +110,8 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	sb.set_corner_radius_all(10)
 	frame.add_theme_stylebox_override("panel", sb)
 	stage.add_child(frame)
+
+	_front = frame
 
 	var scene := PostcardScene.new()
 	scene.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -149,3 +175,28 @@ func _animate(card: PostcardScene) -> void:
 	# already say the city is finished, and a notification sliding in over the
 	# moment made it feel like an app reporting an achievement.
 	tw.tween_callback(func(): Sfx.play("stamp"))
+	# Long enough to look at the picture, then the card turns itself over. A
+	# postcard you are handed is looked at and then turned; nobody has to be
+	# told to do it, and nobody should have to guess that they may.
+	tw.tween_interval(2.4)
+	tw.tween_callback(_flip)
+
+
+## A flat card turning: squash to nothing on X, swap the face, open out again.
+## The same movement the postcards gallery uses, so the two read as one object.
+func _flip() -> void:
+	if _busy or _back == null:
+		return
+	_busy = true
+	var showing_back := _back.visible
+	_stage.pivot_offset = _stage.size * 0.5
+	Sfx.play("flip")
+	var tw := create_tween()
+	tw.tween_property(_stage, "scale:x", 0.0, 0.30).set_trans(Tween.TRANS_SINE)
+	tw.tween_callback(func():
+		_back.visible = not showing_back
+		_front.visible = showing_back
+		_title_plate.visible = showing_back
+		_turn.text = tr("See the picture") if not showing_back else tr("Read the letter"))
+	tw.tween_property(_stage, "scale:x", 1.0, 0.30).set_trans(Tween.TRANS_SINE)
+	tw.tween_callback(func(): _busy = false)

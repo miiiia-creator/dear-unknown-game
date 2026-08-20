@@ -11,7 +11,16 @@ var from_name: String = ""
 var to_name: String = ""
 var face := "front":
 	set(value):
+		var was := face
 		face = value
+		# The motion belongs to the picture. A card that is showing its back —
+		# the completion screen builds one purely for the letter — has no use
+		# for a second decode of the same film.
+		if value != was:
+			if value == "front":
+				_load_motion(city_id)
+			else:
+				_stop_motion()
 		queue_redraw()
 
 ## The city's painting, if it has one. A postcard front should be a picture;
@@ -40,7 +49,10 @@ func setup(id: String, msg: String = "", sender: String = "", recipient: String 
 	_city = GameData.city(id)
 	_palette = GameData.city_palette(id)
 	_load_art(id)
-	_load_motion(id)
+	if face == "front":
+		_load_motion(id)
+	else:
+		_stop_motion()
 	queue_redraw()
 
 
@@ -346,11 +358,16 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 			draw_string(font, pm + Vector2(-bw * 0.5, ds * 0.95), bottom,
 					HORIZONTAL_ALIGNMENT_LEFT, -1, ds, mark)
 
-	# Vertical divider between the message and the address.
+	# Vertical divider between the message and the address — only when there is
+	# an address side to divide off. M's letters are not addressed to anybody,
+	# which is the premise of the game, and they run long enough to cross the
+	# middle of the card; a rule down the centre just gets written over.
 	var mid := inner.position.x + inner.size.x * 0.52
-	draw_line(Vector2(mid, inner.position.y + inner.size.y * 0.05),
-			Vector2(mid, inner.position.y + inner.size.y * 0.95),
-			accent.lerp(paper, 0.5), maxf(1.0, card.size.y * 0.004))
+	var addressed := message.strip_edges() != ""
+	if addressed:
+		draw_line(Vector2(mid, inner.position.y + inner.size.y * 0.05),
+				Vector2(mid, inner.position.y + inner.size.y * 0.95),
+				accent.lerp(paper, 0.5), maxf(1.0, card.size.y * 0.004))
 
 	# What is written on the card: the letter that arrived with it, or — when the
 	# player is composing something to send — their own words instead.
@@ -360,45 +377,70 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		text = GameData.text(_city.get("letter", {}).get("body", ""))
 		handwritten = false
 
-	# M's letters run long — thirteen lines in Rome — and the left half of a
-	# postcard cannot hold that at a readable size. On a real card you write
-	# down the left, run out, and carry on under the stamp across the full
-	# width, so that is what the type does here: narrow while it is beside the
-	# stamp, full width once it is past it.
+	# M's letters are written in lines, not paragraphs — each break is the
+	# author's. Wrapping them to a column destroyed that: a sentence meant to
+	# land on its own turned into two ragged lines, and with the measure
+	# changing halfway down the card the right edge jumped about.
 	#
-	# A message the player is composing keeps the classic split, because that
-	# one is short and the address side is about to be used.
+	# So they are not wrapped at all. The type is sized to the two things that
+	# actually constrain it — the number of lines and the longest line — and the
+	# block is centred in what the stamp leaves. A message the player is writing
+	# still wraps, because that one is prose and is short.
 	var narrow_w := mid - inner.position.x - card.size.x * 0.04
-	var wide_w := inner.size.x - card.size.x * 0.04
-	var top := inner.position.y + inner.size.y * (0.16 if handwritten else 0.10)
-	var stamp_bottom := stamp.position.y + stamp.size.y + card.size.y * 0.03
-
-	var msg_size := int(card.size.y * 0.062)
 	var lines: Array = []
-	var floor_size := int(card.size.y * 0.034)
-	# The row of discoveries along the bottom is a nice thing to have; a letter
-	# stopping mid-sentence is not. If the two cannot both fit, the letter wins
-	# and the row goes — it is on the journal page anyway.
-	var keep_strip := true
-	while true:
-		var bottom := inner.position.y + inner.size.y \
-				+ (0.0 if keep_strip else strip_h)
-		lines = _flow(font, text, msg_size, top, stamp_bottom, narrow_w,
-				wide_w if not handwritten else narrow_w)
-		var needed := top + lines.size() * msg_size * 1.45
-		if needed <= bottom:
-			break
-		if keep_strip and not handwritten:
-			keep_strip = false
-			continue
-		if msg_size <= floor_size:
-			break
-		msg_size -= 1
-		keep_strip = not handwritten
+	var msg_size := 0
+	var top := 0.0
+	## Whether the row of discoveries still has room once the letter is set.
+	var show_strip := true
+
+	if handwritten:
+		msg_size = int(card.size.y * 0.062)
+		var room := int(inner.size.y * 0.74 / (msg_size * 1.45))
+		lines = _wrap_paragraphs(font, text, msg_size, narrow_w)
+		while lines.size() > room and msg_size > int(card.size.y * 0.030):
+			msg_size -= 1
+			room = int(inner.size.y * 0.74 / (msg_size * 1.45))
+			lines = _wrap_paragraphs(font, text, msg_size, narrow_w)
+		top = inner.position.y + inner.size.y * 0.16
+	else:
+		for para in text.split("\n"):
+			lines.append(String(para).strip_edges())
+		var wide_w := inner.size.x - card.size.x * 0.02
+		# Room to the left of the stamp. M writes short lines, so the block
+		# usually clears it and can start at the top of the card, which buys
+		# enough height to set the type a third larger. Only a letter with a
+		# long line has to begin underneath.
+		var beside_w := stamp.position.x - inner.position.x - card.size.x * 0.03
+		var high_top := inner.position.y + inner.size.y * 0.06
+		var low_top := stamp.position.y + stamp.size.y + card.size.y * 0.045
+		# The row of discoveries is a nice thing to have; a letter set too small
+		# to read is not. If both cannot fit, the row goes — it is on the
+		# journal page anyway.
+		for keep_strip in [true, false]:
+			var bottom: float = inner.position.y + inner.size.y \
+					+ (0.0 if keep_strip else strip_h)
+			msg_size = int(card.size.y * 0.075)
+			var block_top := high_top
+			while msg_size > int(card.size.y * 0.022):
+				var widest := 0.0
+				for line in lines:
+					widest = maxf(widest, font.get_string_size(
+							line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
+				block_top = high_top if widest <= beside_w else low_top
+				var tall := lines.size() * msg_size * 1.45
+				if widest <= wide_w and block_top + tall <= bottom:
+					break
+				msg_size -= 1
+			var tall_final := lines.size() * msg_size * 1.45
+			if block_top + tall_final <= bottom:
+				show_strip = keep_strip
+				top = block_top + maxf(0.0, (bottom - block_top - tall_final) * 0.5)
+				break
+			show_strip = false
+			top = low_top
 
 	var ly := top
 	for i in lines.size():
-		var w: float = narrow_w if (handwritten or ly < stamp_bottom) else wide_w
 		draw_string(font, Vector2(inner.position.x, ly), lines[i],
 				HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size,
 				deep if handwritten else deep.lerp(accent, 0.25))
@@ -415,12 +457,12 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	if to_name != "":
 		draw_string(font, Vector2(ax, ay - msg_size * 0.6), to_name,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size, deep)
-	for i in 3:
+	for i in (3 if addressed else 0):
 		draw_line(Vector2(ax, ay + i * msg_size * 1.5),
 				Vector2(ax + aw, ay + i * msg_size * 1.5),
 				accent.lerp(paper, 0.55), maxf(1.0, card.size.y * 0.004))
 
-	if keep_strip:
+	if show_strip:
 		_draw_collection(card, strip_h, accent, deep, paper)
 
 
@@ -449,7 +491,7 @@ func _draw_collection(card: Rect2, strip_h: float, accent: Color, deep: Color,
 		if SaveGame.is_solved(p["id"]):
 			done += 1
 	draw_string(font, Vector2(card.position.x + pad, top + label_size * 1.5),
-			"COLLECTED  %d / %d" % [done, puzzles.size()],
+			tr("COLLECTED  %d / %d") % [done, puzzles.size()],
 			HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, accent)
 
 	# Smaller marks with air between them: crowded to the edges they read as a
