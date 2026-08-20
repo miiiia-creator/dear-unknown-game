@@ -707,6 +707,13 @@ LETTERS = {
         "title_zh": '最后一朵樱花',
         "body_zh": '亲爱的陌生人：\n树差不多都空了。\n然后我看见一朵。\n池塘上方，只有那一朵樱花。\n那是我见过最好看的粉色。\n真希望你也能看见。\n—— M',
     },
+    'bermuda': {
+        "theme": 'kindness',
+        "title": 'Just in Case',
+        "title_zh": '以防万一',
+        "body": "Dear, Unknown,\nI came to Bermuda today.\nSomeone told me about the Triangle.\nShips disappear. Planes disappear.\nWe always seem to find a reason.\nThings have been changing lately.\nMaybe I'm the only one who notices.\nI wrote some of them down.\nI'm glad I did.\nI don't know why.\nSo I'll keep writing.\nJust in case.\n— M",
+        "body_zh": '亲爱的陌生人：\n今天我到了百慕大。\n有人跟我说起那个三角。\n船会消失。飞机会消失。\n我们好像总能找到一个解释。\n最近有些东西在变。\n也许只有我一个人注意到。\n我把其中一些写了下来。\n我很庆幸我写了。\n我不知道为什么。\n所以我会继续写。\n以防万一。\n—— M',
+    },
     'paris': {
         "theme": 'missing it',
         "title": 'The Last Croissant',
