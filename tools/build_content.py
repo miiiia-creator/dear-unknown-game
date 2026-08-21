@@ -377,7 +377,44 @@ SAN_FRANCISCO = [
 ....222222....
 """, SF_INKS),
 ]
-ISTANBUL = []
+# Three inks: the gold of a coin nobody takes, the Iznik turquoise of a lit
+# screen, and the dark that holds both. Colour count keeps climbing across the
+# season — by Bermuda nobody is counting.
+ISTANBUL_INKS = ["#C9A227", "#2F7E82", "#2C2A26"]
+
+ISTANBUL = [
+    # The coin from Rome, a season later, drawn as large as the card allows.
+    # It was a small grid when it still bought things.
+    P("istanbul_coin", "Not Anymore", "\U0001fa99", "Cultural object", """
+....111111....
+..1111111111..
+.111111111111.
+.111122111111.
+11112222221111
+11122222222111
+11112222221111
+.111122111111.
+.111111111111.
+..1111111111..
+....111111....
+...3333333....
+..333333333...
+""", ISTANBUL_INKS),
+    # What everyone pays with instead. The lit screen is the only turquoise on
+    # the card, and the waves leaving it are the same gold as the coin — the
+    # money is still there, it has just stopped being a thing you can hold.
+    P("istanbul_phone", "Everyone Pays With Their Phones", "\U0001f4f1", "Everyday life", """
+.3333333..1...
+.3222223.11..1
+.3222223.111.1
+.3222223.111.1
+.3222223.111.1
+.3222223.11..1
+.3222223..1...
+.3333333......
+..33333.......
+""", ISTANBUL_INKS),
+]
 REYKJAVIK = []
 BERMUDA = []
 

@@ -913,7 +913,68 @@
     "#2F7E82",
     "#22343A"
    ],
-   "puzzles": [],
+   "puzzles": [
+    {
+     "id": "istanbul_coin",
+     "name": {
+      "en": "Not Anymore",
+      "zh_CN": "Not Anymore"
+     },
+     "category": {
+      "en": "Cultural object",
+      "zh_CN": "文化"
+     },
+     "index": 0,
+     "art": [
+      "....111111....",
+      "..1111111111..",
+      ".111111111111.",
+      ".111122111111.",
+      "11112222221111",
+      "11122222222111",
+      "11112222221111",
+      ".111122111111.",
+      ".111111111111.",
+      "..1111111111..",
+      "....111111....",
+      "...3333333....",
+      "..333333333..."
+     ],
+     "palette": [
+      "#C9A227",
+      "#2F7E82",
+      "#2C2A26"
+     ]
+    },
+    {
+     "id": "istanbul_phone",
+     "name": {
+      "en": "Everyone Pays With Their Phones",
+      "zh_CN": "Everyone Pays With Their Phones"
+     },
+     "category": {
+      "en": "Everyday life",
+      "zh_CN": "日常"
+     },
+     "index": 1,
+     "art": [
+      ".3333333..1...",
+      ".3222223.11..1",
+      ".3222223.111.1",
+      ".3222223.111.1",
+      ".3222223.111.1",
+      ".3222223.11..1",
+      ".3222223..1...",
+      ".3333333......",
+      "..33333......."
+     ],
+     "palette": [
+      "#C9A227",
+      "#2F7E82",
+      "#2C2A26"
+     ]
+    }
+   ],
    "notes": [
     "Wish you were here.",
     "No news. Just this.",
@@ -921,7 +982,14 @@
     "Thinking of you from a long way away.",
     "Nothing to report except that it was lovely."
    ],
-   "composition": [],
+   "composition": [
+    {
+     "id": "istanbul_phone",
+     "x": 0.47,
+     "base": 0.66,
+     "w": 0.23
+    }
+   ],
    "letter": {
     "theme": "memory",
     "title": {
