@@ -88,7 +88,7 @@ func run(main: Node) -> void:
 
 	# Flip to the collection side. Paris is left unfinished on purpose so the
 	# empty slots show alongside the filled ones.
-	app._current._do_flip()
+	app._current._flip()
 	await _wait(0.3)
 	await _shot("postcard_back")
 
@@ -134,7 +134,7 @@ func run(main: Node) -> void:
 	for long_one in ["rome", "newyork", "london"]:
 		app.go("postcards", {"card": long_one})
 		await _wait(0.8)
-		app._current._do_flip()
+		app._current._flip()
 		await _wait(1.0)
 		await _shot("letter_" + long_one)
 
@@ -193,7 +193,7 @@ func run(main: Node) -> void:
 	app.go("postcards", {"card": "tokyo"})
 	await _wait(1.0)
 	await _shot("phone_card_front")
-	app._current._do_flip()
+	app._current._flip()
 	await _wait(1.0)
 	await _shot("phone_card_back")
 	DisplayServer.window_set_size(Vector2i(1280, 800))
@@ -203,7 +203,7 @@ func run(main: Node) -> void:
 	# decides whether the back of a card still holds a letter at all.
 	app.go("postcards", {"card": "rome"})
 	await _wait(0.8)
-	app._current._do_flip()
+	app._current._flip()
 	await _wait(1.0)
 	await _shot("zh_letter_rome")
 	app.go("prologue")
