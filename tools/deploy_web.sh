@@ -16,6 +16,13 @@ MSG="${1:-Web build}"
 
 cd "$ROOT"
 
+# Reimport first. The export packs whatever the import cache holds, so running
+# it straight after an edit ships the previous build of any script that changed
+# — silently, with no error anywhere, and the change simply is not in the game.
+echo "-- reimporting"
+godot --headless --path . --import >/dev/null 2>&1 || \
+	godot --headless --editor --quit >/dev/null 2>&1
+
 echo "-- exporting"
 godot --headless --path . --export-release "Web" "$OUT/index.html" >/dev/null
 

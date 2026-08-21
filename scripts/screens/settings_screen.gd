@@ -29,6 +29,19 @@ func build() -> void:
 	stats.add_child(UI.paragraph(tr("Saved to ") + SaveGame.save_path(), UI.SMALL, "ink_faint"))
 	body.add_child(stats)
 
+	# The Season Three experiment. A URL hatch was the way in and it could not
+	# be got to work from a phone in an afternoon; a button can be pressed.
+	body.add_child(UI.spacer(4))
+	var lab := UI.hbox(10)
+	var solid := UI.quiet_button(tr("Try the solid"), UI.SMALL)
+	solid.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	solid.pressed.connect(func(): go("solid"))
+	lab.add_child(solid)
+	lab.add_child(UI.label(tr("Season Three, an experiment"), UI.SMALL, "ink_faint"))
+	lab.add_child(UI.grow())
+	body.add_child(lab)
+	body.add_child(UI.spacer(4))
+
 	var danger := UI.hbox(10)
 	var reset := UI.button(tr("Reset all progress"))
 	reset.pressed.connect(_confirm_reset)

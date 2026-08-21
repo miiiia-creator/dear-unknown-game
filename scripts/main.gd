@@ -102,9 +102,12 @@ func _asked_solid() -> bool:
 		return true
 	if not OS.has_feature("web"):
 		return false
+	# Answered as a string. `?to=` works and returns one; asking the same bridge
+	# for a boolean came back as something that was not `true`, and the spike
+	# was unreachable on the only device it was built to be tried on.
 	var q: Variant = JavaScriptBridge.eval(
-			"new URLSearchParams(location.search).has('solid')", true)
-	return q is bool and q
+			"new URLSearchParams(location.search).has('solid') ? 'yes' : ''", true)
+	return typeof(q) == TYPE_STRING and String(q) == "yes"
 
 
 func _asked_destination() -> String:

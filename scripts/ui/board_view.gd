@@ -182,18 +182,32 @@ func _clue_colour(entry: Vector2i, base: Color) -> Color:
 func _clue_shadow(alpha: float) -> Color:
 	var lit := Pal.c("bg").get_luminance() > 0.5
 	var c := Color(0.10, 0.10, 0.09) if lit else Color(0.93, 0.93, 0.91)
-	c.a = (0.50 if lit else 0.38) * alpha
+	c.a = (0.42 if lit else 0.32) * alpha
 	return c
+
+
+## Only an ink that cannot be read on its own gets held up. A shadow under
+## every tinted number put a second, offset copy of fifty digits on the page and
+## the whole board vibrated — and most inks never needed it: San Francisco's
+## brown stands on paper perfectly well, it is only its gold that vanishes.
+func _needs_holding(col: Color) -> bool:
+	var page: Color = Pal.c("bg")
+	var la := col.get_luminance()
+	var lb := page.get_luminance()
+	# 1.55, not 2: a mid-tone green or blue stands on paper by itself and only
+	# looked as though it needed help because everything around it had been
+	# given some.
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05) < 1.55
 
 
 ## One-colour grids keep the plain ink they always had; only a clue wearing a
 ## puzzle's own colour needs holding up.
 func _clue_string(font: Font, at: Vector2, text: String, fsize: int,
 		col: Color, tinted: bool, furniture: float) -> void:
-	if tinted:
+	if tinted and _needs_holding(col):
 		# Just enough to give the stroke an edge. Any heavier and the numbers
 		# read as embossed, which is a different game entirely.
-		var drop := maxf(1.0, float(fsize) * 0.055)
+		var drop := maxf(1.0, float(fsize) * 0.05)
 		draw_string(font, at + Vector2(drop, drop), text,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, _clue_shadow(furniture))
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, col)
