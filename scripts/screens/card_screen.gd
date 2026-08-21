@@ -39,6 +39,9 @@ func build() -> void:
 	move_child(_backdrop, 0)
 
 	_stage = Control.new()
+	# Without this the stage swallows the press and only the empty page around
+	# the card answered a tap — the one place nobody would think to press.
+	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root.add_child(_stage)
@@ -73,6 +76,7 @@ func _hint() -> Control:
 	if _showing_back and _next_puzzle() == "":
 		text = ""
 	var label := UI.label(text, UI.SMALL, "ink_faint", HORIZONTAL_ALIGNMENT_CENTER)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return label
 

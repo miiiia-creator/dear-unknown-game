@@ -32,12 +32,9 @@ func build() -> void:
 	centre.add_child(column)
 
 	var progress := GameData.city_progress(city_id)
-	column.add_child(UI.label(tr("%s COMPLETE") % String(GameData.text(city["name"])).to_upper(),
-			UI.H2, "ink", HORIZONTAL_ALIGNMENT_CENTER))
-	column.add_child(UI.label(tr("%d / %d discoveries") % [progress.x, progress.y],
-			UI.SMALL, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
-	column.add_child(UI.spacer(14))
-
+	# Nothing above the card. It is a postcard arriving, and a heading that
+	# announces the achievement and counts the puzzles turns it into a results
+	# screen — the card says everything worth saying by being there.
 	var card_w := minf(620.0, column_width())
 	var stage := Control.new()
 	stage.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -78,7 +75,9 @@ func build() -> void:
 	if next_id != "":
 		var next_city := GameData.city(next_id)
 		onward = UI.button(tr("Continue to %s") % GameData.text(next_city["name"]))
-		onward.pressed.connect(func(): go("journal", {"city": next_id}))
+		# Into the next city's card, not its journal: the card is how a city
+		# opens now, and the letter on it is the reason to go.
+		onward.pressed.connect(func(): go("card", {"city": next_id}))
 	else:
 		onward = UI.button(tr("Back to the map"))
 		onward.pressed.connect(func(): go("map"))
@@ -122,8 +121,14 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 
 	# Shape the card to the art so a painted postcard's own printed edge is not
 	# cropped off; procedural skies keep the 3:2 default.
+	# Fit the card to the screen, not just to its own width: a tall drawing at
+	# full width ran off the bottom of the window.
 	var aspect: float = scene.art_aspect() if scene.has_art else PICTURE_ASPECT
-	stage.custom_minimum_size = Vector2(card_w, card_w / aspect)
+	var room := get_viewport_rect().size.y * 0.72
+	var w := card_w
+	if w / aspect > room:
+		w = room * aspect
+	stage.custom_minimum_size = Vector2(w, w / aspect)
 
 	var plate := Control.new()
 	plate.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -175,11 +180,16 @@ func _animate(card: PostcardScene) -> void:
 	# already say the city is finished, and a notification sliding in over the
 	# moment made it feel like an app reporting an achievement.
 	tw.tween_callback(func(): Sfx.play("stamp"))
-	# Long enough to look at the picture, then the card turns itself over. A
-	# postcard you are handed is looked at and then turned; nobody has to be
-	# told to do it, and nobody should have to guess that they may.
-	tw.tween_interval(2.4)
-	tw.tween_callback(_flip)
+	# It waits to be turned. Turning itself took the moment away from whoever
+	# was looking at the picture.
+
+
+func _gui_input(event: InputEvent) -> void:
+	var pressed: bool = (event is InputEventMouseButton and event.pressed) \
+			or (event is InputEventScreenTouch and event.pressed)
+	if pressed:
+		_flip()
+		accept_event()
 
 
 ## A flat card turning: squash to nothing on X, swap the face, open out again.

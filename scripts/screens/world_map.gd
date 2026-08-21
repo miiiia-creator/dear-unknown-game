@@ -140,4 +140,4 @@ func _open_city(city_id: String) -> void:
 		# notification here was repeating the page back at the player.
 		Sfx.play("locked")
 		return
-	go("journal", {"city": city_id})
+	go("card", {"city": city_id})

@@ -278,9 +278,13 @@ func _draw_painted_front(card: Rect2) -> void:
 	draw_texture_rect_region(tex, inner, src)
 
 	var font: Font = Pal.ui_font
+	# Plain black or plain white, whichever the picture underneath calls for.
+	# Tinting the lettering with the city's colour put a warm rose over a grey
+	# ink drawing, and the only thing on the card that was not part of the
+	# drawing was the one thing shouting.
 	var dark := _art_luma < 0.45
-	var type_col: Color = _palette[0].lightened(0.55) if dark else _palette[2]
-	var halo := Color(0, 0, 0, 0.5) if dark else Color(_palette[0], 0.55)
+	var type_col := Color(0.97, 0.97, 0.96) if dark else Color(0.10, 0.10, 0.10)
+	var halo := Color(0, 0, 0, 0.45) if dark else Color(1, 1, 1, 0.45)
 
 	# The name sits over the picture, near its foot. Sized from the card's short
 	# side rather than its height: a card is whatever shape its picture is now,
@@ -362,7 +366,10 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	# A stamp, top-right. It used to hold a shrunken copy of the landmark, which
 	# repeated the picture on the front and read as a sticker; a plain perforated
 	# rectangle with the country on it is what a stamp actually looks like.
-	var s := card.size.y * 0.26
+	# Sized from the short side: on a tall card, a quarter of the height is a
+	# stamp bigger than the writing.
+	var short_side := minf(card.size.x, card.size.y)
+	var s := short_side * 0.26
 	var stamp := Rect2(Vector2(inner.position.x + inner.size.x - s * 0.88,
 			inner.position.y), Vector2(s * 0.88, s))
 	_draw_stamp(stamp, accent, deep, paper)
@@ -372,7 +379,7 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	# not in the order the cards arrive. Kept faint on purpose: it should read
 	# as ink on the paper, and only mean something to someone who goes back and
 	# compares them.
-	var pm := stamp.position + Vector2(-s * 0.85, s * 0.50)
+	var pm := stamp.position + Vector2(-s * 0.80, s * 0.50)
 	var mark := accent.lerp(paper, 0.42)
 	draw_arc(pm, s * 0.42, 0, TAU, 40, mark, maxf(1.0, card.size.y * 0.005), true)
 	draw_arc(pm, s * 0.50, 0, TAU, 40, mark, maxf(1.0, card.size.y * 0.004), true)
@@ -444,8 +451,12 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		# Measured to the postmark, not the stamp: the cancellation circle sits
 		# further left than the stamp does, and a line that cleared the stamp
 		# was still running straight through it.
-		var beside_w := stamp.position.x - s * 1.35 - inner.position.x \
+		# Room to the left of the postmark. On a tall card there is none worth
+		# having, so the letter simply starts underneath.
+		var beside_w := stamp.position.x - s * 1.30 - inner.position.x \
 				- card.size.x * 0.02
+		if card.size.y > card.size.x:
+			beside_w = 0.0
 		var high_top := inner.position.y + inner.size.y * 0.04
 		var low_top := stamp.position.y + stamp.size.y + card.size.y * 0.045
 		var bottom := inner.position.y + inner.size.y

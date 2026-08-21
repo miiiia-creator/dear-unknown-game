@@ -36,12 +36,13 @@ func build() -> void:
 	_start.modulate.a = 0.0
 	column.add_child(_start)
 
-	var go_btn := UI.quiet_button(GameData.text(first.get("name", "")), UI.H2)
+	# No destination named under the card. The card is a map of everywhere M
+	# sent one; putting "Tokyo" beneath it answers a question the opening has
+	# not asked yet.
+	var go_btn := UI.quiet_button(tr("Begin"), UI.BODY)
 	go_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	go_btn.pressed.connect(_begin)
 	_start.add_child(go_btn)
-	_start.add_child(UI.label(GameData.text(first.get("country", "")).to_upper(),
-			UI.SMALL, "ink_faint", HORIZONTAL_ALIGNMENT_CENTER))
 
 	_play()
 

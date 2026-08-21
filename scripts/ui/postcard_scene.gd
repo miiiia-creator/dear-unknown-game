@@ -125,6 +125,10 @@ func setup(id: String) -> void:
 	_drift.reseed(int(abs(hash(id + "drift"))) % 100000)
 
 	_load_painted(id, puzzles)
+	# After the artwork is known, not before: the sky is only a stand-in for a
+	# city that has no painting, and left underneath one its sun shafts came
+	# straight through and bleached the drawing white.
+	_sky.visible = not has_art
 
 
 ## Look for painted art for this city and, if it exists, put the mosaic layer in
@@ -138,6 +142,9 @@ func _load_painted(id: String, puzzles: Array) -> void:
 			if tex != null:
 				break
 	has_art = tex != null
+	# The generated sky is what a city without a painting falls back to. With
+	# one, it was still being drawn underneath — and its sun shafts came
+	# straight through a soft ink drawing and bleached it white.
 	if not has_art:
 		if _painted:
 			_painted.visible = false
