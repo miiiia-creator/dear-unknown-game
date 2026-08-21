@@ -189,6 +189,14 @@ func run(main: Node) -> void:
 	await _partial_fill()
 	await _shot("colour_puzzle_four")
 
+	# Two inks, a brown and a gold — the pair that collapsed into one colour.
+	for p in GameData.puzzles_of("sanfrancisco"):
+		SaveGame.mark_solved(p["id"], 60.0, 0)
+	app.go("puzzle", {"puzzle": "sf_croissant"})
+	await _wait(0.6)
+	await _partial_fill()
+	await _shot("colour_puzzle_two")
+
 	for p in GameData.puzzles_of("bermuda"):
 		SaveGame.mark_solved(p["id"], 60.0, 0)
 	app.go("puzzle", {"puzzle": "bermuda_triangle"})

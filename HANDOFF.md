@@ -61,10 +61,11 @@ rm -f "$HOME/Library/Application Support/Godot/app_userdata/Dear, Unknown/around
   Reykjavík's navy and its near-black were the same cell at grid size.
 * **A clue number is not the ink.** The ink is chosen to look right filling a
   cell; the same colour printed thin on the open page is a different problem,
-  and the pale end of a palette vanished there. `Pal.legible()` walks the
-  lightness away from the page until the number reads — darkening on paper,
-  lightening in the evening. Only the numbers are corrected: the fill is the
-  picture, so the fill stays the colour it is meant to be.
+  and the pale end of a palette vanished there. `Pal.legible()` deepens it until
+  it reads — value down and chroma up, so a gold stays gold instead of arriving
+  as brown, and mirrored in the evening where the way out is up. Only the
+  numbers are corrected: the fill is the picture, so the fill stays the colour
+  it is meant to be.
 * **The postcards are a pile, not a menu.** No destination buttons, no season
   switcher. One card fills the screen; a timeline underneath is ordered by
   postmark, shows only earned cards, and keeps the face you were reading as you
@@ -187,6 +188,21 @@ Chinese.
 * **The scroll bar floats over the column, it does not reserve space.** Rows
   inset their right edge by 14pt for it; anything else on that edge has to as
   well, or its text is printed underneath the bar.
+* **Godot imports a JPEG to a *lossless* texture by default,** which for a
+  photographic painting is four times the size of the file you gave it. The five
+  postcards were 751 KB of JPEG and 3.0 MB of `.ctex`. `compress/mode=1` in the
+  `.import` puts them back. Check any new artwork's imported size, not its
+  source size.
+* **What the phone actually downloads,** measured off the live build: about
+  10.2 MB of `index.wasm` and 4.2 MB of `index.pck`, both gzipped by Pages.
+  Inside the pack, `icudt_godot.dat` is 2.7 MB gzipped on its own — the text
+  layout data, and the single biggest thing left. The wasm is the floor without
+  building the engine from source.
+* **Every deploy costs the player the whole download again.** The service
+  worker does cache the wasm and the pack, but `CACHE_VERSION` changes with
+  each export and the old cache is deleted on activate. Deploying five times in
+  an afternoon means five full downloads for anyone with the tab open. Batch
+  them.
 * **New user-facing strings need a row in `data/translations.csv`,** then
   `tools/subset_font.py`, then `godot --headless --editor --quit`. The English
   passes through untranslated, so nothing errors — it just shows up in the

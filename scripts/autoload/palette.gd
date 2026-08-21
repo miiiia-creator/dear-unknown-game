@@ -114,16 +114,29 @@ const READABLE := 2.4
 ## neighbours around it. The same ink as a clue number is a few thin strokes on
 ## the open page, and a pale one — Bermuda's cloud, Reykjavík's gold — vanished.
 ##
-## Keep the hue, walk the lightness away from the page until the number reads.
-## The direction is whatever the page is not, so this darkens on paper and
-## lightens in the evening without knowing which it is looking at.
+## Take the value away from the page and put the chroma back as you go, so what
+## is left is a deeper version of the same colour rather than a greyer one.
+##
+## Walking toward black instead — which is what this did first — is the same
+## thing as turning the value down with the saturation left alone, and a dark
+## gold is simply brown. San Francisco has two inks, a brown and a gold, and
+## they arrived at the same brown: a two-colour puzzle whose clues were one
+## colour. Deepening with the saturation rising keeps gold gold.
+##
+## Mirrored for the evening, where the page is dark and the way out is up: value
+## rises and chroma comes off, which is what a tint is.
 func legible(ink: Color, page: Color = c("bg"), want: float = READABLE) -> Color:
-	var target := Color.BLACK if page.get_luminance() > 0.5 else Color.WHITE
+	var lighten := page.get_luminance() <= 0.5
 	var out := ink
-	for _step in 16:
+	for _step in 24:
 		if contrast(out, page) >= want:
 			break
-		out = out.lerp(target, 0.1)
+		if lighten:
+			out = Color.from_hsv(out.h, maxf(0.0, out.s * 0.94 - 0.02),
+					minf(1.0, out.v * 1.06 + 0.02), ink.a)
+		else:
+			out = Color.from_hsv(out.h, minf(1.0, out.s * 1.10 + 0.02),
+					maxf(0.0, out.v * 0.94), ink.a)
 	out.a = ink.a
 	return out
 
