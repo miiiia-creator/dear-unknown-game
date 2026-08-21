@@ -49,11 +49,24 @@ var focus_id := ""
 var _hover := ""
 var _cells: Array = []      ## [Rect2, city_id] hit targets, rebuilt on draw
 var _map_rect := Rect2()
+var _pulse := 0.0
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(queue_redraw)
+	set_process(true)
+
+
+## The destination being worked on breathes. Everything else on this map is
+## finished or waiting, and a still map of ten identical dots does not say which
+## one you left off at. It breathes rather than blinks, the same as the point of
+## light on a card: a blink is a notification, this is something waiting.
+func _process(delta: float) -> void:
+	if focus_id == "" or GameData.is_city_complete(focus_id):
+		return
+	_pulse += delta
+	queue_redraw()
 
 
 func focus(city_id: String) -> void:
@@ -128,8 +141,15 @@ func _draw_pins(cell: float) -> void:
 
 		if id == focus_id:
 			var ring := Pal.c("accent")
-			ring.a = 0.16
-			draw_circle(p, radius * 2.6, ring)
+			if complete:
+				ring.a = 0.16
+				draw_circle(p, radius * 2.6, ring)
+			else:
+				var breath := 0.5 + 0.5 * sin(_pulse * 2.0)
+				ring.a = 0.07 + 0.11 * breath
+				draw_circle(p, radius * (2.2 + breath * 0.9), ring)
+				ring.a = 0.16 + 0.14 * breath
+				draw_circle(p, radius * 1.5, ring)
 		if hovered:
 			var halo := col
 			halo.a = 0.22

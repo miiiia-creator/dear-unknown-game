@@ -265,12 +265,33 @@ func _build_nav(screen: String) -> void:
 	# Three sections. The map used to be a fourth, showing the same ten
 	# destinations the journal showed; it is pinned to the top of the journal
 	# now, where it can point at the one being read.
+	# The bar is the only thing that says which section you are in — the pages
+	# used to repeat their own name in a heading at the top, which is a title
+	# telling you what the tab already told you. So the mark has to be worth
+	# reading: the others step back to `ink_soft`, and the one you are on takes
+	# the accent and a hairline under it. It used to be the other way round by
+	# accident — the current section was the *only* one in accent, which is a
+	# softer colour than the ink beside it, so being here looked like being
+	# unavailable.
 	for entry in [["Journal", "journal"], ["Postcards", "postcards"],
 			["Settings", "settings"]]:
 		var section: String = entry[1]
 		var b := UI.quiet_button(tr(str(entry[0])), UI.SMALL)
 		if section == here:
 			b.add_theme_color_override("font_color", Pal.c("accent"))
+			b.add_theme_color_override("font_hover_color", Pal.c("accent"))
+			var mark := StyleBoxFlat.new()
+			mark.bg_color = Color(0, 0, 0, 0)
+			mark.border_color = Pal.c("accent")
+			mark.border_width_bottom = 1
+			mark.content_margin_left = 6
+			mark.content_margin_right = 6
+			mark.content_margin_top = 6
+			mark.content_margin_bottom = 6
+			for state in ["normal", "hover", "pressed"]:
+				b.add_theme_stylebox_override(state, mark)
+		else:
+			b.add_theme_color_override("font_color", Pal.c("ink_soft"))
 		b.pressed.connect(func(): go(section))
 		row.add_child(b)
 

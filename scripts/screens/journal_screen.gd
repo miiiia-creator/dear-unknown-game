@@ -30,7 +30,7 @@ func build() -> void:
 	_map.city_picked.connect(_open)
 	frame.add_child(_map)
 
-	var body := scaffold(tr("Journal"),
+	var body := scaffold("",
 			tr("%d of %d destinations stamped") % [GameData.completed_city_count(),
 			GameData.cities.size()], frame)
 

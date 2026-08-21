@@ -99,7 +99,12 @@ func scaffold(title_text: String, subtitle: String = "",
 		back_btn.pressed.connect(back)
 		column.add_child(back_btn)
 
-	column.add_child(UI.label(title_text, UI.H2, "ink"))
+	# A top-level section passes no title: the nav bar already says which one
+	# you are on, and printing it again at the top of the page is a heading that
+	# repeats the tab above it. Sub-pages still name themselves, because nothing
+	# else does.
+	if title_text != "":
+		column.add_child(UI.label(title_text, UI.H2, "ink"))
 	if subtitle != "":
 		column.add_child(UI.paragraph(subtitle, UI.BODY, "ink_soft"))
 	column.add_child(UI.hrule())

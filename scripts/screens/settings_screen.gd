@@ -9,7 +9,7 @@ extends AppScreen
 
 
 func build() -> void:
-	var body := scaffold(tr("Settings"))
+	var body := scaffold("")
 
 	body.add_child(_row("Language", _locale_toggle()))
 	body.add_child(_row("Mood", _mood_toggle()))
