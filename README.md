@@ -245,31 +245,6 @@ Untested on real hardware: the mobile branch of `_apply_content_scale()` uses
 that the **Fill / Mark** buttons read clearly to a first-time player, since
 touch has no right-click.
 
----
-
-## Postcard motion
-
-Each city's postcard is a painted still that the reveal resolves into, and then
-keeps moving. Two ways, chosen automatically:
-
-- **Desktop** plays `assets/postcards/<city>.ogv` if it exists — a looping film
-  of the same painting. Godot only decodes Ogg Theora, so source video has to be
-  transcoded, and it must actually loop: generated "looping" clips usually drift
-  from start to end, and the fix is a ping-pong (forward then reversed), which
-  is seamless by construction.
-- **Web** skips video entirely — the export filter drops `*.ogv`, because Theora
-  files dwarf the stills and the browser build already ships a 38 MB engine.
-  Instead a shader breathes the still in and out, and per-city particles drift
-  across it: petals in Tokyo, drizzle in London, dust in a light shaft in Rome,
-  nothing at all in New York, where the stillness is the point.
-
-The caption colour is measured, not configured: the game samples the lower band
-of the artwork and switches to light lettering over a dark painting. Rome is a
-Caravaggio and Hopper's New York is not, and nobody should have to remember
-which.
-
----
-
 ## Not built yet
 
 Deliberately out of scope for the prototype, in rough priority order:

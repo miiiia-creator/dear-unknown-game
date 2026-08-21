@@ -39,6 +39,11 @@ rm -f "$HOME/Library/Application Support/Godot/app_userdata/Dear, Unknown/around
 * **Season One is grey.** Ink drawings, grey palettes. Season Two is where
   colour returns, one ink at a time: Kyoto 1, San Francisco 2, Istanbul 3,
   Reykjavík 4, Bermuda 5. The count is the season's argument.
+* **A postcard does not move.** The front could play a looping film of its own
+  painting — packed on desktop, fetched a couple of megabytes at a time in the
+  browser. The paintings are ink drawings now and the force of an ink drawing is
+  in the stroke; moving, it reads as a screensaver. Gone, and with them a video
+  decode running behind every card on a phone.
 * **A card is whatever shape its picture is.** Both faces read the aspect from
   the artwork, so a card is the same shape everywhere it appears. Nothing crops
   to fit, which means a badly proportioned file is a badly proportioned card.

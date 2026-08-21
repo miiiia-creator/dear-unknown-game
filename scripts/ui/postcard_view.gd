@@ -2,6 +2,12 @@ class_name PostcardView
 extends Control
 ## A city postcard, drawn procedurally from the city palette and three of its
 ## discoveries. Has a front (the picture) and a back (stamp, postmark, message).
+##
+## The front used to be able to move: a looping film of the painting, packed on
+## desktop and fetched a couple of megabytes at a time in the browser. The
+## paintings are ink drawings now, and the force of an ink drawing is in the
+## stroke — moving, it reads as a screensaver. The films are gone, and with
+## them a video decode running behind every card on a phone.
 
 const RATIO := 1.5           ## 3:2, like a real postcard
 
@@ -11,34 +17,17 @@ var from_name: String = ""
 var to_name: String = ""
 var face := "front":
 	set(value):
-		var was := face
 		face = value
-		# The motion belongs to the picture. A card that is showing its back —
-		# the completion screen builds one purely for the letter — has no use
-		# for a second decode of the same film.
-		if value != was:
-			if value == "front":
-				_load_motion(city_id)
-			else:
-				_stop_motion()
 		queue_redraw()
 
 ## The city's painting, if it has one. A postcard front should be a picture;
 ## three pixel icons in a row were a stand-in for not having one.
 const ART_DIR := "res://assets/postcards/"
 
-## The same painting, moving. The still is frame zero of this video, so a card
-## looks identical before the motion arrives — it just starts breathing once it
-## has. Only the finishing-a-city screen used to animate; a postcard you go back
-## to look at was a photograph of the thing you were given.
-const MOTION_CACHE := "user://motion/"
-
 var _city: Dictionary = {}
 var _palette: Array = []
 var _art: Texture2D
 var _art_luma := 1.0
-var _motion: VideoStreamPlayer
-var _fetch: HTTPRequest
 
 
 func setup(id: String, msg: String = "", sender: String = "", recipient: String = "") -> void:
@@ -49,10 +38,6 @@ func setup(id: String, msg: String = "", sender: String = "", recipient: String 
 	_city = GameData.city(id)
 	_palette = GameData.city_palette(id)
 	_load_art(id)
-	if face == "front":
-		_load_motion(id)
-	else:
-		_stop_motion()
 	queue_redraw()
 
 
@@ -85,115 +70,6 @@ func _load_art(id: String) -> void:
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
-	set_process(false)
-
-
-## A video texture only changes between frames, so the card has to ask to be
-## redrawn; nothing else on this Control does.
-func _process(_delta: float) -> void:
-	if _motion != null and _motion.is_playing():
-		queue_redraw()
-
-
-func _exit_tree() -> void:
-	_stop_motion()
-
-
-func _load_motion(id: String) -> void:
-	_stop_motion()
-	if id == "":
-		return
-	var packed := ART_DIR + id + ".ogv"
-	if ResourceLoader.exists(packed):
-		_start(load(packed))
-		return
-	# The web build leaves the videos out of the download — ten megabytes on top
-	# of a load that already takes half a minute on a slow line. Fetch the one
-	# the player actually opened, once, and keep it for next time.
-	if OS.has_feature("web"):
-		_fetch_motion(id)
-
-
-func _start(stream: VideoStream) -> void:
-	if stream == null:
-		return
-	_motion = VideoStreamPlayer.new()
-	_motion.stream = stream
-	_motion.loop = true
-	_motion.audio_track = -1
-	_motion.volume_db = -80.0
-	# Never shown as a node: the card draws the frames itself, so the cover crop
-	# and the lettering over it stay exactly as they are for the still.
-	_motion.visible = false
-	_motion.custom_minimum_size = Vector2.ONE
-	add_child(_motion)
-	# setup() is usually called while the card is still being assembled, before
-	# it is in the tree — and a VideoStreamPlayer outside the tree refuses to
-	# play. Wait for the frame it arrives, if it has not already.
-	if _motion.is_inside_tree():
-		_motion.play()
-	else:
-		_motion.tree_entered.connect(_motion.play, CONNECT_ONE_SHOT)
-	set_process(true)
-
-
-func _stop_motion() -> void:
-	set_process(false)
-	if _motion != null:
-		# Drop the stream before the node: queue_free lands next frame, and at
-		# shutdown there is no next frame, so the video would still be held when
-		# the engine clears its resource cache.
-		_motion.stop()
-		_motion.stream = null
-		_motion.queue_free()
-		_motion = null
-	if _fetch != null:
-		_fetch.queue_free()
-		_fetch = null
-
-
-func _fetch_motion(id: String) -> void:
-	var cached := MOTION_CACHE + id + ".ogv"
-	if FileAccess.file_exists(cached):
-		_start(_stream_at(cached))
-		return
-	var url := _motion_url(id)
-	if url == "":
-		return
-	DirAccess.make_dir_recursive_absolute(MOTION_CACHE)
-	_fetch = HTTPRequest.new()
-	_fetch.download_file = cached
-	add_child(_fetch)
-	_fetch.request_completed.connect(_motion_arrived.bind(cached))
-	if _fetch.request(url) != OK:
-		_stop_motion()
-
-
-func _motion_arrived(result: int, code: int, _headers: PackedStringArray,
-		_body: PackedByteArray, cached: String) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and code == 200 \
-			and FileAccess.file_exists(cached):
-		_start(_stream_at(cached))
-		return
-	# A failed request still writes whatever came back. An error page saved as
-	# a video would be treated as a cache hit forever.
-	if FileAccess.file_exists(cached):
-		DirAccess.remove_absolute(cached)
-
-
-func _stream_at(path: String) -> VideoStream:
-	var stream := VideoStreamTheora.new()
-	stream.file = path
-	return stream
-
-
-## Sibling of the page the game was served from, so it follows the build
-## wherever it is hosted.
-func _motion_url(id: String) -> String:
-	var base: Variant = JavaScriptBridge.eval("location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '')", true)
-	if typeof(base) != TYPE_STRING or String(base) == "":
-		return ""
-	return String(base) + "motion/" + id + ".ogv"
 
 
 func flip() -> void:
@@ -269,10 +145,6 @@ func _draw_painted_front(card: Rect2) -> void:
 	# and that is what a printed postcard looks like anyway.
 	var inner := card.grow(-2.0)
 	var tex: Texture2D = _art
-	if _motion != null and _motion.is_playing():
-		var frame := _motion.get_video_texture()
-		if frame != null:
-			tex = frame
 	var tex_size := Vector2(tex.get_width(), tex.get_height())
 	var img_aspect := tex_size.x / tex_size.y
 	var box_aspect := inner.size.x / inner.size.y

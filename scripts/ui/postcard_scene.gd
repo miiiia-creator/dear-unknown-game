@@ -62,7 +62,6 @@ var _subject: SubjectLayer
 var _painted: ColorRect
 var _painted_mat: ShaderMaterial
 var _drift: DriftLayer
-var _video: VideoStreamPlayer
 var _grid_blocks := 15.0
 
 
@@ -188,53 +187,11 @@ func _load_painted(id: String, puzzles: Array) -> void:
 
 	_painted_mat.set_shader_parameter("art", tex)
 	caption_luma = _measure_caption_band(tex)
-	_load_video(id)
 
 	# Start the mosaic at the puzzle's own grid size, so the first colour frame
 	# lands at exactly the resolution the player was just looking at.
 	_grid_blocks = float(String(puzzles[-1]["art"][0]).length()) if not puzzles.is_empty() else 15.0
 	_update_resolve()
-
-
-## An optional looping film of the same painting, played once the still has
-## resolved. Desktop only: Godot decodes Theora on the CPU, the files are an
-## order of magnitude larger than the stills, and the web build is already
-## heavy — so the browser keeps the procedural motion instead.
-func _load_video(id: String) -> void:
-	if _video:
-		_video.stop()
-		_video.stream = null
-		_video.queue_free()
-		_video = null
-	if OS.has_feature("web"):
-		return
-	var path := ART_DIR + id + ".ogv"
-	if not ResourceLoader.exists(path):
-		return
-	var stream: VideoStream = load(path)
-	if stream == null:
-		return
-	_video = VideoStreamPlayer.new()
-	_video.stream = stream
-	_video.loop = true
-	_video.expand = true
-	_video.audio_track = -1
-	_video.volume_db = -80.0
-	_video.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_video.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_video.modulate.a = 0.0
-	add_child(_video)
-	move_child(_video, 1)          # above the still, below the pixel pieces
-	if is_inside_tree():
-		_video.play()
-	else:
-		# Callers that build the scene before parenting it still get playback.
-		_video.ready.connect(_video.play, CONNECT_ONE_SHOT)
-
-
-## True when this city has film to play, so callers know which motion to use.
-func has_video() -> bool:
-	return _video != null
 
 
 ## Average brightness across the lower band of the artwork, where the title goes.
@@ -276,13 +233,9 @@ func _update_resolve() -> void:
 	_painted_mat.set_shader_parameter("caption_scrim",
 			clampf((resolve - 0.55) / 0.35, 0.0, 1.0))
 	_painted_mat.set_shader_parameter("scrim_dir", -1.0 if caption_luma < 0.45 else 1.0)
-	# The camera move only starts once the picture has resolved — and only when
-	# there is no film doing it for real.
+	# The camera move only starts once the picture has resolved.
 	var settled := clampf((resolve - 0.80) / 0.20, 0.0, 1.0)
-	_painted_mat.set_shader_parameter("breathe", 0.0 if _video else settled)
-	if _video:
-		# Cross from the resolved still into the film so the swap is invisible.
-		_video.modulate.a = settled
+	_painted_mat.set_shader_parameter("breathe", settled)
 	# The living light only starts once the picture has actually arrived.
 	_painted_mat.set_shader_parameter("shimmer", clampf((resolve - 0.85) / 0.15, 0.0, 1.0))
 	if _drift:
