@@ -85,17 +85,22 @@ def P(pid, name, emoji, category, art, colours=None):
 
 
 TOKYO = [
-    # Five, not eight. The letter is the payoff for finishing a destination, and
-    # eight grids is a long time to wait for four lines of it.
+    # Three, not five. Tokyo is where the game teaches itself, and each grid
+    # here exists to introduce exactly one idea.
     #
-    # Sizes rise by cell count, not by squaring off: the aspect follows the
-    # subject, so a gate is wide and a tower is tall and two puzzles of the same
-    # difficulty feel nothing alike.
-    # Deliberately small, and deliberately the simplest shape in the game: this
-    # exact grid comes back as the first colour puzzle of Season Two, in Kyoto,
-    # in pink. Keeping it tiny is what makes that callback teachable rather than
-    # punishing — the player spends nothing on the shape and everything on the
-    # new rule.
+    # The pond first: an ellipse whose middle three rows are a plain 5, so the
+    # first thing a player ever deduces is "the number is how many in a row",
+    # with nothing else in the way.
+    P("tokyo_pond", "The Pond", "🌊", "Nature", """
+.###.
+#####
+#####
+#####
+.###.
+"""),
+    # Then the blossom, the first grid where a line carries two numbers — the
+    # idea the pond deliberately avoided. Same five cells across, so the only
+    # new thing is the clue.
     P("tokyo_sakura", "Cherry Blossom", "🌸", "Nature", """
 .#.#.
 #####
@@ -103,28 +108,7 @@ TOKYO = [
 #####
 .#.#.
 """),
-    P("tokyo_onigiri", "Onigiri", "🍙", "Food", """
-...##...
-..####..
-..####..
-.######.
-.######.
-########
-##....##
-########
-"""),
-    # Third slot, and the only asymmetric grid in the city. Four symmetric
-    # puzzles in a row and solving turns mechanical — you deduce the left half
-    # and mirror it. One that refuses to mirror makes the player look again.
-    # Every city gets exactly one, here.
-    P("tokyo_shinkansen", "Shinkansen", "🚄", "Transportation", """
-.......#######
-....##########
-..############
-##############
-##############
-...##.....##..
-"""),
+    # Then a change of shape: wider than it is tall, and bigger than either.
     P("tokyo_torii", "Torii Gate", "⛩️", "Architecture", """
 ############
 ############
@@ -134,22 +118,6 @@ TOKYO = [
 ...#....#...
 ...#....#...
 ..###..###..
-"""),
-    P("tokyo_tower", "Tokyo Tower", "🗼", "Landmark", """
-...##...
-...##...
-..####..
-..####..
-..#..#..
-..#..#..
-.##..##.
-.##..##.
-.#....#.
-.#....#.
-##....##
-##....##
-########
-########
 """),
 ]
 
@@ -726,8 +694,8 @@ SENT = {
 COMPOSITION = {
     'tokyo': [
         ('tokyo_torii', 0.2, 0.67, 0.19),
-        ('tokyo_tower', 0.412, 0.448, 0.09),
-        ('tokyo_onigiri', 0.695, 0.752, 0.115),
+        ('tokyo_sakura', 0.412, 0.448, 0.09),
+        ('tokyo_pond', 0.695, 0.752, 0.115),
     ],
     'paris': [
         ('paris_arc', 0.174, 0.6, 0.099),
