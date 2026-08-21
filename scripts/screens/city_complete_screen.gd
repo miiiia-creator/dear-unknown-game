@@ -141,26 +141,30 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	# light lettering and vice versa, and the artwork is the only thing that
 	# knows which it is.
 	var dark_art := scene.has_art and scene.caption_luma < 0.45
-	var type_col: Color = palette[0].lightened(0.55) if dark_art else palette[2]
-	var halo: Color = Color(0, 0, 0, 0.55) if dark_art else Color(palette[0], 0.55)
+	# The same rules the card itself uses, so the name does not change size or
+	# colour depending on which screen you are looking at it from. Sized off the
+	# card's short side: taken from the height, a tall card set the name wider
+	# than the card and it read as knocked off centre.
+	var short_side := minf(card_w, card_h)
+	var type_col := Color(0.97, 0.97, 0.96) if dark_art else Color(0.10, 0.10, 0.10)
+	var halo := Color(0, 0, 0, 0.45) if dark_art else Color(1, 1, 1, 0.45)
 
 	var title := UI.label(String(GameData.text(city["name"])).to_upper(),
-			int(card_h * 0.115), "ink", HORIZONTAL_ALIGNMENT_CENTER)
+			int(short_side * 0.135), "ink", HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_color", type_col)
 	title.add_theme_constant_override("outline_size", 5)
 	title.add_theme_color_override("font_outline_color", halo)
 	title.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	title.offset_top = card_h * 0.70
-	title.offset_bottom = card_h * 0.85
+	title.offset_top = card_h - short_side * 0.34
+	title.offset_bottom = card_h - short_side * 0.16
 	plate.add_child(title)
 
 	var sub := UI.label(String(GameData.text(city["country"])).to_upper(),
-			int(card_h * 0.048), "ink", HORIZONTAL_ALIGNMENT_CENTER)
-	sub.add_theme_color_override("font_color",
-			type_col.darkened(0.10) if dark_art else palette[1].darkened(0.15))
+			int(short_side * 0.052), "ink", HORIZONTAL_ALIGNMENT_CENTER)
+	sub.add_theme_color_override("font_color", type_col)
 	sub.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	sub.offset_top = card_h * 0.855
-	sub.offset_bottom = card_h * 0.93
+	sub.offset_top = card_h - short_side * 0.15
+	sub.offset_bottom = card_h - short_side * 0.02
 	plate.add_child(sub)
 
 	_title_plate = plate
