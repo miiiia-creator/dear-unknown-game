@@ -13,15 +13,31 @@ const RATIO := 1.5
 
 var city_id: String = ""
 
+## The card is whatever shape the city's picture is. Both faces have to read it
+## from the same place, or turning the card changes its size in your hand.
+var _aspect := 1.0 / RATIO
+
 var _slots: Array = []          ## [Rect2, puzzle_id, solved]
 var _pulse := 0.0
 var _arrived := 0.0
 
 
 func _ready() -> void:
+	_measure()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(queue_redraw)
 	set_process(true)
+
+
+func _measure() -> void:
+	for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+		var path: String = "res://assets/postcards/" + city_id + str(ext)
+		if not ResourceLoader.exists(path):
+			continue
+		var tex: Texture2D = load(path)
+		if tex != null and tex.get_height() > 0:
+			_aspect = float(tex.get_width()) / float(tex.get_height())
+			return
 
 
 func play_arrival() -> void:
@@ -37,7 +53,7 @@ func _process(delta: float) -> void:
 
 ## Upright the card stands tall, matching the front.
 func _card_rect() -> Rect2:
-	var ratio := RATIO if size.x > size.y else 1.0 / RATIO
+	var ratio := _aspect
 	var w := size.x
 	var h := w / ratio
 	if h > size.y:

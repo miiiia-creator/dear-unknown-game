@@ -55,6 +55,7 @@ func build() -> void:
 	_back = CardBack.new()
 	_back.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_back.city_id = city_id
+	_back._measure()
 	_back.visible = false
 	_back.slot_picked.connect(_open)
 	_stage.add_child(_back)
