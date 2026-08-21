@@ -103,21 +103,11 @@ func _bool_toggle(key: String) -> Control:
 
 
 func _confirm_reset() -> void:
-	var dialog := ConfirmationDialog.new()
-	dialog.title = tr("Reset progress")
-	dialog.dialog_text = tr("This erases every discovery, postcard and stamp. "
-			+ "It cannot be undone.")
-	# Without this the sentence is laid out on one line, and the dialog grows to
-	# fit it however narrow the window is.
-	dialog.dialog_autowrap = true
-	dialog.ok_button_text = tr("Erase everything")
-	add_child(dialog)
-	dialog.confirmed.connect(func():
+	var ask := Ask.open(self, tr("Reset progress"),
+			tr("This erases every discovery, postcard and stamp. "
+			+ "It cannot be undone."),
+			tr("Erase everything"))
+	ask.confirmed.connect(func():
 		SaveGame.reset_everything()
 		app.toast(tr("Progress reset"))
 		go("prologue"))
-	# Fitted to the window rather than a fixed 460: on a phone that was wider
-	# than the screen it was being centred in, so the buttons sat off the edge.
-	var room := get_viewport_rect().size
-	dialog.popup_centered(Vector2i(int(minf(460.0, room.x - 32.0)),
-			int(minf(220.0, room.y - 120.0))))

@@ -93,6 +93,9 @@ rm -f "$HOME/Library/Application Support/Godot/app_userdata/Dear, Unknown/around
   answered a tap, both of them further in. `PARENT` in `main.gd` is the
   hierarchy — puzzle up to card, card up to journal — and a visible link goes
   through `back()` so it cannot drift away from what the escape key does.
+* **The map has no names on it.** Ten destinations in a sixty-degree band will
+  always overprint each other, whatever the placer does. The list underneath
+  names all of them, in order, with room — the map's job is where, not what.
 * **A setting is a name and a state.** No explanatory paragraph under it, and
   nothing on the page that is not a setting. The crosshair is not a preference;
   the row and column under the cursor are how a clue is read against a cell.
@@ -149,9 +152,8 @@ Chinese.
    `_map_area()` fits a 48x24 box inside the panel and centres it; at 250pt
    tall on a 1064pt-wide column that leaves a lot of paper either side. It
    reads fine, but the panel could be capped to the map's own width.
-8. **Names still crowd in Europe on the map.** `_draw_labels` places the lit
-   destination first and dims the rest, which is enough to read the one that
-   matters — but half a dozen names still overprint each other behind it.
+8. **The reset dialog is the only one in the game.** `Ask` was built for it; a
+   second question anywhere should use it rather than a ConfirmationDialog.
 
 ## Things that bit, so they do not bite again
 

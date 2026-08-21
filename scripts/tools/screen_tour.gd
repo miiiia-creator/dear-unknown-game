@@ -161,8 +161,9 @@ func run(main: Node) -> void:
 	await _wait(0.6)
 	await _shot("phone_reset_dialog")
 	for w in app._current.get_children():
-		if w is ConfirmationDialog:
-			(w as ConfirmationDialog).hide()
+		if w is Ask:
+			(w as Ask).dismiss()
+	await _wait(0.3)
 
 	app.go("journal", {"city": "london"})
 	await _shot("phone_journal_all")
