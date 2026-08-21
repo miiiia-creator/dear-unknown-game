@@ -81,7 +81,7 @@ func _begin() -> void:
 	if puzzles.is_empty():
 		go("menu")
 		return
-	go("puzzle", {"puzzle": puzzles[0]["id"]})
+	go("card", {"city": first["id"]})
 
 
 ## Skip on a tap or a key, the way you can skip any opening.

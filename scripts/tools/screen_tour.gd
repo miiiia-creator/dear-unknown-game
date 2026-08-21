@@ -36,6 +36,23 @@ func run(main: Node) -> void:
 	app.go("journal", {"city": "tokyo"})
 	await _shot("city_fresh")
 
+	# The new opening: the card arrives letter-side up, turns over to a blank
+	# back, and a point of light is the way into the first grid.
+	DisplayServer.window_set_size(Vector2i(430, 900))
+	await _wait(0.6)
+	app.go("card", {"city": "tokyo"})
+	await _wait(0.9)
+	await _shot("card_letter")
+	app._current._turn()
+	await _wait(1.4)
+	await _shot("card_back_empty")
+	SaveGame.mark_solved("tokyo_pond", 40.0, 0)
+	app.go("card", {"city": "tokyo", "face": "back"})
+	await _wait(1.2)
+	await _shot("card_back_one")
+	DisplayServer.window_set_size(Vector2i(1280, 800))
+	await _wait(0.5)
+
 	app.go("puzzle", {"puzzle": "tokyo_torii"})
 	await _partial_fill()
 	await _shot("puzzle_midway")
@@ -88,7 +105,7 @@ func run(main: Node) -> void:
 	app.go("journal", {"city": "tokyo"})
 	await _shot("city_evening")
 
-	app.go("puzzle", {"puzzle": "tokyo_tower"})
+	app.go("puzzle", {"puzzle": "london_bigben"})
 	await _partial_fill()
 	await _shot("puzzle_evening_15x15")
 
@@ -205,8 +222,8 @@ func run(main: Node) -> void:
 
 
 func _watchdog() -> void:
-	await get_tree().create_timer(180.0).timeout
-	push_error("Screen tour did not finish within 180s — quitting.")
+	await get_tree().create_timer(300.0).timeout
+	push_error("Screen tour did not finish within 300s — quitting.")
 	get_tree().quit(1)
 
 

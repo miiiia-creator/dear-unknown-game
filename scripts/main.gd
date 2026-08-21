@@ -6,6 +6,7 @@ const SCREENS := {
 	"menu": preload("res://scripts/screens/main_menu.gd"),
 	"map": preload("res://scripts/screens/world_map.gd"),
 	"journal": preload("res://scripts/screens/journal_screen.gd"),
+	"card": preload("res://scripts/screens/card_screen.gd"),
 	"puzzle": preload("res://scripts/screens/puzzle_screen.gd"),
 	"postcards": preload("res://scripts/screens/postcards_screen.gd"),
 	"settings": preload("res://scripts/screens/settings_screen.gd"),
@@ -17,6 +18,7 @@ const SCREENS := {
 const SECTION := {
 	"map": "map",
 	"journal": "journal", "puzzle": "journal", "city_complete": "journal",
+	"card": "journal",
 	"postcards": "postcards", "share": "postcards",
 	"settings": "settings",
 }
@@ -24,7 +26,7 @@ const SECTION := {
 ## Where "up" goes from each screen. A hub-and-spoke app has a real hierarchy,
 ## so declaring the parent beats guessing from a visit history.
 const PARENT := {
-	"puzzle": "journal", "journal": "map", "city_complete": "map",
+	"puzzle": "card", "card": "map", "journal": "map", "city_complete": "map",
 	"share": "postcards",
 }
 

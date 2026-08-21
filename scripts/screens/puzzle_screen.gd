@@ -379,8 +379,8 @@ func _continue() -> void:
 	if GameData.is_city_complete(city["id"]):
 		replace("city_complete", {"city": city["id"]})
 		return
-	var next_puzzle := GameData.next_puzzle_for(city["id"])
-	if next_puzzle.is_empty():
-		replace("city", {"city": city["id"]})
-	else:
-		replace("puzzle", {"puzzle": next_puzzle["id"]})
+	# Back to the card rather than straight into the next grid. The picture
+	# that was just solved belongs on the card, and watching it land there is
+	# the reward for the one before it — going directly to another empty grid
+	# skips the only moment that says anything happened.
+	replace("card", {"city": city["id"], "face": "back"})
