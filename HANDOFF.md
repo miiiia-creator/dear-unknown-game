@@ -8,7 +8,12 @@ still open.
 
 ```bash
 godot --path /Users/miazhou/Downloads/around-the-world
+godot --path . -- --to=losangeles        # jump straight to a destination
 ```
+
+Add `?to=<city>` to the web build's URL for the same thing on a phone. It marks
+everything before that destination solved and opens its card — the only way to
+test a late city on a phone is to be able to get to one.
 
 The window opens at 430×932 — phone-shaped, because the game is played upright
 and every layout bug this project has had was a portrait bug. Drag it wider to

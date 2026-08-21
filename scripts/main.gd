@@ -73,12 +73,48 @@ func _ready() -> void:
 
 	# A first-time player meets the card before the menu: the premise is what
 	# makes the first grid worth solving.
-	go("prologue" if SaveGame.data["solved"].is_empty() else "menu")
+	if not _skip_to(_asked_destination()):
+		go("prologue" if SaveGame.data["solved"].is_empty() else "menu")
 
 	if "--tour" in OS.get_cmdline_user_args():
 		var tour: Node = load("res://scripts/tools/screen_tour.gd").new()
 		add_child(tour)
 		tour.run(self)
+
+
+## A way to reach a late destination without playing to it, because the only
+## way to test how something behaves on a phone is on a phone, and the phone is
+## eleven cities from the end.
+##
+##   ?to=losangeles   in the browser
+##   -- --to=losangeles   on the desktop
+##
+## Everything before the named destination is marked solved and its rewards
+## granted, and the game opens on that city's card. It writes to the save, so
+## it is a real jump rather than a preview — Reset all progress puts it back.
+func _asked_destination() -> String:
+	for arg in OS.get_cmdline_user_args():
+		if String(arg).begins_with("--to="):
+			return String(arg).substr(5)
+	if not OS.has_feature("web"):
+		return ""
+	var q: Variant = JavaScriptBridge.eval(
+			"new URLSearchParams(location.search).get('to') || ''", true)
+	return String(q) if typeof(q) == TYPE_STRING else ""
+
+
+func _skip_to(city_id: String) -> bool:
+	if city_id == "" or GameData.city(city_id).is_empty():
+		return false
+	for city in GameData.cities:
+		if str(city["id"]) == city_id:
+			break
+		for p in GameData.puzzles_of(str(city["id"])):
+			if not SaveGame.is_solved(p["id"]):
+				SaveGame.mark_solved(p["id"], 60.0, 0)
+		SaveGame.grant_city_rewards(str(city["id"]))
+	go("card", {"city": city_id})
+	return true
 
 
 ## Stretch is disabled so the viewport reports real space — but "real space"
