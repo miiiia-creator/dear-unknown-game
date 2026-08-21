@@ -56,6 +56,10 @@ var mood: String = "paper"
 var ui_font: Font
 var mono_font: Font
 
+## The face M's letters are written in. Everything else on the card — the
+## postmark, the country on the stamp — is printed, and uses `ui_font`.
+var letter_font: Font
+
 
 func _ready() -> void:
 	_build_fonts()
@@ -73,22 +77,31 @@ func _build_fonts() -> void:
 	# a mixed line ("Season One — 第一季") then sets in one pass, and Latin keeps
 	# Plex's shapes instead of the CJK face's.
 	#
-	# The Chinese is 霞鹜文楷 (LXGW WenKai), also OFL 1.1 — a 楷体, so the strokes
-	# enter and leave the way a brush does. Noto Sans SC was here first and set
-	# the letters in the same even gothic as the buttons around them; the whole
-	# game is a stack of things someone wrote by hand, and the face should not be
-	# the one part of it that reads as an interface.
+	# Two Chinese faces, because the game sets two kinds of Chinese.
 	#
-	# The CJK face is subset to the characters the game actually uses — the full
-	# one is 24 MB, four times the entire web build. Re-run
-	# tools/subset_font.py after changing any Chinese copy.
-	var cjk := _load("res://assets/fonts/LXGWWenKai-subset.ttf")
+	# The letters are somebody's handwriting: 霞鹜文楷 (LXGW WenKai), a 楷体, where
+	# the strokes enter and leave the way a brush does. Everything else is
+	# printed — the interface, the postmarks, the country on a stamp, the clue
+	# numbers — and gets 思源宋体 (Noto Serif SC), because that is what print
+	# looks like. Both OFL 1.1, like Plex.
+	#
+	# One face for both was wrong in each direction: a gothic set the letters in
+	# the same voice as the buttons, and the 楷体 set the buttons in M's hand.
+	#
+	# Each is subset to the characters the game actually uses — the full pair is
+	# 35 MB, several times the entire web build. Re-run tools/subset_font.py
+	# after changing any Chinese copy.
+	var printed := _load("res://assets/fonts/NotoSerifSC-subset.otf")
+	var written := _load("res://assets/fonts/LXGWWenKai-subset.ttf")
 
 	ui_font = _load("res://assets/fonts/IBMPlexSans.ttf")
 	mono_font = _load("res://assets/fonts/IBMPlexMono-Regular.ttf")
+	letter_font = _load("res://assets/fonts/IBMPlexSans.ttf")
 	for f in [ui_font, mono_font]:
-		if f is FontFile and cjk != null:
-			(f as FontFile).fallbacks = [cjk]
+		if f is FontFile and printed != null:
+			(f as FontFile).fallbacks = [printed]
+	if letter_font is FontFile and written != null:
+		(letter_font as FontFile).fallbacks = [written]
 
 
 ## How far apart two colours have to be before one can be read on the other.

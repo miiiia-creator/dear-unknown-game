@@ -23,8 +23,15 @@ DATA = os.path.join(ROOT, "data", "cities.json")
 UI_STRINGS = os.path.join(ROOT, "data", "translations.csv")
 CODE = os.path.join(ROOT, "scripts")
 # Kept out of the Godot import path: 17 MB of font the game never loads.
-SRC = os.path.join(ROOT, "assets", "fonts", "source", "LXGWWenKai-Regular.ttf")
-OUT = os.path.join(ROOT, "assets", "fonts", "LXGWWenKai-subset.ttf")
+# Two faces, because the game sets two kinds of Chinese. The letters are
+# somebody's handwriting and get a 楷体; everything printed — the interface, the
+# stamps, the clue numbers — gets a 宋体, which is what print looks like.
+FACES = [
+    (os.path.join(ROOT, "assets", "fonts", "source", "LXGWWenKai-Regular.ttf"),
+     os.path.join(ROOT, "assets", "fonts", "LXGWWenKai-subset.ttf")),
+    (os.path.join(ROOT, "assets", "fonts", "source", "NotoSerifSC-Regular.otf"),
+     os.path.join(ROOT, "assets", "fonts", "NotoSerifSC-subset.otf")),
+]
 
 # Always keep these, whatever the copy currently says: digits and the marks the
 # board draws, so a clue never turns into tofu.
@@ -50,9 +57,12 @@ def harvest(value, into):
 
 
 def main():
-    if not os.path.exists(SRC):
-        print("Missing %s — download LXGW WenKai first:\n"
-              "  https://github.com/lxgw/LxgwWenKai/releases" % SRC, file=sys.stderr)
+    missing = [src for src, _out in FACES if not os.path.exists(src)]
+    if missing:
+        for src in missing:
+            print("Missing %s" % src, file=sys.stderr)
+        print("  LXGW WenKai:   https://github.com/lxgw/LxgwWenKai/releases\n"
+              "  Noto Serif SC: https://github.com/notofonts/noto-cjk", file=sys.stderr)
         return 1
 
     chars = set(ALWAYS)
@@ -77,21 +87,19 @@ def main():
     chars -= {"#"}
     text = "".join(sorted(chars))
 
-    cmd = [
-        sys.executable, "-m", "fontTools.subset", SRC,
-        "--text=%s" % text,
-        "--output-file=%s" % OUT,
-        "--layout-features=*",
-        "--no-hinting",
-        "--desubroutinize",
-        "--drop-tables+=DSIG",
-    ]
-    subprocess.run(cmd, check=True)
-
-    before = os.path.getsize(SRC) / 1048576.0
-    after = os.path.getsize(OUT) / 1024.0
     print("%d characters kept" % len(chars))
-    print("%.1f MB  ->  %.0f KB" % (before, after))
+    for src, out in FACES:
+        subprocess.run([
+            sys.executable, "-m", "fontTools.subset", src,
+            "--text=%s" % text,
+            "--output-file=%s" % out,
+            "--layout-features=*",
+            "--no-hinting",
+            "--desubroutinize",
+            "--drop-tables+=DSIG",
+        ], check=True)
+        print("  %-28s %5.1f MB  ->  %4.0f KB" % (os.path.basename(out),
+              os.path.getsize(src) / 1048576.0, os.path.getsize(out) / 1024.0))
     return 0
 
 

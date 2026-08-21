@@ -154,6 +154,16 @@ func run(main: Node) -> void:
 	app.go("share", {"city": "tokyo"})
 	await _shot("phone_share")
 
+	# The one dialog in the game, at the width it has least room in.
+	app.go("settings")
+	await _wait(0.3)
+	app._current._confirm_reset()
+	await _wait(0.6)
+	await _shot("phone_reset_dialog")
+	for w in app._current.get_children():
+		if w is ConfirmationDialog:
+			(w as ConfirmationDialog).hide()
+
 	app.go("journal", {"city": "london"})
 	await _shot("phone_journal_all")
 

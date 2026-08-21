@@ -375,7 +375,10 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	# and cut the ends off every line of the letter.
 	var short_side := minf(card.size.x, card.size.y)
 	var inner := card.grow(-short_side * 0.09)
+	# `font` is the printed side of the card — the postmark, the country on the
+	# stamp. `hand` is what somebody wrote on it.
 	var font: Font = Pal.ui_font
+	var hand: Font = Pal.letter_font
 
 	# A stamp, top-right. It used to hold a shrunken copy of the landmark, which
 	# repeated the picture on the front and read as a sticker; a plain perforated
@@ -445,11 +448,11 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	if handwritten:
 		msg_size = int(card.size.y * 0.062)
 		var room := int(inner.size.y * 0.74 / (msg_size * 1.45))
-		lines = _wrap_paragraphs(font, text, msg_size, narrow_w)
+		lines = _wrap_paragraphs(hand, text, msg_size, narrow_w)
 		while lines.size() > room and msg_size > int(card.size.y * 0.030):
 			msg_size -= 1
 			room = int(inner.size.y * 0.74 / (msg_size * 1.45))
-			lines = _wrap_paragraphs(font, text, msg_size, narrow_w)
+			lines = _wrap_paragraphs(hand, text, msg_size, narrow_w)
 		top = inner.position.y + inner.size.y * 0.16
 	else:
 		for para in text.split("\n"):
@@ -477,10 +480,10 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		# size at every card — which reads as a different hand, not a different
 		# letter. So the size is whatever the longest letter needs, measured
 		# from where the shortest one could not start any lower.
-		_measure_longest(font)
+		_measure_longest(hand)
 		msg_size = int(short_side * 0.075)
 		while msg_size > int(short_side * 0.030):
-			var worst := font.get_string_size(_longest_line,
+			var worst := hand.get_string_size(_longest_line,
 					HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x
 			if worst <= wide_w \
 					and low_top + _longest_count * msg_size * 1.45 <= bottom:
@@ -491,7 +494,7 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		# short clears the postmark and can start at the top of the card.
 		var widest := 0.0
 		for line in lines:
-			widest = maxf(widest, font.get_string_size(
+			widest = maxf(widest, hand.get_string_size(
 					line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
 		var block_top := high_top if widest <= beside_w else low_top
 		var tall_final := lines.size() * msg_size * 1.45
@@ -499,13 +502,13 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 
 	var ly := top
 	for i in lines.size():
-		draw_string(font, Vector2(inner.position.x, ly), lines[i],
+		draw_string(hand, Vector2(inner.position.x, ly), lines[i],
 				HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size,
 				deep if handwritten else deep.lerp(accent, 0.25))
 		ly += msg_size * 1.45
 
 	if from_name != "":
-		draw_string(font, Vector2(inner.position.x, inner.position.y + inner.size.y * 0.93),
+		draw_string(hand, Vector2(inner.position.x, inner.position.y + inner.size.y * 0.93),
 				"— " + from_name, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size, accent)
 
 	# Address side: ruled lines plus who it is for.
@@ -513,7 +516,7 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	var aw := inner.position.x + inner.size.x - ax
 	var ay := inner.position.y + inner.size.y * 0.55
 	if to_name != "":
-		draw_string(font, Vector2(ax, ay - msg_size * 0.6), to_name,
+		draw_string(hand, Vector2(ax, ay - msg_size * 0.6), to_name,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size, deep)
 	for i in (3 if addressed else 0):
 		draw_line(Vector2(ax, ay + i * msg_size * 1.5),

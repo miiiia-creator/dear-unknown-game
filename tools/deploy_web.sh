@@ -41,7 +41,9 @@ ls "$OUT/motion" | sed "s/^/   /"
 # at the loading bar, fetched once the game is already on screen.
 echo "-- music as a loose file"
 mkdir -p "$OUT/audio"
-cp "$ROOT"/assets/music/theme.ogg "$OUT/audio/" 2>/dev/null && ls -la "$OUT/audio" | tail -1 | awk '{printf "   theme.ogg %.2f MB\n", $5/1048576}'
+cp "$ROOT"/assets/music/theme.ogg "$OUT/audio/" 2>/dev/null \
+	&& awk -v n="$(wc -c < "$OUT/audio/theme.ogg")" \
+		'BEGIN { printf "   theme.ogg %.2f MB\n", n / 1048576 }'
 
 echo "-- making the service worker replace itself cleanly"
 python3 - "$OUT/index.service.worker.js" <<'PATCH'

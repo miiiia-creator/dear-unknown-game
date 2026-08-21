@@ -144,7 +144,8 @@ func _draw_front(card: Rect2, line: Color, mark: Color) -> void:
 func _draw_note(card: Rect2, ink: Color, line: Color) -> void:
 	if note <= 0.0:
 		return
-	var font: Font = Pal.ui_font
+	# The note is written, not printed — the same hand as the letters.
+	var font: Font = Pal.letter_font
 	var inner := card.grow(-card.size.y * 0.12)
 	var fsize := int(card.size.y * 0.068)
 

@@ -107,17 +107,17 @@ func _row(city: Dictionary) -> Control:
 	line.add_child(UI.label(GameData.text(city["name"]), UI.H3,
 			"ink" if unlocked else "ink_faint"))
 
-	# The chapter's own name, once the destination is stamped. It takes the
-	# place the date used to hold: the date said when *you* got here, which is a
-	# save file's fact rather than the story's, and every finished row carried
-	# the same one. The title is what the chapter turned out to be about, and
-	# like the letter it comes with, it is not there until it is earned.
+	line.add_child(UI.grow())
+
+	# The chapter's own name, at the right-hand end where the date used to sit.
+	# The date said when *you* got here, which is a save file's fact rather than
+	# the story's, and every finished row carried the same one. Like the letter
+	# it comes from, the title is not there until it is earned.
 	if complete:
 		var chapter := GameData.text(city.get("letter", {}).get("title", ""))
 		if chapter != "":
 			line.add_child(UI.label_small(chapter, "ink_soft"))
 
-	line.add_child(UI.grow())
 	var tail := _status(city, unlocked, complete)
 	if tail != null:
 		line.add_child(tail)

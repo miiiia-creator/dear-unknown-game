@@ -19,7 +19,16 @@ var _player: AudioStreamPlayer
 var _fetch: HTTPRequest
 ## Browsers keep audio silent until the page has been touched, and starting a
 ## stream into that silence just loses the opening. Wait for the first input.
+##
+## Waiting for *one* input is not enough, which is what left a phone with sound
+## effects and no music. A browser resumes its audio clock as a result of the
+## gesture, not during it, so the first touch is the one moment a stream is most
+## likely to be started into a context that is still asleep — and the old code
+## stopped listening right there and never tried again. Effects survived it
+## because they are played on later taps, by which time the clock is running.
+## So: keep asking until the player says it is actually playing.
 var _touched := false
+var _since := 0.0
 
 
 func _ready() -> void:
@@ -62,10 +71,19 @@ func set_enabled(on: bool) -> void:
 
 
 func _input(_event: InputEvent) -> void:
-	if _touched:
-		return
 	_touched = true
-	set_process_input(false)
+	_start()
+
+
+## Nothing to do until there is a stream and somebody has touched the page; from
+## then on, one attempt a second until it takes.
+func _process(delta: float) -> void:
+	if not _touched or _player.stream == null or _player.playing or not enabled():
+		return
+	_since += delta
+	if _since < 1.0:
+		return
+	_since = 0.0
 	_start()
 
 
@@ -83,7 +101,6 @@ func _obtain() -> void:
 	if url == "":
 		return
 	_fetch = HTTPRequest.new()
-	_fetch.download_file = CACHE
 	add_child(_fetch)
 	_fetch.request_completed.connect(_arrived)
 	if _fetch.request(url) != OK:
@@ -92,15 +109,32 @@ func _obtain() -> void:
 
 
 func _arrived(result: int, code: int, _headers: PackedStringArray,
-		_body: PackedByteArray) -> void:
-	if result == HTTPRequest.RESULT_SUCCESS and code == 200 \
-			and FileAccess.file_exists(CACHE):
-		_adopt(CACHE)
+		body: PackedByteArray) -> void:
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 		return
-	# A failed request still writes whatever came back; an error page kept under
-	# this name would be treated as the track forever.
-	if FileAccess.file_exists(CACHE):
-		DirAccess.remove_absolute(CACHE)
+	_adopt_bytes(body)
+	# Keep it for next time, but only once it has been proved playable: an error
+	# page saved under this name would be treated as the track forever.
+	if _player.stream != null:
+		var f := FileAccess.open(CACHE, FileAccess.WRITE)
+		if f != null:
+			f.store_buffer(body)
+			f.close()
+
+
+## From the bytes that just arrived rather than from the file they were written
+## to. The web build keeps `user://` in a browser database, which is one more
+## thing between the track and the speaker for no gain — the response is already
+## in memory. The file is still written, so the next visit skips the download.
+func _adopt_bytes(body: PackedByteArray) -> void:
+	if body.is_empty():
+		return
+	var stream := AudioStreamOggVorbis.load_from_buffer(body)
+	if stream == null:
+		return
+	stream.loop = true
+	_player.stream = stream
+	_ready_to_play()
 
 
 func _adopt(path: String) -> void:
