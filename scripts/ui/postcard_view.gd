@@ -228,7 +228,9 @@ func _draw() -> void:
 		return
 	var card := _card_rect()
 
-	var paper: Color = _palette[0]
+	# A sheet of paper, not a swatch of the city's colour. The back sits beside
+	# a grey ink drawing; a pink card behind it read as a different object.
+	var paper: Color = _palette[0].lerp(Color(0.96, 0.95, 0.93), 0.72)
 	var accent: Color = _palette[1]
 	var deep: Color = _palette[2]
 
@@ -360,15 +362,16 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	# used to carry a row of the city's discoveries along the bottom, which took
 	# a quarter of the card to repeat something the journal page already shows
 	# and left the writing squeezed into what was left.
-	var inner := card.grow(-card.size.y * 0.08)
+	# Inset by the short side. Taken from the height, a tall card lost a third
+	# of its width to margins — which is what pushed the stamp into the middle
+	# and cut the ends off every line of the letter.
+	var short_side := minf(card.size.x, card.size.y)
+	var inner := card.grow(-short_side * 0.09)
 	var font: Font = Pal.ui_font
 
 	# A stamp, top-right. It used to hold a shrunken copy of the landmark, which
 	# repeated the picture on the front and read as a sticker; a plain perforated
 	# rectangle with the country on it is what a stamp actually looks like.
-	# Sized from the short side: on a tall card, a quarter of the height is a
-	# stamp bigger than the writing.
-	var short_side := minf(card.size.x, card.size.y)
 	var s := short_side * 0.26
 	var stamp := Rect2(Vector2(inner.position.x + inner.size.x - s * 0.88,
 			inner.position.y), Vector2(s * 0.88, s))
@@ -457,12 +460,12 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 				- card.size.x * 0.02
 		if card.size.y > card.size.x:
 			beside_w = 0.0
-		var high_top := inner.position.y + inner.size.y * 0.04
-		var low_top := stamp.position.y + stamp.size.y + card.size.y * 0.045
+		var high_top := inner.position.y + short_side * 0.03
+		var low_top := stamp.position.y + stamp.size.y + short_side * 0.06
 		var bottom := inner.position.y + inner.size.y
 		var block_top := high_top
-		msg_size = int(card.size.y * 0.075)
-		while msg_size > int(card.size.y * 0.022):
+		msg_size = int(short_side * 0.075)
+		while msg_size > int(short_side * 0.030):
 			var widest := 0.0
 			for line in lines:
 				widest = maxf(widest, font.get_string_size(

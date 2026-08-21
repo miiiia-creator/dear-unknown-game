@@ -539,31 +539,31 @@ CITIES = [
     {
         "id": "tokyo", "name": "Tokyo", "country": "Japan",
         "map": lonlat(139.69, 35.69),
-        "palette": ["#F6DCE0", "#C25E6B", "#402E33"],
+        "palette": ["#EDECE9", "#6B6B67", "#2A2A27"],
         "puzzles": TOKYO,
     },
     {
         "id": "paris", "name": "Paris", "country": "France",
         "map": lonlat(2.35, 48.86),
-        "palette": ["#E8E2F2", "#6E63A8", "#2F2A3D"],
+        "palette": ["#ECEBE9", "#73736F", "#2C2C29"],
         "puzzles": PARIS,
     },
     {
         "id": "rome", "name": "Rome", "country": "Italy",
         "map": lonlat(12.50, 41.90),
-        "palette": ["#F7E3CE", "#B96A32", "#3D2E22"],
+        "palette": ["#EEECE8", "#6F6C66", "#2C2A26"],
         "puzzles": ROME,
     },
     {
         "id": "newyork", "name": "New York", "country": "USA",
         "map": lonlat(-74.01, 40.71),
-        "palette": ["#DDEAF0", "#2E6E88", "#22333B"],
+        "palette": ["#EBEBEA", "#68696A", "#282929"],
         "puzzles": NEW_YORK,
     },
     {
         "id": "london", "name": "London", "country": "UK",
         "map": lonlat(-0.13, 51.51),
-        "palette": ["#DEE7DC", "#4C7A57", "#26332A"],
+        "palette": ["#EAEBEA", "#6C7070", "#292B2B"],
         "puzzles": LONDON,
     },
     # Season Two. Each palette is built around a colour the place is known for
@@ -693,9 +693,9 @@ SENT = {
 # one sits on the finished painting. Measured by hand against the artwork.
 COMPOSITION = {
     'tokyo': [
-        ('tokyo_torii', 0.2, 0.67, 0.19),
-        ('tokyo_sakura', 0.412, 0.448, 0.09),
-        ('tokyo_pond', 0.695, 0.752, 0.115),
+        ('tokyo_sakura', 0.235, 0.665, 0.40),
+        ('tokyo_torii', 0.735, 0.655, 0.185),
+        ('tokyo_pond', 0.480, 0.955, 0.58),
     ],
     'paris': [
         ('paris_arc', 0.174, 0.6, 0.099),
