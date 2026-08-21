@@ -69,6 +69,10 @@ func run(main: Node) -> void:
 	await _wait(1.2)
 	await _shot("city_complete")
 
+	app.go("card", {"city": "tokyo"})
+	await _wait(1.2)
+	await _shot("card_full")
+
 	app.go("journal", {"city": "tokyo"})
 	await _shot("journal_done")
 
@@ -199,6 +203,12 @@ func run(main: Node) -> void:
 	app.go("postcards")
 	await _wait(0.9)
 	await _shot("phone_postcards_opening")
+
+	# The back of the season's opening card, which reads its note from the
+	# season the pile says it belongs to — not from whichever one is current.
+	app._current._flip()
+	await _wait(1.0)
+	await _shot("phone_postcards_opening_note")
 
 	# The line is pulled, not tapped. Drag it two cards along and let it settle,
 	# which is the whole gesture: the card under the mark is the card you get.

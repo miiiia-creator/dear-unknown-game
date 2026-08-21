@@ -9,6 +9,11 @@ extends Control
 
 signal slot_picked(puzzle_id: String)
 
+## A press that landed on the dark around the card rather than on the card. The
+## screen holds the card up out of the page, so the page around it is the way
+## to put it down again.
+signal dismissed
+
 const RATIO := 1.5
 
 var city_id: String = ""
@@ -154,9 +159,28 @@ func _gui_input(event: InputEvent) -> void:
 	if not pressed:
 		return
 	var pos: Vector2 = event.position
+
+	# The waiting light first, and with room around it: it is a small mark on a
+	# large card, and it is the thing the screen is asking you to press.
 	for entry in _slots:
 		var rect: Rect2 = entry[0]
 		if not entry[2] and rect.grow(rect.size.x * 0.4).has_point(pos):
 			slot_picked.emit(entry[1])
 			accept_event()
 			return
+
+	# Then the pictures already recovered. A finished grid was a picture and
+	# nothing else, so a solved destination was a card you could only look at —
+	# there was no way back into a puzzle once it had been done. They open the
+	# grid they came from, where Reset is waiting for anyone who wants to solve
+	# it again. No extra room around these: they sit where the composition puts
+	# them, which is sometimes close together.
+	for entry in _slots:
+		if entry[2] and (entry[0] as Rect2).has_point(pos):
+			slot_picked.emit(entry[1])
+			accept_event()
+			return
+
+	if not _card_rect().has_point(pos):
+		dismissed.emit()
+		accept_event()

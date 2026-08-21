@@ -31,19 +31,31 @@ var note := 0.0:
 		note = value
 		queue_redraw()
 
-## Which season's opening card this is. Empty means the current one.
-var season_id := ""
+## Declared above `season_id`, whose setter fills it: a member initialiser
+## further down the file would blank it again.
 var _body := ""
+
+## Which season's opening card this is. Empty means the current one.
+##
+## The note used to be read once, in `_ready()`, from `current_season()` — and
+## the pile sets this afterwards. So the moment the player moved past Season One
+## the current season was one with no opening card, and Season One's card came
+## up blank: dots on the front and nothing on the back.
+var season_id := "":
+	set(value):
+		season_id = value
+		_read_note()
+
 var _points: Array = []          ## Vector2 in card-space fractions
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
+	# Nobody said which season, so it is the one being played — the prologue,
+	# which shows the card before there is a pile to put it in.
 	if season_id == "":
 		season_id = str(GameData.current_season().get("id", ""))
-	var data := GameData.opening_of(season_id)
-	_body = GameData.text(data.get("body", ""))
 	# A dot per destination, where it sits on a world map, squeezed into the
 	# card's middle band so it stays a card. Every destination in the game, not just this season's. The card is M
 	# saying "I sent one to every place I thought you might be" — the dots are
@@ -54,6 +66,11 @@ func _ready() -> void:
 		_points.append(Vector2(
 			0.12 + float(m[0]) * 0.76,
 			0.30 + float(m[1]) * 0.90))
+
+
+func _read_note() -> void:
+	_body = GameData.text(GameData.opening_of(season_id).get("body", ""))
+	queue_redraw()
 
 
 func _card_rect() -> Rect2:

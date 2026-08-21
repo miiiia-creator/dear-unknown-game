@@ -53,9 +53,10 @@ func build() -> void:
 	add_child(_backdrop)
 	move_child(_backdrop, 0)
 
-	# A way back. The only thing on this screen that answers a tap is a point of
-	# light, and every one of those is a way further in. The nav bar was the
-	# only exit, and a nav bar says where you are, not where you were.
+	# A way back, for anyone who looks for one at the top of a page. The way
+	# most people will actually leave is by pressing the dark around the card:
+	# the screen holds a card up out of the page, so putting it down is what a
+	# press on the page means.
 	var top := UI.hbox(0)
 	# Only the link takes a press; the rest of the strip is still card.
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -77,6 +78,7 @@ func build() -> void:
 	_back.city_id = city_id
 	_back._measure()
 	_back.slot_picked.connect(_open)
+	_back.dismissed.connect(back)
 	_stage.add_child(_back)
 	_back.play_arrival()
 
@@ -100,6 +102,16 @@ func _next_puzzle() -> String:
 		if not SaveGame.is_solved(p["id"]):
 			return p["id"]
 	return ""
+
+
+## The strips above and below the card, which the card's own control does not
+## cover. Same meaning as the dark beside it: put the card down.
+func _gui_input(event: InputEvent) -> void:
+	var pressed: bool = (event is InputEventMouseButton and event.pressed) \
+			or (event is InputEventScreenTouch and event.pressed)
+	if pressed:
+		accept_event()
+		back()
 
 
 func _open(puzzle_id: String) -> void:

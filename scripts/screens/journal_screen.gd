@@ -106,8 +106,21 @@ func _row(city: Dictionary) -> Control:
 
 	line.add_child(UI.label(GameData.text(city["name"]), UI.H3,
 			"ink" if unlocked else "ink_faint"))
+
+	# The chapter's own name, once the destination is stamped. It takes the
+	# place the date used to hold: the date said when *you* got here, which is a
+	# save file's fact rather than the story's, and every finished row carried
+	# the same one. The title is what the chapter turned out to be about, and
+	# like the letter it comes with, it is not there until it is earned.
+	if complete:
+		var chapter := GameData.text(city.get("letter", {}).get("title", ""))
+		if chapter != "":
+			line.add_child(UI.label_small(chapter, "ink_soft"))
+
 	line.add_child(UI.grow())
-	line.add_child(_status(city, unlocked, complete))
+	var tail := _status(city, unlocked, complete)
+	if tail != null:
+		line.add_child(tail)
 
 	if unlocked and GameData.is_city_written(id):
 		row.pressed.connect(func(): _open(id))
@@ -116,15 +129,15 @@ func _row(city: Dictionary) -> Control:
 	return row
 
 
-## The right-hand end of a row: a date once stamped, a count while playing, and
-## the name of what stands in the way while locked.
+## The right-hand end of a row: a count while playing, and the name of what
+## stands in the way while locked. A finished destination has nothing there —
+## the pin says it is stamped and the chapter title says what it was.
 func _status(city: Dictionary, unlocked: bool, complete: bool) -> Control:
 	var id: String = city["id"]
 	if not GameData.is_city_written(id):
 		return UI.label_small(tr("Still being written"), "ink_faint")
 	if complete:
-		var date := SaveGame.stamp_date(id)
-		return UI.label_small(date if date != "" else tr("Stamped"), "accent")
+		return null
 	if unlocked:
 		var progress := GameData.city_progress(id)
 		var wrap := UI.hbox(8)

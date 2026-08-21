@@ -470,18 +470,30 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		var high_top := inner.position.y + short_side * 0.03
 		var low_top := stamp.position.y + stamp.size.y + short_side * 0.06
 		var bottom := inner.position.y + inner.size.y
-		var block_top := high_top
+
+		# One size for every letter in the game, not one per letter. Sized to
+		# its own text, Tokyo's seven lines came out large and Rome's thirteen
+		# came out small, and moving along the timeline the handwriting changed
+		# size at every card — which reads as a different hand, not a different
+		# letter. So the size is whatever the longest letter needs, measured
+		# from where the shortest one could not start any lower.
+		_measure_longest(font)
 		msg_size = int(short_side * 0.075)
 		while msg_size > int(short_side * 0.030):
-			var widest := 0.0
-			for line in lines:
-				widest = maxf(widest, font.get_string_size(
-						line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
-			block_top = high_top if widest <= beside_w else low_top
-			var tall := lines.size() * msg_size * 1.45
-			if widest <= wide_w and block_top + tall <= bottom:
+			var worst := font.get_string_size(_longest_line,
+					HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x
+			if worst <= wide_w \
+					and low_top + _longest_count * msg_size * 1.45 <= bottom:
 				break
 			msg_size -= 1
+
+		# Where it sits is still its own business: a letter whose lines are
+		# short clears the postmark and can start at the top of the card.
+		var widest := 0.0
+		for line in lines:
+			widest = maxf(widest, font.get_string_size(
+					line, HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x)
+		var block_top := high_top if widest <= beside_w else low_top
 		var tall_final := lines.size() * msg_size * 1.45
 		top = block_top + maxf(0.0, (bottom - block_top - tall_final) * 0.5)
 
@@ -569,6 +581,38 @@ func _draw_stamp(rect: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 
 
 # -- helpers ---------------------------------------------------------------
+
+## The longest letter in the game, which is the one every letter is set to fit.
+## Cached against the locale: Chinese sets denser than English and breaks in
+## different places, so the letter that decides the size is not the same one.
+static var _longest_locale := ""
+static var _longest_count := 0
+static var _longest_line := ""
+
+
+static func _measure_longest(font: Font) -> void:
+	var locale := TranslationServer.get_locale()
+	if locale == _longest_locale and _longest_count > 0:
+		return
+	_longest_locale = locale
+	_longest_count = 0
+	_longest_line = ""
+	var widest := 0.0
+	for city in GameData.cities:
+		var body := GameData.text(city.get("letter", {}).get("body", ""))
+		if body == "":
+			continue
+		var rows := body.split("\n")
+		_longest_count = maxi(_longest_count, rows.size())
+		for row in rows:
+			var text := String(row).strip_edges()
+			# Measured at one reference size; the ranking does not change with
+			# it, and this runs once per language rather than once per frame.
+			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
+			if w > widest:
+				widest = w
+				_longest_line = text
+
 
 ## The one small size the back is set in: the stamp's country, and the postmark
 ## that sits beside it.

@@ -48,6 +48,7 @@ ZH_NAMES = {
     "london_tea": "一杯茶", "london_rain": "阵雨", "london_bus": "双层巴士",
     "london_phonebox": "电话亭", "london_umbrella": "雨伞",
     "london_crown": "王冠", "london_corgi": "柯基", "london_bigben": "大本钟",
+    "la_palm": "棕榈",
 }
 
 ZH_CATEGORIES = {
@@ -63,6 +64,7 @@ ZH_CITIES = {
     "kyoto": ("京都", "日本"), "sanfrancisco": ("旧金山", "美国"),
     "istanbul": ("伊斯坦布尔", "土耳其"), "reykjavik": ("雷克雅未克", "冰岛"),
     "bermuda": ("百慕大", "北大西洋"),
+    "losangeles": ("洛杉矶", "美国"),
 }
 
 
@@ -477,6 +479,24 @@ BERMUDA = [
 """, BERMUDA_INKS),
 ]
 
+# Season Three begins here, and everything about it is a placeholder except the
+# destination. The grid is a flat one so the builder has something to check; the
+# season's own idea — an object with a back to it — has not been built yet.
+LOS_ANGELES = [
+    P("la_palm", "The Last Palm", "\U0001f334", "Nature", """
+...####...
+..######..
+.###..###.
+###....###
+...####...
+....##....
+....##....
+....##....
+....##....
+.########.
+"""),
+]
+
 CITIES = [
     {
         "id": "tokyo", "name": "Tokyo", "country": "Japan",
@@ -540,6 +560,14 @@ CITIES = [
         "map": lonlat(-64.78, 32.29),
         "palette": ["#F6E1E0", "#C4707B", "#3A2A2E"],
         "puzzles": BERMUDA,
+    },
+    # Season Three. Placeholder palette — dusk over concrete — until the season
+    # decides what it is about.
+    {
+        "id": "losangeles", "name": "Los Angeles", "country": "USA",
+        "map": lonlat(-118.24, 34.05),
+        "palette": ["#F6E6D8", "#C2734A", "#33261F"],
+        "puzzles": LOS_ANGELES,
     },
 ]
 
@@ -627,6 +655,9 @@ SENT = {
     "reykjavik":    "30 OCT 2020",
     "bermuda":      "06 NOV 2020",
     "london":       "12 NOV 2020",
+    # Placeholder. A card with no postmark sorts to the head of the timeline
+    # with a blank label under it, in front of a card posted two years earlier.
+    "losangeles":   "19 MAR 2021",
 }
 
 # Which three discoveries the postcard's mosaic resolves out of, and where each
@@ -691,6 +722,14 @@ def composition_for(city, puzzles):
 # own drafts rather than line-for-line renderings, and are added back one at a
 # time as they are written.
 LETTERS = {
+    # Placeholder, so the card has something on its back. Not the real letter.
+    'losangeles': {
+        "theme": 'placeholder',
+        "title": 'The Last Palm',
+        "body": "Dear, Unknown,\nEverything here is a front with nothing behind it.\nI keep walking round to check.\n— M",
+        "title_zh": '最后一棵棕榈',
+        "body_zh": '亲爱的陌生人：\n这里的东西都只有正面，背后什么也没有。\n我一直绕到后面去确认。\n—— M',
+    },
     'tokyo': {
         "theme": 'waiting',
         "title": 'The Last Cherry Blossom',
@@ -787,6 +826,14 @@ SEASONS = [
         "title_zh": '不存在的颜色',
         "cities": ['kyoto', 'sanfrancisco', 'istanbul', 'reykjavik', 'bermuda'],
         # Only the first season opens with a letter.
+    },
+    # Placeholder. The title is a note to self, not a decision.
+    {
+        "id": 's3',
+        "number": 3,
+        "title": 'The Other Side',
+        "title_zh": '另一面',
+        "cities": ['losangeles'],
     },
 ]
 

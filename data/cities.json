@@ -38,6 +38,18 @@
     "reykjavik",
     "bermuda"
    ]
+  },
+  {
+   "id": "s3",
+   "number": 3,
+   "title": {
+    "en": "The Other Side",
+    "zh_CN": "另一面"
+   },
+   "title_zh": "另一面",
+   "cities": [
+    "losangeles"
+   ]
   }
  ],
  "cities": [
@@ -1206,6 +1218,84 @@
    "sent": "06 NOV 2020",
    "season": "s2",
    "season_index": 4
+  },
+  {
+   "id": "losangeles",
+   "name": {
+    "en": "Los Angeles",
+    "zh_CN": "洛杉矶"
+   },
+   "country": {
+    "en": "USA",
+    "zh_CN": "美国"
+   },
+   "map": [
+    0.1716,
+    0.3108
+   ],
+   "palette": [
+    "#F6E6D8",
+    "#C2734A",
+    "#33261F"
+   ],
+   "puzzles": [
+    {
+     "id": "la_palm",
+     "name": {
+      "en": "The Last Palm",
+      "zh_CN": "棕榈"
+     },
+     "category": {
+      "en": "Nature",
+      "zh_CN": "自然"
+     },
+     "index": 0,
+     "art": [
+      "...####...",
+      "..######..",
+      ".###..###.",
+      "###....###",
+      "...####...",
+      "....##....",
+      "....##....",
+      "....##....",
+      "....##....",
+      ".########."
+     ],
+     "palette": []
+    }
+   ],
+   "notes": [
+    "Wish you were here.",
+    "No news. Just this.",
+    "Saved you the good half of the postcard.",
+    "Thinking of you from a long way away.",
+    "Nothing to report except that it was lovely."
+   ],
+   "composition": [
+    {
+     "id": "la_palm",
+     "x": 0.47,
+     "base": 0.66,
+     "w": 0.23
+    }
+   ],
+   "letter": {
+    "theme": "placeholder",
+    "title": {
+     "en": "The Last Palm",
+     "zh_CN": "最后一棵棕榈"
+    },
+    "body": {
+     "en": "Dear, Unknown,\nEverything here is a front with nothing behind it.\nI keep walking round to check.\n— M",
+     "zh_CN": "亲爱的陌生人：\n这里的东西都只有正面，背后什么也没有。\n我一直绕到后面去确认。\n—— M"
+    }
+   },
+   "style": "",
+   "drift": "mote",
+   "sent": "19 MAR 2021",
+   "season": "s3",
+   "season_index": 0
   }
  ]
 }
