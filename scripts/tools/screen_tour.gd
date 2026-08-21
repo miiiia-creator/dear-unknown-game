@@ -73,6 +73,13 @@ func run(main: Node) -> void:
 	await _wait(1.2)
 	await _shot("card_full")
 
+	# A card whose discoveries were solved in more than one ink.
+	for p in GameData.puzzles_of("reykjavik"):
+		SaveGame.mark_solved(p["id"], 60.0, 0)
+	app.go("card", {"city": "reykjavik"})
+	await _wait(1.2)
+	await _shot("card_full_colour")
+
 	app.go("journal", {"city": "tokyo"})
 	await _shot("journal_done")
 

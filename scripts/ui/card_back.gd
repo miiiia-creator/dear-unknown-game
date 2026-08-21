@@ -84,34 +84,49 @@ func _draw() -> void:
 	if puzzles.is_empty():
 		return
 
-	# Where each picture belongs on the finished painting: the tree on the left
-	# bank, the gate on the far side, the pond across the bottom. A column of
-	# three dots down the middle told the player nothing about what they were
-	# recovering; placed like this, the blank card is already a composition and
-	# each piece lands where it will stay.
+	# One scale for every discovery on the card, and the positions worked out
+	# rather than measured by hand.
+	#
+	# They used to come from a per-city `composition` table giving each piece a
+	# width as a fraction of the card. That made Tokyo's five-by-five pond cells
+	# ten times the area of the ten-by-ten gate's beside it — a slab of black
+	# next to a smudge — and it only covered the five destinations that existed
+	# when it was written, so the other six stacked every piece in the middle of
+	# the card on top of itself.
+	#
+	# A card is a sheet with the things you found pinned to it, so they are all
+	# pinned at the same size: one cell measurement shared by every grid, which
+	# makes a ten-by-ten twice the picture a five-by-five is, because it is.
 	_slots.clear()
-	var layout: Array = GameData.city(city_id).get("composition", [])
-	var by_id := {}
-	for slot in layout:
-		by_id[str(slot.get("id", ""))] = slot
+	var gap := 1.6                     # in cells, between one piece and the next
+	var span := 0.0
+	var tallest := 1.0
+	for p in puzzles:
+		span += float(String(p["art"][0]).length())
+		tallest = maxf(tallest, float(p["art"].size()))
+	span += gap * float(maxi(0, puzzles.size() - 1))
+
+	var cell := minf(card.size.x * 0.78 / span, card.size.y * 0.40 / tallest)
+	cell = maxf(1.0, floorf(cell))
+	var x := card.position.x + (card.size.x - span * cell) * 0.5
+	# The row sits below the middle, where a hand would lay things out, and each
+	# piece stands on a line of its own so the card is not a shelf.
+	var baseline := card.position.y + card.size.y * 0.62
 
 	for i in puzzles.size():
 		var p: Dictionary = puzzles[i]
-		var here: Dictionary = by_id.get(str(p["id"]), {})
-		var w: float = float(here.get("w", 0.22)) * card.size.x
-		var cx: float = card.position.x + float(here.get("x", 0.5)) * card.size.x
-		var base: float = card.position.y + float(here.get("base", 0.5)) * card.size.y
-		# The art is wider than tall as often as not, so the slot is squared off
-		# the width and stands on its base line.
 		var rows := float(p["art"].size())
 		var cols := float(String(p["art"][0]).length())
-		var h: float = w * (rows / cols)
-		var rect := Rect2(cx - w * 0.5, base - h, w, h)
+		var w := cols * cell
+		var h := rows * cell
+		var lift := card.size.y * (0.05 if i % 2 == 1 else 0.0)
+		var rect := Rect2(x, baseline - h - lift, w, h)
+		x += w + gap * cell
 		var solved: bool = SaveGame.is_solved(p["id"])
 		_slots.append([rect, p["id"], solved])
 
 		if solved:
-			_draw_art(p["art"], rect, deep)
+			_draw_art(p["art"], rect, deep, p.get("palette", []))
 		elif _is_next(puzzles, i):
 			_draw_light(rect.get_center(), minf(rect.size.x, rect.size.y) * 0.14,
 					palette[1])
@@ -136,21 +151,37 @@ func _draw_light(centre: Vector2, radius: float, col: Color) -> void:
 	draw_circle(centre, radius * (0.85 + breath * 0.2), col)
 
 
-func _draw_art(art: Array, rect: Rect2, col: Color) -> void:
+## A discovery as it sits on the card.
+##
+## It used to be one flat colour with no gaps, which on a sheet of pale paper is
+## a lump of black — and on a grid that was solved in four inks it threw all
+## four away. A discovery is a grid of marks, not a silhouette: the cells keep
+## the hairline between them that the board draws, and they keep the colours
+## they were solved in. What lands on the card is the picture you made.
+func _draw_art(art: Array, rect: Rect2, col: Color, inks: Array = []) -> void:
 	var rows := art.size()
 	var cols := String(art[0]).length()
 	var cell := floorf(minf(rect.size.x / float(cols), rect.size.y / float(rows)))
 	if cell < 1.0:
 		return
+	# Air between the marks, but never so much that a small piece falls apart:
+	# below three points a cell the gap is not drawn at all.
+	var gap := 1.0 if cell >= 3.0 else 0.0
 	var origin := rect.position + (rect.size - Vector2(cols, rows) * cell) * 0.5
-	var ink := col
-	ink.a = _arrived
 	for r in rows:
 		var line: String = art[r]
 		for c in cols:
-			if line[c] == ".":
+			var ch: String = line[c]
+			if ch == ".":
 				continue
-			draw_rect(Rect2(origin + Vector2(c, r) * cell, Vector2(cell, cell)), ink)
+			var ink := col
+			if not inks.is_empty():
+				var which := 0 if ch == "#" else int(ch) - 1
+				if which >= 0 and which < inks.size():
+					ink = Color(inks[which])
+			ink.a = _arrived
+			draw_rect(Rect2(origin + Vector2(c, r) * cell,
+					Vector2(cell - gap, cell - gap)), ink)
 
 
 func _gui_input(event: InputEvent) -> void:

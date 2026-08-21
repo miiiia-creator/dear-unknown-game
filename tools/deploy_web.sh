@@ -70,7 +70,30 @@ activate_new = """	).then(async function (removed) {
 		}
 	}));"""
 
-for old, new in ((install_old, install_new), (activate_old, activate_new)):
+# The page itself comes from the network, and only falls back to the cache when
+# there is no network. Godot's worker serves a navigation from the cache without
+# asking, so a phone that had been to the site once opened it in a second and
+# went on showing that build for good — a deploy simply never arrived. index.html
+# is nine kilobytes; the wasm and the pack stay cache-first, which is where all
+# the weight is.
+nav_old = """		if (isNavigate || isCacheable) {
+			event.respondWith((async () => {
+				// Try to use cache first
+				const cache = await caches.open(CACHE_NAME);"""
+nav_new = """		if (isNavigate || isCacheable) {
+			event.respondWith((async () => {
+				const cache = await caches.open(CACHE_NAME);
+				if (isNavigate) {
+					try {
+						return await fetchAndCache(event, cache, true);
+					} catch (e) {
+						const offline = await cache.match(event.request);
+						return offline != null ? offline : caches.match(OFFLINE_URL);
+					}
+				}"""
+
+for old, new in ((install_old, install_new), (activate_old, activate_new),
+                 (nav_old, nav_new)):
     if old not in src:
         sys.exit("service worker template changed; patch no longer applies")
     src = src.replace(old, new)
