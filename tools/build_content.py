@@ -415,8 +415,60 @@ ISTANBUL = [
 ..33333.......
 """, ISTANBUL_INKS),
 ]
-REYKJAVIK = []
-BERMUDA = []
+# Four inks. The letter is about a woman who has books, music, the sea, and
+# does not understand the question — so the card is an interior and a coastline
+# rather than an object on a table. First time the season draws a place.
+REYKJAVIK_INKS = ["#3E8A73", "#3A4A6B", "#D8B45C", "#2A3038"]
+
+REYKJAVIK = [
+    P("reykjavik_woman", "Why Would I", "\U0001f469", "Everyday life", """
+2222222222....
+2111111112....
+2111111112.44.
+2111111112.44.
+2222222222.44.
+....33....4444
+....33...44444
+...3333..44444
+..333333.44444
+..333333..444.
+""", REYKJAVIK_INKS),
+    P("reykjavik_sea", "Books, Music, The Sea", "\U0001f30a", "Nature", """
+11111111111111
+11122211112221
+22222222222222
+22222222222222
+....44........
+...4444.......
+...4444.......
+33333333333333
+33333333333333
+33333333333333
+""", REYKJAVIK_INKS),
+]
+# Five inks, and the last grid of the season. Ships disappear, planes
+# disappear, and this is the only card in either season that draws a whole
+# place rather than a thing on a table — sky, cloud, sea, and the two things
+# that go missing in it, each in a colour of its own.
+BERMUDA_INKS = ["#BFD8E6", "#F2F4F6", "#2E7C8C", "#E9B8AE", "#5A6B78"]
+
+BERMUDA = [
+    P("bermuda_triangle", "Just in Case", "\u2708", "Landmark", """
+111111111111111
+122111111112211
+111111111111111
+111111555511111
+111111111111111
+114411111111111
+144441111111111
+111111111111111
+333333333333333
+333344333333333
+333344443333333
+333333333333333
+333333333333333
+""", BERMUDA_INKS),
+]
 
 CITIES = [
     {

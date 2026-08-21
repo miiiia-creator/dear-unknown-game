@@ -1026,7 +1026,68 @@
     "#3E8A73",
     "#20302C"
    ],
-   "puzzles": [],
+   "puzzles": [
+    {
+     "id": "reykjavik_woman",
+     "name": {
+      "en": "Why Would I",
+      "zh_CN": "Why Would I"
+     },
+     "category": {
+      "en": "Everyday life",
+      "zh_CN": "日常"
+     },
+     "index": 0,
+     "art": [
+      "2222222222....",
+      "2111111112....",
+      "2111111112.44.",
+      "2111111112.44.",
+      "2222222222.44.",
+      "....33....4444",
+      "....33...44444",
+      "...3333..44444",
+      "..333333.44444",
+      "..333333..444."
+     ],
+     "palette": [
+      "#3E8A73",
+      "#3A4A6B",
+      "#D8B45C",
+      "#2A3038"
+     ]
+    },
+    {
+     "id": "reykjavik_sea",
+     "name": {
+      "en": "Books, Music, The Sea",
+      "zh_CN": "Books, Music, The Sea"
+     },
+     "category": {
+      "en": "Nature",
+      "zh_CN": "自然"
+     },
+     "index": 1,
+     "art": [
+      "11111111111111",
+      "11122211112221",
+      "22222222222222",
+      "22222222222222",
+      "....44........",
+      "...4444.......",
+      "...4444.......",
+      "33333333333333",
+      "33333333333333",
+      "33333333333333"
+     ],
+     "palette": [
+      "#3E8A73",
+      "#3A4A6B",
+      "#D8B45C",
+      "#2A3038"
+     ]
+    }
+   ],
    "notes": [
     "Wish you were here.",
     "No news. Just this.",
@@ -1034,7 +1095,14 @@
     "Thinking of you from a long way away.",
     "Nothing to report except that it was lovely."
    ],
-   "composition": [],
+   "composition": [
+    {
+     "id": "reykjavik_sea",
+     "x": 0.47,
+     "base": 0.66,
+     "w": 0.23
+    }
+   ],
    "letter": {
     "theme": "leaving",
     "title": {
@@ -1071,7 +1139,42 @@
     "#C4707B",
     "#3A2A2E"
    ],
-   "puzzles": [],
+   "puzzles": [
+    {
+     "id": "bermuda_triangle",
+     "name": {
+      "en": "Just in Case",
+      "zh_CN": "Just in Case"
+     },
+     "category": {
+      "en": "Landmark",
+      "zh_CN": "地标"
+     },
+     "index": 0,
+     "art": [
+      "111111111111111",
+      "122111111112211",
+      "111111111111111",
+      "111111555511111",
+      "111111111111111",
+      "114411111111111",
+      "144441111111111",
+      "111111111111111",
+      "333333333333333",
+      "333344333333333",
+      "333344443333333",
+      "333333333333333",
+      "333333333333333"
+     ],
+     "palette": [
+      "#BFD8E6",
+      "#F2F4F6",
+      "#2E7C8C",
+      "#E9B8AE",
+      "#5A6B78"
+     ]
+    }
+   ],
    "notes": [
     "Wish you were here.",
     "No news. Just this.",
@@ -1079,7 +1182,14 @@
     "Thinking of you from a long way away.",
     "Nothing to report except that it was lovely."
    ],
-   "composition": [],
+   "composition": [
+    {
+     "id": "bermuda_triangle",
+     "x": 0.47,
+     "base": 0.66,
+     "w": 0.23
+    }
+   ],
    "letter": {
     "theme": "kindness",
     "title": {
