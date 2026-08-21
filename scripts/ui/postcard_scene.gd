@@ -428,16 +428,11 @@ class SubjectLayer:
 				- Vector2(art_size.x * 0.5, art_size.y)).floor()
 		_rim_and_body(origin, cell, art_size, piece_art)
 
-	func _rim_and_body(origin: Vector2, cell: float, art_size: Vector2, which: Array) -> void:
-		if rim > 0.0:
-			var centre := origin + art_size * 0.5
-			var towards := (sun_uv * size - centre).normalized()
-			var spread := maxf(1.0, cell * 0.6)
-			for i in 5:
-				var spin := (float(i) - 2.0) * 0.42
-				var halo := glow
-				halo.a = 0.5 * rim * (1.0 - absf(spin) * 0.7)
-				_stamp_art(which, origin + towards.rotated(spin) * spread, cell, halo)
+	## The piece, once. This used to stamp five more copies of it fanned out
+	## towards the sun to make a rim light — which on a painted card read as
+	## light radiating across the whole picture, and on a grey ink drawing
+	## bleached it. A pixel piece landing on a postcard does not need a halo.
+	func _rim_and_body(origin: Vector2, cell: float, _art_size: Vector2, which: Array) -> void:
 		_stamp_art(which, origin, cell, ink)
 
 	func _stamp_art(which: Array, origin: Vector2, cell: float, col: Color) -> void:

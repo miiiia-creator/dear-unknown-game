@@ -54,15 +54,10 @@ void fragment() {
 	// lighting up rather than merely sharpening.
 	c.rgb += vec3(1.0, 0.92, 0.80) * warmth * 0.16;
 
-	// Once resolved, a slow breath of light along the sun's rays keeps the
-	// postcard alive instead of freezing into a screenshot.
-	if (shimmer > 0.0) {
-		vec2 d = uv - sun;
-		float ang = atan(d.y, d.x);
-		float wave = sin(ang * 7.0 + TIME * 0.55) * 0.5 + 0.5;
-		float reach = exp(-length(d) * 1.7);
-		c.rgb += vec3(1.0, 0.95, 0.86) * wave * reach * 0.07 * shimmer;
-	}
+	// There used to be a slow breath of light along the sun's rays here, meant
+	// to keep the card from freezing into a screenshot. On a painted sunset it
+	// read as weather; on a grey ink drawing it was a starburst across the
+	// whole picture, and it was the brightest thing on the card.
 
 	if (caption_scrim > 0.0) {
 		float band = smoothstep(0.62, 0.94, UV.y);
