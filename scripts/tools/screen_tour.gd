@@ -268,6 +268,7 @@ func run(main: Node) -> void:
 	await _shot("zh_prologue")
 	Pal.set_locale("en")
 
+	_font_census()
 	print("Screenshots in ", ProjectSettings.globalize_path(SHOT_DIR))
 	# A hard quit does not give autoloads a chance to let go of anything, and a
 	# screen still holding a film is torn down after the resource cache has
@@ -276,6 +277,40 @@ func run(main: Node) -> void:
 	await _wait(0.4)
 	Music.release()
 	get_tree().quit()
+
+
+## Where the font memory goes: every (face, size) pair the game has asked for
+## keeps its own rasterised atlas, and a CJK face carries several hundred
+## glyphs in each one.
+func _font_census() -> void:
+	var ts := TextServerManager.get_primary_interface()
+	var faces := {"ui": Pal.ui_font, "letter": Pal.letter_font, "mono": Pal.mono_font}
+	var grand := 0
+	print("[font] ---- glyph atlas census ----")
+	var seen := {}
+	for label in faces:
+		var f: Font = faces[label]
+		if f == null:
+			continue
+		for rid in f.get_rids():
+			if seen.has(rid):
+				continue
+			seen[rid] = true
+			var fname: String = ts.font_get_name(rid)
+			var sizes: Array = ts.font_get_size_cache_list(rid)
+			var bytes := 0
+			var dims: Array = []
+			for sz in sizes:
+				for i in ts.font_get_texture_count(rid, sz):
+					var img: Image = ts.font_get_texture_image(rid, sz, i)
+					if img != null:
+						bytes += img.get_width() * img.get_height() * 4
+				dims.append(int((sz as Vector2i).x))
+			dims.sort()
+			grand += bytes
+			print("[font] %-24s %6.2f MB  %2d sizes %s" % [
+					fname, bytes / 1048576.0, sizes.size(), str(dims)])
+	print("[font] TOTAL %.2f MB" % (grand / 1048576.0))
 
 
 func _watchdog() -> void:

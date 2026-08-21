@@ -172,9 +172,10 @@ func _draw_note(card: Rect2, ink: Color, line: Color) -> void:
 	# card is sized to the screen, and a phone gives it far less room.
 	var text_w := inner.size.x * 0.52
 	var room := inner.size.y * 0.92
+	# In twos: every size tried is a whole glyph atlas rasterised and kept.
 	var lines := _lay_out(font, fsize, text_w)
 	while (lines.size() * fsize * 1.5) > room and fsize > 7:
-		fsize -= 1
+		fsize -= 2
 		lines = _lay_out(font, fsize, text_w)
 
 	var y := inner.position.y + fsize * 1.4

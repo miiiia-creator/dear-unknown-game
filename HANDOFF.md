@@ -208,6 +208,13 @@ Chinese.
   each export and the old cache is deleted on activate. Deploying five times in
   an afternoon means five full downloads for anyone with the tab open. Batch
   them.
+* **Measuring a string at a size rasterises the whole face at that size,** and
+  the atlas is kept for the life of the font. A loop that walked a type size
+  down one point at a time to find a fit therefore built an atlas at every step
+  it passed through — thirty-four sizes of a CJK face, twenty-two megabytes, to
+  arrive at one of them. Width is linear in size: measure once at `REF_SIZE`
+  and do the arithmetic. The tour prints a glyph atlas census at the end (69.5
+  MB before this, 36.5 MB after); if it climbs, something is searching again.
 * **New user-facing strings need a row in `data/translations.csv`,** then
   `tools/subset_font.py`, then `godot --headless --editor --quit`. The English
   passes through untranslated, so nothing errors — it just shows up in the

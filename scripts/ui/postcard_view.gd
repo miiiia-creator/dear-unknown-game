@@ -318,11 +318,13 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	var top := 0.0
 
 	if handwritten:
+		# Wrapping is not linear in the size, so this one does have to try — but
+		# in twos, and each try is another atlas.
 		msg_size = int(card.size.y * 0.062)
 		var room := int(inner.size.y * 0.74 / (msg_size * 1.45))
 		lines = _wrap_paragraphs(hand, text, msg_size, narrow_w)
 		while lines.size() > room and msg_size > int(card.size.y * 0.030):
-			msg_size -= 1
+			msg_size -= 2
 			room = int(inner.size.y * 0.74 / (msg_size * 1.45))
 			lines = _wrap_paragraphs(hand, text, msg_size, narrow_w)
 		top = inner.position.y + inner.size.y * 0.16
@@ -352,15 +354,22 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 		# size at every card — which reads as a different hand, not a different
 		# letter. So the size is whatever the longest letter needs, measured
 		# from where the shortest one could not start any lower.
+		# Worked out, not searched for. This walked the size down a point at a
+		# time and asked the font to measure at each step — and a measurement is
+		# a rasterisation, so arriving at 16 from 49 left thirty-four whole
+		# glyph atlases behind it. For a CJK face that is several hundred glyphs
+		# in each: twenty-two megabytes of texture to choose one number.
+		#
+		# A string's width is linear in its size, so one measurement at the
+		# reference size gives every other, and both limits become arithmetic.
 		_measure_longest(hand)
-		msg_size = int(short_side * 0.075)
-		while msg_size > int(short_side * 0.030):
-			var worst := hand.get_string_size(_longest_line,
-					HORIZONTAL_ALIGNMENT_LEFT, -1, msg_size).x
-			if worst <= wide_w \
-					and low_top + _longest_count * msg_size * 1.45 <= bottom:
-				break
-			msg_size -= 1
+		var ref_w := hand.get_string_size(_longest_line,
+				HORIZONTAL_ALIGNMENT_LEFT, -1, REF_SIZE).x
+		var by_width := int(float(REF_SIZE) * wide_w / maxf(1.0, ref_w))
+		var by_height := int((bottom - low_top)
+				/ (maxf(1.0, float(_longest_count)) * 1.45))
+		msg_size = clampi(mini(by_width, by_height),
+				int(short_side * 0.030), int(short_side * 0.075))
 
 		# Where it sits is still its own business: a letter whose lines are
 		# short clears the postmark and can start at the top of the card.
@@ -460,6 +469,10 @@ func _draw_stamp(rect: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 ## The longest letter in the game, which is the one every letter is set to fit.
 ## Cached against the locale: Chinese sets denser than English and breaks in
 ## different places, so the letter that decides the size is not the same one.
+## The size every measurement is taken at, and converted from. One size, not
+## thirty-four.
+const REF_SIZE := 40
+
 static var _longest_locale := ""
 static var _longest_count := 0
 static var _longest_line := ""
@@ -483,7 +496,7 @@ static func _measure_longest(font: Font) -> void:
 			var text := String(row).strip_edges()
 			# Measured at one reference size; the ranking does not change with
 			# it, and this runs once per language rather than once per frame.
-			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
+			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, REF_SIZE).x
 			if w > widest:
 				widest = w
 				_longest_line = text
