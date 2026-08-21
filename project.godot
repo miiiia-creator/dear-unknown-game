@@ -26,10 +26,14 @@ Music="*res://scripts/autoload/music.gd"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=800
-window/size/window_width_override=1280
-window/size/window_height_override=800
+# The desktop window opens phone-shaped. This game is played upright, and a
+# wide window meant every layout had to be checked on a phone over a slow line
+# before anyone could tell whether it was right. Drag the window wider whenever
+# you want to see what a monitor does with it.
+window/size/viewport_width=430
+window/size/viewport_height=932
+window/size/window_width_override=430
+window/size/window_height_override=932
 window/size/resizable=true
 ; The whole UI is built from containers with real breakpoints, so the viewport
 ; must report actual available space. "canvas_items" would instead render at a
