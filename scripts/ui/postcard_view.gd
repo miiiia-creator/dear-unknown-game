@@ -209,7 +209,12 @@ func portrait() -> bool:
 
 
 func _card_rect() -> Rect2:
+	# A card is whatever shape its picture is. Postcards are not all one size,
+	# and forcing a tall ink drawing into a 3:2 frame crops away the sky, which
+	# on that drawing is most of what there is to look at.
 	var ratio := RATIO if not portrait() else 1.0 / RATIO
+	if _art != null and _art.get_height() > 0:
+		ratio = float(_art.get_width()) / float(_art.get_height())
 	var w := size.x
 	var h := w / ratio
 	if h > size.y:
@@ -253,8 +258,6 @@ func _draw_painted_front(card: Rect2) -> void:
 	# worth looking at. Under the band is paper, which is where the name goes,
 	# and that is what a printed postcard looks like anyway.
 	var inner := card.grow(-2.0)
-	if portrait():
-		inner.size.y = inner.size.x / RATIO
 	var tex: Texture2D = _art
 	if _motion != null and _motion.is_playing():
 		var frame := _motion.get_video_texture()
@@ -279,14 +282,15 @@ func _draw_painted_front(card: Rect2) -> void:
 	var type_col: Color = _palette[0].lightened(0.55) if dark else _palette[2]
 	var halo := Color(0, 0, 0, 0.5) if dark else Color(_palette[0], 0.55)
 
-	# Upright the name is printed on the paper under the picture, so it takes
-	# the ink colour and needs no halo; landscape it sits over the painting and
-	# needs both.
-	var upright := portrait()
-	var name_y := card.position.y + card.size.y * 0.82
-	var sub_y := card.position.y + card.size.y * 0.91
-	var name_size := int(card.size.y * 0.135)
-	var sub_size := int(card.size.y * 0.052)
+	# The name sits over the picture, near its foot. Sized from the card's short
+	# side rather than its height: a card is whatever shape its picture is now,
+	# and a tall one was getting type as large as the drawing.
+	var upright := false
+	var short := minf(card.size.x, card.size.y)
+	var name_size := int(short * 0.135)
+	var sub_size := int(short * 0.052)
+	var name_y := card.position.y + card.size.y - short * 0.30
+	var sub_y := card.position.y + card.size.y - short * 0.16
 	if upright:
 		type_col = _palette[2]
 		halo = Color(0, 0, 0, 0)

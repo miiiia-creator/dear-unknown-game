@@ -61,6 +61,15 @@ func build() -> void:
 	if seasons != null:
 		root.add_child(seasons)
 
+	# Everything but the card goes dark, so looking at one feels like holding it
+	# up rather than reading a page that happens to have a card on it.
+	var _backdrop := ColorRect.new()
+	_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_backdrop.color = Color(0.04, 0.04, 0.045, 0.88)
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_backdrop)
+	move_child(_backdrop, 0)
+
 	_stage = Control.new()
 	_stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
