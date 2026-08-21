@@ -249,6 +249,10 @@ func _draw_front(card: Rect2, accent: Color, deep: Color) -> void:
 	if _art != null:
 		_draw_painted_front(card)
 		return
+	# A city whose painting is not drawn yet gets a sheet of its own colour
+	# rather than a white rectangle. White reads as broken; tinted paper reads
+	# as a card that has not been developed.
+	draw_rect(card.grow(-2.0), _palette[0])
 	_draw_placeholder_front(card, accent, deep)
 
 

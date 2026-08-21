@@ -420,7 +420,7 @@ CITIES = [
     {
         "id": "kyoto", "name": "Kyoto", "country": "Japan",
         "map": lonlat(135.77, 35.01),
-        "palette": ["#E3E8DA", "#5F7A4C", "#2A3325"],
+        "palette": ["#F6DCE4", "#B4708A", "#3A2A32"],
         "puzzles": KYOTO,
     },
     {
