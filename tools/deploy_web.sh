@@ -26,9 +26,19 @@ rm -f "$OUT"/*.import
 # The looping paintings are kept out of the pack — ten megabytes on a download
 # that already takes half a minute — and served as plain files instead. A card
 # fetches its own the first time somebody opens it.
+# Emptied first. This copied in whatever was in assets and never took anything
+# out, so two films for paintings that had been deleted from the game months
+# earlier were still being published — and still fetched, because the card asks
+# the server for its film by name and the server still had one. Opening Tokyo
+# on a phone downloaded three and a half megabytes and then replaced the ink
+# drawing with the colour painting it replaced.
 echo "-- postcard motion as loose files"
+rm -rf "$OUT/motion"
 mkdir -p "$OUT/motion"
 cp "$ROOT"/assets/postcards/*.ogv "$OUT/motion/" 2>/dev/null || true
+# The .uid files beside them are Godot's import bookkeeping; nothing fetches
+# them and they have no business on a web server.
+rm -f "$OUT/motion"/*.uid
 ls "$OUT/motion" | sed "s/^/   /"
 
 # Godot's own service worker installs alongside the previous one and waits for
