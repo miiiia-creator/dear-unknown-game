@@ -135,7 +135,10 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(plate)
 
-	var card_h := card_w / aspect
+	# `w`, not `card_w`: the card is fitted to the screen's height as well as its
+	# width, and sizing the name off the width that was asked for rather than
+	# the one that was used put it below the bottom edge of the card.
+	var card_h := w / aspect
 
 	# Type colour follows the painting, not the palette: a dark canvas needs
 	# light lettering and vice versa, and the artwork is the only thing that
@@ -145,7 +148,7 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	# colour depending on which screen you are looking at it from. Sized off the
 	# card's short side: taken from the height, a tall card set the name wider
 	# than the card and it read as knocked off centre.
-	var short_side := minf(card_w, card_h)
+	var short_side := minf(w, card_h)
 	var type_col := Color(0.97, 0.97, 0.96) if dark_art else Color(0.10, 0.10, 0.10)
 	var halo := Color(0, 0, 0, 0.45) if dark_art else Color(1, 1, 1, 0.45)
 
