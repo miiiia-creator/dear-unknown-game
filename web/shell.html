@@ -198,6 +198,32 @@ const engine = new Engine(GODOT_CONFIG);
 const PASS_HASH = 'af4dea198ccefd83d079152077fa0595c356ee8a8bc73c184cbc0591ff5ef752';
 const PASS_KEY = 'dear-unknown-open';
 
+/*
+	?fresh — throw away the worker and everything it is holding, then come back
+	without it. A service worker that has got itself stuck is otherwise very
+	hard to shift from a phone: the page it serves is the page that would have
+	to tell it to stop. This is the door out, and it is one tap.
+
+	It runs before anything else on the page, including the engine, so nothing
+	has a chance to be loaded from the cache being thrown away.
+*/
+if (location.search.indexOf('fresh') !== -1) {
+	document.documentElement.innerHTML =
+		'<body style="font:14px -apple-system,sans-serif;padding:3rem;' +
+		'background:#DEDCD6;color:#2B2C29">Clearing\u2026</body>';
+	Promise.resolve()
+		.then(() => navigator.serviceWorker
+			? navigator.serviceWorker.getRegistrations().then(
+				(rs) => Promise.all(rs.map((r) => r.unregister())))
+			: null)
+		.then(() => window.caches
+			? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k))))
+			: null)
+		.catch(() => null)
+		.then(() => location.replace(location.pathname));
+	throw new Error('clearing');
+}
+
 (function () {
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
