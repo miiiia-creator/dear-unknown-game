@@ -315,70 +315,68 @@ def lonlat(lon, lat):
 # replaced it. Two inks, because the first colour city has to teach the rule —
 # same colour needs a gap, different colours may touch — and the shapes should
 # cost the player nothing while they learn it.
-KYOTO_INKS = ["#E8A0B4", "#2A2622"]
+# Season Two brings colour back one ink at a time: Kyoto has a single one, and
+# it is the pink the letter goes looking for and does not find. By Bermuda
+# there are more than anyone can count. The season is called The Color Doesn't
+# Exist, and the count itself is the argument.
+KYOTO_INKS = ["#E8A0B4"]
 
 KYOTO = [
-    # The same five cells as Tokyo's first puzzle, one season later, in colour.
-    # The player has solved this shape before; everything they spend here goes
-    # on the new rule rather than on working out what they are drawing.
-    P("kyoto_sakura", "Cherry Blossom, in Colour", "🌸", "Nature", """
-.1.1.
-11111
-.121.
-11111
-.1.1.
+    # The same five cells as Tokyo's very first puzzle, one season later. The
+    # player has solved this shape before, so everything they spend goes on the
+    # new rule rather than on working out what they are drawing — and the shape
+    # arrives in a colour the letter says is gone.
+    P("kyoto_sakura", "Cherry Blossom, in Colour", "\U0001f338", "Nature", """
+.#.#.
+#####
+.###.
+#####
+.#.#.
 """, KYOTO_INKS),
-    P("kyoto_kitty", "Black This Year", "🐱", "Everyday life", """
-..2222..
-.222222.
-22222211
-22222211
-22.22.22
-22222222
-.222222.
-..2222..
-""", KYOTO_INKS),
-    # Kyoto's asymmetric one.
-    P("kyoto_bamboo", "Bamboo Grove", "🎋", "Nature", """
-2.2.....2.2.
-2.2.....2.2.
-222.....2.2.
-2.2.....222.
-2.2.2.2.2.2.
-222.2.2.2.2.
-2.2.222.222.
-2.2.2.2.2.2.
-""", KYOTO_INKS),
-    P("kyoto_lantern", "Paper Lantern", "🏮", "Cultural object", """
-...2222...
-..222222..
-.11111111.
-1111111111
-1111111111
-1111111111
-1111111111
-1111111111
-.11111111.
-..222222..
-...2222...
-....22....
-""", KYOTO_INKS),
-    P("kyoto_pagoda", "The Pagoda", "⛩", "Landmark", """
-.....22.....
-...2222222..
-....22222...
-.....22.....
-..22222222..
-.2222222222.
-...222222...
-.....22.....
-122222222221
-.22222222222
-....222222..
-.....22.....
+    # Even the little Hello Kitty in the shop window is black now, says the
+    # letter. Here she is in pink, which is either what M remembers or what M
+    # is imagining — the letter does not say which and neither does this.
+    P("kyoto_kitty", "Black This Year", "\U0001f380", "Everyday life", """
+.##....##.
+####..####
+##########
+##.####.##
+##########
+##.#..#.##
+##########
+.########.
+..######..
 """, KYOTO_INKS),
 ]
-SAN_FRANCISCO = []
+
+# Crust and crumb. Two inks, and the first grid in the game where a colour
+# means a material rather than an outline.
+SF_INKS = ["#8A5A32", "#E0A94A"]
+
+SAN_FRANCISCO = [
+    # M asks for a croissant and is told they do not make those. It is drawn
+    # large and alone here, taking most of the card — the thing the city has
+    # stopped having, given the space it used to occupy.
+    P("sf_croissant", "They Don't Make Those", "\U0001f950", "Food", """
+.11....11.
+1111..1111
+1122222211
+.22222222.
+..222222..
+""", SF_INKS),
+    # And what it was replaced by, several times over at different sizes. The
+    # repetition is the point: everyone here prefers sourdough now.
+    P("sf_sourdough", "A Sourdough City", "\U0001f35e", "Food", """
+..1111....11..
+.112211..1221.
+.222222..2222.
+..2222....22..
+....111111....
+...11222211...
+...22222222...
+....222222....
+""", SF_INKS),
+]
 ISTANBUL = []
 REYKJAVIK = []
 BERMUDA = []
