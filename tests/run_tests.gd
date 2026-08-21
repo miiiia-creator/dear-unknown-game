@@ -20,6 +20,7 @@ func _initialize() -> void:
 	test_share_round_trip()
 	test_share_rejects_garbage()
 	test_sound_wiring()
+	test_solid()
 
 	print("\n%d passed, %d failed" % [_passed, _failed])
 	quit(1 if _failed > 0 else 0)
@@ -37,6 +38,54 @@ func check(label: String, condition: bool) -> void:
 func equal(label: String, actual: Variant, expected: Variant) -> void:
 	check("%s  (got %s, want %s)" % [label, actual, expected] if actual != expected
 			else label, actual == expected)
+
+
+# --------------------------------------------------------------------------
+
+## A 3x3x3 with a hole through it, small enough to check by hand.
+const BLOCK := [
+	["###", "#.#", "###"],      # y = 0
+	["###", "#.#", "###"],      # y = 1
+	["###", "#.#", "###"],      # y = 2
+]
+
+
+func test_solid() -> void:
+	print("\nsolid")
+	var s := Solid.new(BLOCK)
+	equal("size", s.size, Vector3i(3, 3, 3))
+	check("corner is shape", s.solid_at(Vector3i(0, 0, 0)))
+	check("middle is hollow", not s.solid_at(Vector3i(1, 1, 1)))
+
+	# A line straight down the hollow core: nothing in it at all.
+	equal("empty line", s.clue(1, 1, 1), Vector2i(0, 0))
+	# Across the middle of a face: two cubes with the hole between them.
+	equal("split line", s.clue(0, 1, 1), Vector2i(2, 2))
+	# An edge line is solid the whole way.
+	equal("full line", s.clue(0, 0, 0), Vector2i(3, 1))
+
+	# Chiselling the hollow middle is right; chiselling the shape is not, and
+	# the cube stays either way.
+	check("hollow comes away", s.chisel(Vector3i(1, 1, 1)))
+	check("it is gone", not s.present(Vector3i(1, 1, 1)))
+	check("shape resists", not s.chisel(Vector3i(0, 0, 0)))
+	equal("mistake counted", s.mistakes, 1)
+	check("and is kept", s.present(Vector3i(0, 0, 0)))
+
+	check("not solved yet", not s.solved())
+	# The hole runs top to bottom, so the rest of it is above and below.
+	for c in [Vector3i(1, 0, 1), Vector3i(1, 2, 1)]:
+		s.chisel(c)
+	check("solved once the core is out", s.solved())
+
+	# Marking is a note, and it never takes anything away.
+	var t := Solid.new(BLOCK)
+	t.mark(Vector3i(0, 0, 0))
+	equal("marked", t.state_at(Vector3i(0, 0, 0)), Solid.KEPT)
+	check("a marked cube resists the chisel", not t.chisel(Vector3i(0, 0, 0)))
+	equal("marking is free", t.mistakes, 0)
+	t.mark(Vector3i(0, 0, 0))
+	equal("and it toggles", t.state_at(Vector3i(0, 0, 0)), Solid.UNKNOWN)
 
 
 # --------------------------------------------------------------------------

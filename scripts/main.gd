@@ -9,6 +9,7 @@ const SCREENS := {
 	"puzzle": preload("res://scripts/screens/puzzle_screen.gd"),
 	"postcards": preload("res://scripts/screens/postcards_screen.gd"),
 	"settings": preload("res://scripts/screens/settings_screen.gd"),
+	"solid": preload("res://scripts/screens/solid_screen.gd"),
 	"share": preload("res://scripts/screens/share_screen.gd"),
 	"city_complete": preload("res://scripts/screens/city_complete_screen.gd"),
 }
@@ -73,7 +74,9 @@ func _ready() -> void:
 
 	# A first-time player meets the card before the menu: the premise is what
 	# makes the first grid worth solving.
-	if not _skip_to(_asked_destination()):
+	if _asked_solid():
+		go("solid")
+	elif not _skip_to(_asked_destination()):
 		go("prologue" if SaveGame.data["solved"].is_empty() else "menu")
 
 	if "--tour" in OS.get_cmdline_user_args():
@@ -92,6 +95,18 @@ func _ready() -> void:
 ## Everything before the named destination is marked solved and its rewards
 ## granted, and the game opens on that city's card. It writes to the save, so
 ## it is a real jump rather than a preview — Reset all progress puts it back.
+## The Season Three spike, reached by `?solid` or `-- --solid` and by nothing
+## else. It is not a destination and it touches no save data.
+func _asked_solid() -> bool:
+	if "--solid" in OS.get_cmdline_user_args():
+		return true
+	if not OS.has_feature("web"):
+		return false
+	var q: Variant = JavaScriptBridge.eval(
+			"new URLSearchParams(location.search).has('solid')", true)
+	return q is bool and q
+
+
 func _asked_destination() -> String:
 	for arg in OS.get_cmdline_user_args():
 		if String(arg).begins_with("--to="):

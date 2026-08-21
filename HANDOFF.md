@@ -144,6 +144,25 @@ Kitty), San Francisco (croissant, sourdough), Istanbul (coin, phone), Reykjavík
 (woman, sea), Bermuda (ship and plane). All ten letters written, English and
 Chinese.
 
+## The Season Three spike
+
+`?solid` in the browser, `-- --solid` on the desktop. One 5x5x5 block, not
+wired into the game and touching no save data.
+
+Reading a colour grid as a relief was the first idea and it is not a mechanic:
+the board, the clues and the deductions are Season Two's exactly, and only the
+reward moves. Reasoning becomes three-dimensional when the *clues* do. The
+notation is Picross 3D's, because it is the only one that fits on a phone — a
+line carries one number and a mark for how many pieces it is in, where a
+run-sequence on three faces would be three times the numbers a 15x20 grid
+already struggles to show.
+
+`Solid` has tests. What has no answer yet is whether it is any good with one
+thumb, which is the only thing the spike exists to find out. Not done: the
+shape is hand-made and has never been checked for a unique solution, there is
+no timer or penalty, and it is a chair rather than anything to do with Los
+Angeles.
+
 ## Open
 
 1. **No artwork for any Season Two city.** They fall back to tinted paper,
