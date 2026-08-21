@@ -162,7 +162,7 @@ func run(main: Node) -> void:
 	await _wait(0.5)
 	for p in GameData.puzzles_of("kyoto"):
 		SaveGame.mark_solved(p["id"], 60.0, 0)
-	app.go("puzzle", {"puzzle": "kyoto_lantern"})
+	app.go("puzzle", {"puzzle": "kyoto_kitty"})
 	await _wait(0.6)
 	await _partial_fill()
 	await _shot("colour_puzzle")
