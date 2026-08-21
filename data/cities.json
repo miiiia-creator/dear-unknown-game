@@ -142,9 +142,9 @@
    "composition": [
     {
      "id": "tokyo_sakura",
-     "x": 0.235,
-     "base": 0.665,
-     "w": 0.4
+     "x": 0.225,
+     "base": 0.62,
+     "w": 0.24
     },
     {
      "id": "tokyo_torii",
@@ -366,60 +366,6 @@
      "palette": []
     },
     {
-     "id": "rome_column",
-     "name": {
-      "en": "Roman Column",
-      "zh_CN": "罗马柱"
-     },
-     "category": {
-      "en": "Architecture",
-      "zh_CN": "建筑"
-     },
-     "index": 1,
-     "art": [
-      "#######",
-      "#######",
-      ".#####.",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      "..###..",
-      ".#####.",
-      "#######",
-      "#######"
-     ],
-     "palette": []
-    },
-    {
-     "id": "rome_gelato",
-     "name": {
-      "en": "Gelato",
-      "zh_CN": "意式冰淇淋"
-     },
-     "category": {
-      "en": "Food",
-      "zh_CN": "食物"
-     },
-     "index": 2,
-     "art": [
-      ".###.........",
-      "#####..###...",
-      "#####.#####..",
-      ".##########..",
-      "..#########..",
-      "..########...",
-      ".#######.....",
-      ".#####.......",
-      ".###........."
-     ],
-     "palette": []
-    },
-    {
      "id": "rome_fountain",
      "name": {
       "en": "Fountain",
@@ -429,7 +375,7 @@
       "en": "Landmark",
       "zh_CN": "地标"
      },
-     "index": 3,
+     "index": 1,
      "art": [
       "....####....",
       "...######...",
@@ -444,42 +390,9 @@
       "############"
      ],
      "palette": []
-    },
-    {
-     "id": "rome_colosseum",
-     "name": {
-      "en": "Colosseum",
-      "zh_CN": "斗兽场"
-     },
-     "category": {
-      "en": "Landmark",
-      "zh_CN": "地标"
-     },
-     "index": 4,
-     "art": [
-      "...#########...",
-      "..###########..",
-      ".#############.",
-      "###############",
-      "##.##.###.##.##",
-      "###############",
-      "##.##.###.##.##",
-      "###############",
-      "##.##.###.##.##",
-      "###############",
-      "###############",
-      "###############",
-      "###############"
-     ],
-     "palette": []
     }
    ],
    "notes": [
-    "There is a ruin behind the bus stop and nobody looks at it.",
-    "Ate far too much and would do the whole thing again.",
-    "The water from the street fountains is freezing and free.",
-    "Got lost on purpose. Can recommend.",
-    "Everything here is older than it strictly needs to be.",
     "Wish you were here.",
     "No news. Just this.",
     "Saved you the good half of the postcard.",
@@ -574,32 +487,6 @@
      "palette": []
     },
     {
-     "id": "ny_bagel",
-     "name": {
-      "en": "Bagel",
-      "zh_CN": "贝果"
-     },
-     "category": {
-      "en": "Food",
-      "zh_CN": "食物"
-     },
-     "index": 1,
-     "art": [
-      "...######...",
-      "..########..",
-      ".##########.",
-      "############",
-      "####....####",
-      "###......###",
-      "###......###",
-      "####....####",
-      "############",
-      ".##########.",
-      "..########.."
-     ],
-     "palette": []
-    },
-    {
      "id": "ny_taxi",
      "name": {
       "en": "Yellow Cab",
@@ -609,7 +496,7 @@
       "en": "Transportation",
       "zh_CN": "交通"
      },
-     "index": 2,
+     "index": 1,
      "art": [
       ".....######....",
       "....########...",
@@ -623,75 +510,9 @@
       "..#.........#.."
      ],
      "palette": []
-    },
-    {
-     "id": "ny_skyline",
-     "name": {
-      "en": "Skyline",
-      "zh_CN": "天际线"
-     },
-     "category": {
-      "en": "Landmark",
-      "zh_CN": "地标"
-     },
-     "index": 3,
-     "art": [
-      ".......#.......",
-      ".......#.......",
-      "......###......",
-      "..#...###...##.",
-      "..#...###...##.",
-      ".###..###..####",
-      ".###..###..####",
-      "####.#####.####",
-      "###############",
-      "###############",
-      "###############"
-     ],
-     "palette": []
-    },
-    {
-     "id": "ny_liberty",
-     "name": {
-      "en": "Statue of Liberty",
-      "zh_CN": "自由女神"
-     },
-     "category": {
-      "en": "Landmark",
-      "zh_CN": "地标"
-     },
-     "index": 4,
-     "art": [
-      "...#.#.#....",
-      "...#####....",
-      "....###.....",
-      "....###.....",
-      "..#.###.....",
-      "..#.###.....",
-      "..#.####....",
-      "..#.#####...",
-      "....#####...",
-      "....#####...",
-      "...#######..",
-      "...#######..",
-      "..#########.",
-      "..#########.",
-      ".###########",
-      ".###########",
-      "############",
-      "############",
-      "############",
-      "############"
-     ],
-     "palette": []
     }
    ],
    "notes": [
-    "Loud in a way that stops bothering you after about a day.",
-    "Walked eleven miles without meaning to.",
-    "The pizza argument is real and I have now picked a side.",
-    "Looked up constantly for a week. Nobody else does.",
-    "Bought something from a cart at midnight. No regrets.",
     "Wish you were here.",
     "No news. Just this.",
     "Saved you the good half of the postcard.",
@@ -756,126 +577,6 @@
    ],
    "puzzles": [
     {
-     "id": "london_phonebox",
-     "name": {
-      "en": "Phone Box",
-      "zh_CN": "电话亭"
-     },
-     "category": {
-      "en": "Architecture",
-      "zh_CN": "建筑"
-     },
-     "index": 0,
-     "art": [
-      "##########",
-      "##########",
-      "#.######.#",
-      "#.######.#",
-      "#.######.#",
-      "#.######.#",
-      "##########",
-      "#.##..##.#",
-      "#.##..##.#",
-      "#.##..##.#",
-      "##########",
-      "#.######.#",
-      "#.######.#",
-      "#.######.#",
-      "##########",
-      "##########",
-      "##########",
-      "##########"
-     ],
-     "palette": []
-    },
-    {
-     "id": "london_umbrella",
-     "name": {
-      "en": "Umbrella",
-      "zh_CN": "雨伞"
-     },
-     "category": {
-      "en": "Everyday life",
-      "zh_CN": "日常"
-     },
-     "index": 1,
-     "art": [
-      ".....##......",
-      "..#########..",
-      ".###########.",
-      "#############",
-      ".....##......",
-      ".....##......",
-      ".....##......",
-      ".....##......",
-      ".....##......",
-      ".....##......",
-      ".....##......",
-      "....##.......",
-      ".####........",
-      ".###........."
-     ],
-     "palette": []
-    },
-    {
-     "id": "london_bus",
-     "name": {
-      "en": "Double-Decker",
-      "zh_CN": "双层巴士"
-     },
-     "category": {
-      "en": "Transportation",
-      "zh_CN": "交通"
-     },
-     "index": 2,
-     "art": [
-      "..#############",
-      ".##############",
-      ".#.##.##.##.###",
-      ".##############",
-      ".##############",
-      ".#.##.##.##.#.#",
-      ".##############",
-      "###############",
-      "###############",
-      "##.#########.##",
-      "###.#######.###",
-      ".##.........##.",
-      "..#.........#.."
-     ],
-     "palette": []
-    },
-    {
-     "id": "london_postcard",
-     "name": {
-      "en": "A Postcard",
-      "zh_CN": "A Postcard"
-     },
-     "category": {
-      "en": "Cultural object",
-      "zh_CN": "文化"
-     },
-     "index": 3,
-     "art": [
-      "###############",
-      "###############",
-      "##...........##",
-      "##.#####.###.##",
-      "##.#####.....##",
-      "##.#####.###.##",
-      "##.......###.##",
-      "##.#####.....##",
-      "##.#####.###.##",
-      "##.......###.##",
-      "##.#####.....##",
-      "##.#####.###.##",
-      "##...........##",
-      "###############",
-      "###############"
-     ],
-     "palette": []
-    },
-    {
      "id": "london_bigben",
      "name": {
       "en": "Big Ben",
@@ -885,7 +586,7 @@
       "en": "Landmark",
       "zh_CN": "地标"
      },
-     "index": 4,
+     "index": 0,
      "art": [
       ".......#.......",
       ".......#.......",
@@ -909,14 +610,39 @@
       "###############"
      ],
      "palette": []
+    },
+    {
+     "id": "london_postcard",
+     "name": {
+      "en": "A Postcard",
+      "zh_CN": "A Postcard"
+     },
+     "category": {
+      "en": "Cultural object",
+      "zh_CN": "文化"
+     },
+     "index": 1,
+     "art": [
+      "###############",
+      "###############",
+      "##...........##",
+      "##.#####.###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##.......###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##.......###.##",
+      "##.#####.....##",
+      "##.#####.###.##",
+      "##...........##",
+      "###############",
+      "###############"
+     ],
+     "palette": []
     }
    ],
    "notes": [
-    "Rained. Went to a pub instead. The system works.",
-    "Sat in a park in the gap between two rain showers.",
-    "The tube map is a lie about geography and I love it.",
-    "Everyone apologised to me and I apologised straight back.",
-    "The museums are free, so I went to three of them.",
     "Wish you were here.",
     "No news. Just this.",
     "Saved you the good half of the postcard.",

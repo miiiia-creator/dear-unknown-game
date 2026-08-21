@@ -168,10 +168,10 @@ PARIS = [
 ]
 
 ROME = [
-    # The coin the old woman gives away in Rome's letter. It had no puzzle at
-    # all until now — the one object the story names outright was the one thing
-    # you could not find in the journal.
-    P("rome_coin", "The Last Coin", "🪙", "Cultural object", """
+    # Two, and gentler than Paris was. The coin is where overlap reasoning is
+    # taught: a run of eight in a line of ten fixes six cells wherever it sits,
+    # and nothing in the first six grids needed that.
+    P("rome_coin", "The Last Coin", "\U0001fa99", "Cultural object", """
 ..######..
 .########.
 ##.####.##
@@ -183,41 +183,7 @@ ROME = [
 .########.
 ..######..
 """),
-    P("rome_column", "Roman Column", "🏛️", "Architecture", """
-#######
-#######
-.#####.
-..###..
-..###..
-..###..
-..###..
-..###..
-..###..
-..###..
-..###..
-..###..
-.#####.
-#######
-#######
-"""),
-    # Rome's asymmetric one. It was a Vespa, which at thirteen cells across
-    # read as a ramp — a scooter is mostly small round details and there is no
-    # room for any of them. A cone has one silhouette and it is unmistakable,
-    # and it can lean: two scoops set at different heights over a cone tipped
-    # to the left is asymmetric twice over without being a puzzle about what it
-    # is supposed to be.
-    P("rome_gelato", "Gelato", "🍦", "Food", """
-.###.........
-#####..###...
-#####.#####..
-.##########..
-..#########..
-..########...
-.#######.....
-.#####.......
-.###.........
-"""),
-    P("rome_fountain", "Fountain", "⛲", "Landmark", """
+    P("rome_fountain", "Fountain", "\u26f2", "Landmark", """
 ....####....
 ...######...
 ....####....
@@ -230,28 +196,14 @@ ROME = [
 ############
 ############
 """),
-    P("rome_colosseum", "Colosseum", "🏟️", "Landmark", """
-...#########...
-..###########..
-.#############.
-###############
-##.##.###.##.##
-###############
-##.##.###.##.##
-###############
-##.##.###.##.##
-###############
-###############
-###############
-###############
-"""),
 ]
 
 NEW_YORK = [
-    # One figure, not two. New York's letter is about the last lonely person
-    # M ever met, and a second silhouette would answer the question the letter
-    # is asking.
-    P("ny_figure", "Someone", "🧍", "Everyday life", """
+    # One figure, not two. New York's letter is about the last lonely person M
+    # ever met, and a second silhouette would answer the question the letter is
+    # asking. It is also the sparsest grid so far: single cells with no runs to
+    # overlap, which cannot be finished without marking the blanks.
+    P("ny_figure", "Someone", "\U0001f9cd", "Everyday life", """
 ...####.
 ..######
 ..######
@@ -268,22 +220,7 @@ NEW_YORK = [
 ...##.#.
 ..###.##
 """),
-    P("ny_bagel", "Bagel", "🥯", "Food", """
-...######...
-..########..
-.##########.
-############
-####....####
-###......###
-###......###
-####....####
-############
-.##########.
-..########..
-"""),
-    # New York's asymmetric one: a cab is pointed somewhere, and in this city
-    # that is the whole idea.
-    P("ny_taxi", "Yellow Cab", "🚕", "Transportation", """
+    P("ny_taxi", "Yellow Cab", "\U0001f695", "Transportation", """
 .....######....
 ....########...
 ...##########..
@@ -295,114 +232,12 @@ NEW_YORK = [
 .###.......###.
 ..#.........#..
 """),
-    P("ny_skyline", "Skyline", "🌆", "Landmark", """
-.......#.......
-.......#.......
-......###......
-..#...###...##.
-..#...###...##.
-.###..###..####
-.###..###..####
-####.#####.####
-###############
-###############
-###############
-"""),
-    P("ny_liberty", "Statue of Liberty", "🗽", "Landmark", """
-...#.#.#....
-...#####....
-....###.....
-....###.....
-..#.###.....
-..#.###.....
-..#.####....
-..#.#####...
-....#####...
-....#####...
-...#######..
-...#######..
-..#########.
-..#########.
-.###########
-.###########
-############
-############
-############
-############
-"""),
 ]
 
 LONDON = [
-    P("london_phonebox", "Phone Box", "☎️", "Architecture", """
-##########
-##########
-#.######.#
-#.######.#
-#.######.#
-#.######.#
-##########
-#.##..##.#
-#.##..##.#
-#.##..##.#
-##########
-#.######.#
-#.######.#
-#.######.#
-##########
-##########
-##########
-##########
-"""),
-    P("london_umbrella", "Umbrella", "☔", "Everyday life", """
-.....##......
-..#########..
-.###########.
-#############
-.....##......
-.....##......
-.....##......
-.....##......
-.....##......
-.....##......
-.....##......
-....##.......
-.####........
-.###.........
-"""),
-    # London's asymmetric one. A bus has a front and a back.
-    P("london_bus", "Double-Decker", "🚌", "Transportation", """
-..#############
-.##############
-.#.##.##.##.###
-.##############
-.##############
-.#.##.##.##.#.#
-.##############
-###############
-###############
-##.#########.##
-###.#######.###
-.##.........##.
-..#.........#..
-"""),
-    # The last picture in the season, and the thing the last letter is about.
-    P("london_postcard", "A Postcard", "✉️", "Cultural object", """
-###############
-###############
-##...........##
-##.#####.###.##
-##.#####.....##
-##.#####.###.##
-##.......###.##
-##.#####.....##
-##.#####.###.##
-##.......###.##
-##.#####.....##
-##.#####.###.##
-##...........##
-###############
-###############
-"""),
+    # Two grids the same size, which is the point. The first is large and gives
+    # itself up quickly — solid tower, heavy clues — so the player finishes it
+    # thinking they have the measure of a fifteen by twenty.
     P("london_bigben", "Big Ben", "🕰️", "Landmark", """
 .......#.......
 .......#.......
@@ -425,7 +260,32 @@ LONDON = [
 ###############
 ###############
 """),
+    # Then the same size again, and it inverts: what gets filled is the ground,
+    # not the drawing. The letter it arrives with is about a sky that never
+    # changes and afternoons that feel like evenings, so a picture made of
+    # absence is the one this city should end on.
+    #
+    # TODO: this is still the ordinary 15x15 postcard. Redrawn at 15x20 as the
+    # inverted one, it is the last thing in Season One.
+    P("london_postcard", "A Postcard", "✉️", "Cultural object", """
+###############
+###############
+##...........##
+##.#####.###.##
+##.#####.....##
+##.#####.###.##
+##.......###.##
+##.#####.....##
+##.#####.###.##
+##.......###.##
+##.#####.....##
+##.#####.###.##
+##...........##
+###############
+###############
+"""),
 ]
+
 
 
 def lonlat(lon, lat):
@@ -600,25 +460,10 @@ CITY_NOTES = {
         'Found a bench with a good view and stayed there far too long.',
     ],
     'rome': [
-        'There is a ruin behind the bus stop and nobody looks at it.',
-        'Ate far too much and would do the whole thing again.',
-        'The water from the street fountains is freezing and free.',
-        'Got lost on purpose. Can recommend.',
-        'Everything here is older than it strictly needs to be.',
     ],
     'newyork': [
-        'Loud in a way that stops bothering you after about a day.',
-        'Walked eleven miles without meaning to.',
-        'The pizza argument is real and I have now picked a side.',
-        'Looked up constantly for a week. Nobody else does.',
-        'Bought something from a cart at midnight. No regrets.',
     ],
     'london': [
-        'Rained. Went to a pub instead. The system works.',
-        'Sat in a park in the gap between two rain showers.',
-        'The tube map is a lie about geography and I love it.',
-        'Everyone apologised to me and I apologised straight back.',
-        'The museums are free, so I went to three of them.',
     ],
 }
 
@@ -671,7 +516,7 @@ SENT = {
 # one sits on the finished painting. Measured by hand against the artwork.
 COMPOSITION = {
     'tokyo': [
-        ('tokyo_sakura', 0.235, 0.665, 0.40),
+        ('tokyo_sakura', 0.225, 0.620, 0.24),
         ('tokyo_torii', 0.735, 0.655, 0.185),
         ('tokyo_pond', 0.480, 0.955, 0.58),
     ],
