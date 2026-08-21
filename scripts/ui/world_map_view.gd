@@ -54,6 +54,11 @@ const LABEL_SLOTS := [
 	Vector2(-1.0, 2.4),
 ]
 
+## The destination the list below has open. The map and the list are one
+## screen now, so the map is not a separate index of the same places — it is
+## where the place you are reading about is. Everything else steps back.
+var focus_id := ""
+
 var _hover := ""
 var _cells: Array = []      ## [Rect2, city_id] hit targets, rebuilt on draw
 var _map_rect := Rect2()
@@ -62,6 +67,21 @@ var _map_rect := Rect2()
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(queue_redraw)
+
+
+func focus(city_id: String) -> void:
+	if city_id == focus_id:
+		return
+	focus_id = city_id
+	queue_redraw()
+
+
+## How much of its colour a pin keeps. Nothing is hidden — a dimmed pin is
+## still a place you have been — but only one of them is the subject.
+func _weight(city_id: String) -> float:
+	if focus_id == "" or city_id == focus_id:
+		return 1.0
+	return 0.34
 
 
 func _map_area() -> Rect2:
@@ -118,7 +138,12 @@ func _draw_pins(cell: float) -> void:
 			col = Pal.c("accent")
 		elif unlocked:
 			col = Pal.c("good")
+		col.a *= _weight(id)
 
+		if id == focus_id:
+			var ring := Pal.c("accent")
+			ring.a = 0.16
+			draw_circle(p, radius * 2.6, ring)
 		if hovered:
 			var halo := col
 			halo.a = 0.22
@@ -143,9 +168,9 @@ func _draw_pins(cell: float) -> void:
 ## Labels are placed after every pin is drawn, so a label can be tested against
 ## all of them rather than only the ones that happened to come first.
 ##
-## Destinations you have reached are placed before ones you have not: when a
-## corner of the map is too crowded for everything to fit, the names worth
-## reading are the ones that win the room.
+## The destination the list has open is placed first, then the ones you have
+## reached, then the rest: when a corner of the map is too crowded for
+## everything to fit, the names worth reading are the ones that win the room.
 func _draw_labels(radius: float) -> void:
 	var font: Font = Pal.ui_font
 	var fsize := 13
@@ -155,7 +180,9 @@ func _draw_labels(radius: float) -> void:
 	for city in GameData.cities:
 		var id: String = city["id"]
 		var rank := 2
-		if GameData.is_city_complete(id):
+		if id == focus_id:
+			rank = -1
+		elif GameData.is_city_complete(id):
 			rank = 0
 		elif GameData.is_city_unlocked(id):
 			rank = 1
@@ -202,6 +229,9 @@ func _draw_labels(radius: float) -> void:
 		taken.append(best)
 		var unlocked := GameData.is_city_unlocked(id)
 		var text_col := Pal.c("ink") if (unlocked or _hover == id) else Pal.c("ink_faint")
+		if id == focus_id:
+			text_col = Pal.c("accent")
+		text_col.a *= _weight(id)
 		draw_string(font, Vector2(best.position.x, best.position.y + fsize * 0.85),
 				label, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, text_col)
 

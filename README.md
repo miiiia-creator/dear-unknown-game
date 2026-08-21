@@ -122,8 +122,26 @@ percent of random pitch per hit, and the settings screen turns the lot off.
 1. Add a `P(...)` list and a city entry in `tools/build_content.py`
    (`lonlat(lon, lat)` places the map pin).
 2. Run the builder until every puzzle passes.
-3. Nothing else — city unlock order, the map, the journal, the passport and the
-   postcard all read from the data.
+3. Nothing else — city unlock order, the journal's map and list, the passport
+   and the postcard all read from the data.
+
+### The artwork brief
+
+**3:2, or 2:3 upright. 1800 × 1200, or 1200 × 1800.** Full bleed — the picture
+runs to the edge of the card and the name is set over it, so leave the lower
+third free of anything that has to be read.
+
+A card is whatever shape its picture is: both faces measure the file and take
+its ratio, so the shape of the image *is* the shape of the card, in the pile,
+on the completion screen and behind the letter. Nothing crops it to fit. That
+cuts both ways — `tokyo.jpg` and `paris.jpg` are 853 × 1844, a 1:2.16 sliver,
+and their cards are that sliver everywhere they appear. `london`, `newyork` and
+`rome` are 888 × 592, which is 3:2 exactly, and those are the ones that look
+like postcards.
+
+3:2 is also what the code falls back to when a city has no painting yet, which
+is why the undrawn Season Two cards are the right shape and some of the drawn
+Season One ones are not.
 
 ---
 
@@ -175,7 +193,8 @@ scripts/
     pixel_art_view.gd    a discovery, with the reveal wipe
     postcard_view.gd     procedural postcard, front and back
     stamp_view.gd        procedural passport stamp
-    world_map_view.gd    dot-grid world map with pins
+    world_map_view.gd    dot-grid world map with pins, pinned in the journal
+    corner_mask.gd       rounds off a rectangular clip
     ui.gd               styled control factory
   screens/               one file per screen, built in code
   main.gd                router, toasts, theme changes
@@ -189,7 +208,7 @@ web/                     the shareable postcard page
 Navigation is a fixed top bar plus a declared hierarchy (`PARENT` in
 `main.gd`), not a visit history. A history stack looked right at first and was
 wrong: drilling city -> puzzle -> back to city left the solved puzzle on the
-stack, so Back bounced between the two and never reached the map.
+stack, so Back bounced between the two and never reached the journal.
 
 Screens are built in GDScript rather than `.tscn` files. For a UI this small it
 keeps every screen readable in one file and makes the palette swap trivial —

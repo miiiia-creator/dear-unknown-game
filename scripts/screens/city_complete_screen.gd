@@ -66,21 +66,17 @@ func build() -> void:
 	var buttons := UI.hbox(10)
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 
-	var share := UI.button(tr("Send to a friend"), true)
-	share.pressed.connect(func(): go("share", {"city": city_id}))
-	buttons.add_child(share)
-
 	var next_id := GameData.next_city_id(city_id)
 	var onward: Button
 	if next_id != "":
 		var next_city := GameData.city(next_id)
-		onward = UI.button(tr("Continue to %s") % GameData.text(next_city["name"]))
+		onward = UI.button(tr("Continue to %s") % GameData.text(next_city["name"]), true)
 		# Into the next city's card, not its journal: the card is how a city
 		# opens now, and the letter on it is the reason to go.
 		onward.pressed.connect(func(): go("card", {"city": next_id}))
 	else:
-		onward = UI.button(tr("Back to the map"))
-		onward.pressed.connect(func(): go("map"))
+		onward = UI.button(tr("Back to the journal"), true)
+		onward.pressed.connect(func(): go("journal", {"city": city_id}))
 	buttons.add_child(onward)
 	column.add_child(buttons)
 
@@ -129,6 +125,14 @@ func _framed_scene(stage: Control, card_w: float) -> PostcardScene:
 	if w / aspect > room:
 		w = room * aspect
 	stage.custom_minimum_size = Vector2(w, w / aspect)
+
+	# The picture is shader layers filling a clipped rect, which is square where
+	# the frame around it is not. Take its corners back off.
+	var corners := CornerMask.new()
+	corners.set_anchors_preset(Control.PRESET_FULL_RECT)
+	corners.radius = 10.0
+	corners.colour = Pal.c("bg")
+	frame.add_child(corners)
 
 	var plate := Control.new()
 	plate.set_anchors_preset(Control.PRESET_FULL_RECT)

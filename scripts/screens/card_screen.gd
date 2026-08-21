@@ -1,20 +1,35 @@
 extends AppScreen
 ## A city's card, and the way into its puzzles.
 ##
-## The card arrives with the letter face up. Touch it and it turns over to a
-## blank back with one point of light on it; touch that and the first grid
-## opens. Solving a grid leaves its picture on the back and lights the next
+## A blank card with one point of light on it. Touch the light and the first
+## grid opens; solving it leaves its picture on the card and lights the next
 ## point, so the card develops as the city is worked through — the postcard is
 ## the level select, and filling it in is the progress bar.
+##
+## One face, and it does not turn. The card used to arrive letter-side up and
+## turn over on a tap, which meant the whole letter was sitting there before a
+## single grid had been solved — the ending on the page from the first move,
+## and the journal's own rule is that a letter stays sealed until its city is
+## finished. It arrives where it is earned: on the finishing screen, and on the
+## back of the card in Postcards afterwards. Here there is only the picture,
+## developing.
 
 const SLOT_RISE := 0.5
 
+## This screen paints its own dark room over whatever the page is, so its type
+## is picked for that room rather than from the palette — `ink_faint` reads on
+## paper and disappears into the backdrop in the evening.
+const ON_DARK := Color(0.72, 0.72, 0.70)
+
 var city_id: String
 var _stage: Control
-var _letter: PostcardView
-var _back: Control
-var _busy := false
-var _showing_back := false
+var _back: CardBack
+
+
+## Back goes to the journal with this destination open, rather than to whichever
+## one the save happens to think is current.
+func parent_args() -> Dictionary:
+	return {"city": city_id}
 
 
 func build() -> void:
@@ -38,56 +53,46 @@ func build() -> void:
 	add_child(_backdrop)
 	move_child(_backdrop, 0)
 
+	# A way back. The only thing on this screen that answers a tap is a point of
+	# light, and every one of those is a way further in. The nav bar was the
+	# only exit, and a nav bar says where you are, not where you were.
+	var top := UI.hbox(0)
+	# Only the link takes a press; the rest of the strip is still card.
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var out := UI.quiet_button(tr("Journal"), UI.SMALL)
+	out.add_theme_color_override("font_color", ON_DARK)
+	out.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	out.pressed.connect(back)
+	top.add_child(out)
+	root.add_child(top)
+
 	_stage = Control.new()
-	# Without this the stage swallows the press and only the empty page around
-	# the card answered a tap — the one place nobody would think to press.
 	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root.add_child(_stage)
 
-	_letter = PostcardView.new()
-	_letter.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_letter.face = "back"
-	_stage.add_child(_letter)
-	_letter.setup(city_id)
-
 	_back = CardBack.new()
 	_back.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_back.city_id = city_id
 	_back._measure()
-	_back.visible = false
 	_back.slot_picked.connect(_open)
 	_stage.add_child(_back)
-
-	# Coming back from a solved grid, the card is already turned over — the
-	# letter has been read and showing it again would be starting over.
-	if args.get("face", "") == "back" or _solved_count() > 0:
-		_showing_back = true
-		_letter.visible = false
-		_back.visible = true
-		_back.play_arrival()
+	_back.play_arrival()
 
 	root.add_child(UI.spacer(10))
 	root.add_child(_hint())
 
 
 func _hint() -> Control:
-	var text := tr("Tap the card") if not _showing_back else tr("Tap the light")
-	if _showing_back and _next_puzzle() == "":
+	var text := tr("Tap the light")
+	if _next_puzzle() == "":
 		text = ""
 	var label := UI.label(text, UI.SMALL, "ink_faint", HORIZONTAL_ALIGNMENT_CENTER)
+	label.add_theme_color_override("font_color", ON_DARK)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return label
-
-
-func _solved_count() -> int:
-	var n := 0
-	for p in GameData.puzzles_of(city_id):
-		if SaveGame.is_solved(p["id"]):
-			n += 1
-	return n
 
 
 func _next_puzzle() -> String:
@@ -95,33 +100,6 @@ func _next_puzzle() -> String:
 		if not SaveGame.is_solved(p["id"]):
 			return p["id"]
 	return ""
-
-
-func _gui_input(event: InputEvent) -> void:
-	var pressed: bool = (event is InputEventMouseButton and event.pressed) \
-			or (event is InputEventScreenTouch and event.pressed)
-	if pressed and not _showing_back:
-		_turn()
-		accept_event()
-
-
-func _turn() -> void:
-	if _busy:
-		return
-	_busy = true
-	Sfx.play("flip")
-	_stage.pivot_offset = _stage.size * 0.5
-	var tw := create_tween()
-	tw.tween_property(_stage, "scale:x", 0.0, 0.30).set_trans(Tween.TRANS_SINE)
-	tw.tween_callback(func():
-		_showing_back = true
-		_letter.visible = false
-		_back.visible = true
-		_back.play_arrival())
-	tw.tween_property(_stage, "scale:x", 1.0, 0.30).set_trans(Tween.TRANS_SINE)
-	tw.tween_callback(func():
-		_busy = false
-		replace("card", {"city": city_id, "face": "back"}))
 
 
 func _open(puzzle_id: String) -> void:

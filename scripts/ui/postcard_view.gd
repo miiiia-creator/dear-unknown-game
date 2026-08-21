@@ -241,6 +241,10 @@ func _draw() -> void:
 
 	if face == "front":
 		_draw_front(card, accent, deep)
+		# The picture is drawn right out to the paper's edge, so the card's own
+		# rule goes back on top of it. A style box edge is antialiased where a
+		# polygon's is not, and it is what keeps the two faces the same object.
+		_rounded(card.grow(-2.0), Color(0, 0, 0, 0), deep.lerp(paper, 0.6), 12, 2)
 	else:
 		_draw_back(card, accent, deep, paper)
 
@@ -252,7 +256,7 @@ func _draw_front(card: Rect2, accent: Color, deep: Color) -> void:
 	# A city whose painting is not drawn yet gets a sheet of its own colour
 	# rather than a white rectangle. White reads as broken; tinted paper reads
 	# as a card that has not been developed.
-	draw_rect(card.grow(-2.0), _palette[0])
+	_rounded(card.grow(-2.0), _palette[0], Color(0, 0, 0, 0), 12)
 	_draw_placeholder_front(card, accent, deep)
 
 
@@ -281,7 +285,7 @@ func _draw_painted_front(card: Rect2) -> void:
 	else:
 		var keep_w := tex_size.y * box_aspect
 		src = Rect2(Vector2((tex_size.x - keep_w) * 0.5, 0), Vector2(keep_w, tex_size.y))
-	draw_texture_rect_region(tex, inner, src)
+	_rounded_texture(inner, 12.0, tex, src)
 
 	var font: Font = Pal.ui_font
 	# Plain black or plain white, whichever the picture underneath calls for.
@@ -392,19 +396,18 @@ func _draw_back(card: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	draw_arc(pm, s * 0.50, 0, TAU, 40, mark, maxf(1.0, card.size.y * 0.004), true)
 	var date := String(_city.get("sent", ""))
 	if date != "":
-		var ds := int(card.size.y * 0.024)
-		# "11 FEB 2019" does not fit inside a circle this size in one line, and
-		# a postmark is stacked anyway: day and month over the year.
-		var parts := date.split(" ")
-		var top: String = " ".join(parts.slice(0, 2)) if parts.size() > 2 else date
-		var bottom: String = parts[-1] if parts.size() > 2 else ""
-		var tw := font.get_string_size(top, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
-		draw_string(font, pm + Vector2(-tw * 0.5, -ds * 0.10), top,
+		# One line, at the size the stamp sets its country in. It used to be
+		# stacked — day and month over the year — at twice that size, which made
+		# the postmark the loudest thing on a card whose point is the letter,
+		# and put two type sizes on a face that only needs one.
+		var ds := _stamp_type_size(stamp)
+		var room := s * 0.72
+		var tw := font.get_string_size(date, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
+		if tw > room:
+			ds = maxi(6, int(float(ds) * room / tw))
+			tw = font.get_string_size(date, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
+		draw_string(font, pm + Vector2(-tw * 0.5, float(ds) * 0.36), date,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, ds, mark)
-		if bottom != "":
-			var bw := font.get_string_size(bottom, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x
-			draw_string(font, pm + Vector2(-bw * 0.5, ds * 0.95), bottom,
-					HORIZONTAL_ALIGNMENT_LEFT, -1, ds, mark)
 
 	# Vertical divider between the message and the address — only when there is
 	# an address side to divide off. M's letters are not addressed to anybody,
@@ -557,7 +560,7 @@ func _draw_stamp(rect: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 	draw_style_box(sb, inset)
 
 	var font: Font = Pal.ui_font
-	var fsize := int(maxf(6.0, rect.size.x * 0.15))
+	var fsize := _stamp_type_size(rect)
 	var country: String = String(GameData.text(_city.get("country", ""))).to_upper()
 	var w := font.get_string_size(country, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
 	draw_string(font, Vector2(rect.get_center().x - w * 0.5,
@@ -566,6 +569,49 @@ func _draw_stamp(rect: Rect2, accent: Color, deep: Color, paper: Color) -> void:
 
 
 # -- helpers ---------------------------------------------------------------
+
+## The one small size the back is set in: the stamp's country, and the postmark
+## that sits beside it.
+func _stamp_type_size(rect: Rect2) -> int:
+	return int(maxf(6.0, rect.size.x * 0.15))
+
+
+## The painting has to stop where the paper does. `draw_texture_rect_region`
+## draws a square, so on a rounded card the picture put its own corners back and
+## the front read as a photograph laid over a postcard rather than as the
+## postcard. A rounded polygon carrying the crop in its uvs is the same picture
+## in the paper's own shape. (Polygon uvs are normalised in Godot 4, not pixels.)
+func _rounded_texture(rect: Rect2, radius: float, tex: Texture2D, src: Rect2) -> void:
+	var pts := _round_rect(rect, radius)
+	var sheet := Vector2(maxf(1.0, float(tex.get_width())),
+			maxf(1.0, float(tex.get_height())))
+	var uvs := PackedVector2Array()
+	for p in pts:
+		var t := (p - rect.position) / rect.size
+		uvs.append((src.position + src.size * t) / sheet)
+	draw_colored_polygon(pts, Color.WHITE, uvs, tex)
+
+
+## A rounded rectangle as a clockwise ring of points.
+func _round_rect(rect: Rect2, radius: float) -> PackedVector2Array:
+	var r := minf(radius, minf(rect.size.x, rect.size.y) * 0.5)
+	var far := rect.position + rect.size
+	var corners := [
+		[Vector2(far.x - r, rect.position.y + r), -TAU * 0.25],
+		[Vector2(far.x - r, far.y - r), 0.0],
+		[Vector2(rect.position.x + r, far.y - r), TAU * 0.25],
+		[Vector2(rect.position.x + r, rect.position.y + r), TAU * 0.5],
+	]
+	var pts := PackedVector2Array()
+	const STEPS := 8
+	for corner in corners:
+		var centre: Vector2 = corner[0]
+		var from: float = corner[1]
+		for i in STEPS + 1:
+			var a: float = from + TAU * 0.25 * float(i) / float(STEPS)
+			pts.append(centre + Vector2(cos(a), sin(a)) * r)
+	return pts
+
 
 func _rounded(rect: Rect2, fill: Color, border: Color, radius: int,
 		border_width: int = 0) -> void:

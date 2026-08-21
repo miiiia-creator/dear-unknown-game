@@ -418,7 +418,11 @@ ISTANBUL = [
 # Four inks. The letter is about a woman who has books, music, the sea, and
 # does not understand the question — so the card is an interior and a coastline
 # rather than an object on a table. First time the season draws a place.
-REYKJAVIK_INKS = ["#3E8A73", "#3A4A6B", "#D8B45C", "#2A3038"]
+# The second ink was #3A4A6B, a navy that on a filled cell was indistinguishable
+# from the near-black fourth — four inks is only four inks if you can count them.
+# Four is also the most this season asks for, so the set has to be a ladder in
+# lightness as well as in hue: black, green, blue, gold.
+REYKJAVIK_INKS = ["#3E8A73", "#4E77B0", "#D8B45C", "#2A3038"]
 
 REYKJAVIK = [
     P("reykjavik_woman", "Why Would I", "\U0001f469", "Everyday life", """
@@ -450,7 +454,10 @@ REYKJAVIK = [
 # disappear, and this is the only card in either season that draws a whole
 # place rather than a thing on a table — sky, cloud, sea, and the two things
 # that go missing in it, each in a colour of its own.
-BERMUDA_INKS = ["#BFD8E6", "#F2F4F6", "#2E7C8C", "#E9B8AE", "#5A6B78"]
+# The cloud used to be #F2F4F6 and the sky #BFD8E6 — both lighter than an empty
+# cell, so the clouds read as holes punched in the picture rather than as cloud.
+# White is not one of the colours. White is the grid.
+BERMUDA_INKS = ["#6FA8CE", "#B8C6CF", "#2E7C8C", "#E0968A", "#3F4A54"]
 
 BERMUDA = [
     P("bermuda_triangle", "Just in Case", "\u2708", "Landmark", """
@@ -923,11 +930,36 @@ def line_solve(row_clues, col_clues, h, w, colours):
     return grid, solved
 
 
+# An empty cell is Pal's "panel", #E8E6E1 (see scripts/autoload/palette.gd).
+# White is not one of the colours a grid may use — white is the grid. An ink as
+# light as the paper draws holes in the picture rather than shapes, and no
+# amount of contrast correction on the clue numbers fixes the cells themselves.
+EMPTY_CELL_LUMA = 0.898
+INK_HEADROOM = 0.10
+
+
+def luminance(hex_colour):
+    """Godot's Color.get_luminance, so the two agree about what "light" means."""
+    h = hex_colour.lstrip("#")
+    r, g, b = (int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def check_palette(puzzle):
+    errs = []
+    for i, ink in enumerate(puzzle.get("palette") or []):
+        lum = luminance(ink)
+        if lum > EMPTY_CELL_LUMA - INK_HEADROOM:
+            errs.append("ink %d %s is as light as the paper (%.2f, needs <= %.2f)"
+                        % (i + 1, ink, lum, EMPTY_CELL_LUMA - INK_HEADROOM))
+    return errs
+
+
 def validate(puzzle):
     art = puzzle["art"]
     h = len(art)
     w = len(art[0])
-    errs = []
+    errs = check_palette(puzzle)
     allowed = set("#.123456789")
     for i, row in enumerate(art):
         if len(row) != w:

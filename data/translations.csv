@@ -1,12 +1,11 @@
 keys,en,zh_CN
-Map,Map,地图
 Journal,Journal,日志
+Open the card,Open the card,打开卡片
 Postcards,Postcards,明信片
 Settings,Settings,设置
 CONTINUE,CONTINUE,继续
 START,START,开始
 Daily Puzzle — coming soon,Daily Puzzle — coming soon,每日谜题 — 即将推出
-World Map,World Map,世界地图
 Open,Open,进入
 Revisit,Revisit,重访
 Finish %s to unlock,Finish %s to unlock,完成%s后解锁
@@ -28,7 +27,7 @@ no hints,no hints,未用提示
 Travel to %s,Travel to %s,前往%s
 Continue to %s,Continue to %s,前往%s
 %s unlocked,%s unlocked,已解锁%s
-Back to the map,Back to the map,回到地图
+Back to the journal,Back to the journal,回到日志
 Stamped,Stamped,已盖章
 Send to a friend,Send to a friend,寄给朋友
 Send a Postcard,Send a Postcard,寄一张明信片
@@ -57,7 +56,6 @@ Mood,Mood,色调
 Paper,Paper,纸白
 Evening,Evening,夜晚
 Cross off finished lines,Cross off finished lines,划掉完成的行列
-Crosshair guides,Crosshair guides,十字辅助线
 On,On,开
 Off,Off,关
 Progress,Progress,进度
@@ -72,12 +70,8 @@ Link copied,Link copied,链接已复制
 Code copied,Code copied,代码已复制
 Paste it into the postcard page.,Paste it into the postcard page.,粘贴到明信片页面即可。
 Sound,Sound,声音
-Pencil on the grid and paper on the cards. Kept quiet on purpose. Music is separate and not in yet.,Pencil on the grid and paper on the cards. Kept quiet on purpose. Music is separate and not in yet.,格子上的铅笔声，卡片上的纸声。刻意做得很轻。音乐是另一回事，暂时还没有。
-"Not in the prototype yet: music, daily puzzle, Steam integration.","Not in the prototype yet: music, daily puzzle, Steam integration.",尚未加入原型：音乐、每日谜题、Steam 接入。
 Still being written,Still being written,还在写
 Music,Music,音乐
-"One piece, looping. It is not in the download — it arrives on its own once the game is open, so it never makes you wait.","One piece, looping. It is not in the download — it arrives on its own once the game is open, so it never makes you wait.",一首，循环播放。它不在下载包里，游戏打开之后自己到，所以不会让你多等。
-Pencil on the grid and paper on the cards. Kept quiet on purpose.,Pencil on the grid and paper on the cards. Kept quiet on purpose.,格子上的铅笔声，卡片上的纸声。刻意做得很轻。
 Season One,Season One,第一季
 Season Two,Season Two,第二季
 Season Three,Season Three,第三季
@@ -86,6 +80,5 @@ Season Five,Season Five,第五季
 Season Six,Season Six,第六季
 Read the letter,Read the letter,读这封信
 COLLECTED  %d / %d,COLLECTED  %d / %d,已收集  %d / %d
-Tap the card,Tap the card,点一下卡片
 Tap the light,Tap the light,点一下那个光点
 Begin,Begin,开始

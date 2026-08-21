@@ -47,7 +47,7 @@ func build() -> void:
 	board = BoardView.new()
 	board.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	board.crosshair = bool(SaveGame.setting("cross_hair", true))
+	board.crosshair = true
 	board.mark_done = bool(SaveGame.setting("mark_done", true))
 	# The grid's own inks. Empty for every black-and-white puzzle, which is
 	# every puzzle until Season Two.
@@ -73,8 +73,11 @@ func parent_args() -> Dictionary:
 func _top_bar() -> Control:
 	var bar := UI.hbox(14)
 
+	# Back to the card, which is where this grid was picked — and where solving
+	# it lights the next point. `back()` rather than a route of its own, so the
+	# link and the escape key cannot drift apart again.
 	var back_btn := UI.quiet_button("%s" % GameData.text(city["name"]), UI.SMALL)
-	back_btn.pressed.connect(func(): go("journal", {"city": city["id"]}))
+	back_btn.pressed.connect(back)
 	bar.add_child(back_btn)
 
 	var solved := SaveGame.is_solved(puzzle_data["id"])
@@ -383,4 +386,4 @@ func _continue() -> void:
 	# that was just solved belongs on the card, and watching it land there is
 	# the reward for the one before it — going directly to another empty grid
 	# skips the only moment that says anything happened.
-	replace("card", {"city": city["id"], "face": "back"})
+	replace("card", {"city": city["id"]})

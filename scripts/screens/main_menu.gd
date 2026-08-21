@@ -55,9 +55,9 @@ func build() -> void:
 	column.add_child(cont)
 	column.add_child(UI.spacer(22))
 
+	# The map and the journal used to be two links to the same ten destinations.
 	var links := [
-		["World Map", "map", {}],
-		["Travel Journal", "journal", {}],
+		["Journal", "journal", {}],
 		["Postcards", "postcards", {}],
 		["Settings", "settings", {}],
 	]

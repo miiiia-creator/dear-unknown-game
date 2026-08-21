@@ -1,209 +1,159 @@
 extends AppScreen
-## One destination, everything about it: what you have found there, what is left
-## to solve, and the letter that arrived with its postcard.
+## Where you have been, all of it, on one screen.
 ##
-## This used to be two screens — a city page you played from and a journal you
-## read from — showing the same eight tiles with the same pictures and names.
-## Two near-identical pages make a player wonder which one they are on.
+## This was two destinations. The map showed ten pins and a list of ten
+## one-line rows; the journal showed one of those cities at a time with the
+## same name, the same progress and the same tiles. Two pages built out of the
+## same ten facts is a page and its own table of contents, and nobody needed
+## to be able to go from one to the other.
+##
+## So: the map is pinned at the top, the list under it is the destinations, and
+## a destination goes straight to its card — the letter, the turn, the points
+## of light. The rows briefly expanded into a strip of grid thumbnails instead;
+## that put a picture of the puzzle one tap from the card that already has one,
+## and made the list something to operate rather than something to read. The
+## card is the way in. There is no second way in.
+##
+## The map lights whichever destination you are currently travelling to and
+## steps the rest back, so it says where you are rather than restating the list.
 
-var city_id: String
+var _map: WorldMapView
 
 
 func build() -> void:
-	city_id = args.get("city", GameData.current_city_id())
-	var city := GameData.city(city_id)
-	var progress := GameData.city_progress(city_id)
-	var complete := GameData.is_city_complete(city_id)
+	var here := str(args.get("city", GameData.current_city_id()))
 
-	var body := scaffold(str(GameData.text(city["name"])))
-	body.add_child(_city_switcher())
+	var frame := UI.panel(6)
+	frame.custom_minimum_size = Vector2(0, 190 if is_narrow() else 250)
+	_map = WorldMapView.new()
+	_map.focus_id = here
+	_map.city_picked.connect(_open)
+	frame.add_child(_map)
 
-	# A fixed-width progress bar plus buttons in one row has a minimum width that
-	# a phone cannot honour, and a container that cannot shrink simply overflows
-	# — which is what was clipping every tile on the right. Stack it instead.
-	var narrow := is_narrow()
-	var head: BoxContainer = UI.vbox(10) if narrow else UI.hbox(16)
+	var body := scaffold(tr("Journal"),
+			tr("%d of %d destinations stamped") % [GameData.completed_city_count(),
+			GameData.cities.size()], frame)
 
-	var stat := UI.hbox(12)
-	stat.add_child(UI.label(tr("%d / %d discoveries") % [progress.x, progress.y],
-			UI.BODY, "ink_soft"))
-	stat.add_child(UI.progress_bar(float(progress.x) / maxf(1.0, progress.y),
-			column_width() * (0.42 if narrow else 0.26), 6))
-	head.add_child(stat)
-	if not narrow:
-		head.add_child(UI.grow())
+	for season in GameData.seasons:
+		body.add_child(_season_block(season))
 
-	var actions: BoxContainer = UI.hbox(8)
-	if narrow:
-		actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	head.add_child(actions)
 
+## One season: a quiet heading, then its destinations.
+func _season_block(season: Dictionary) -> Control:
+	var city_ids: Array = season.get("cities", [])
+	var stamped := 0
+	for id in city_ids:
+		if GameData.is_city_complete(str(id)):
+			stamped += 1
+
+	var block := UI.vbox(4)
+
+	var head := UI.hbox(10)
+	head.add_child(UI.label_small(GameData.season_label(str(season.get("id", ""))), "accent"))
+	head.add_child(UI.grow())
+	head.add_child(UI.label_small("%d / %d" % [stamped, city_ids.size()], "ink_faint"))
+	# The scroll bar floats over the right edge, the same way it does over the
+	# rows below — without this the season's count is printed underneath it.
+	var clear := Control.new()
+	clear.custom_minimum_size = Vector2(14, 0)
+	head.add_child(clear)
+	block.add_child(head)
+	block.add_child(UI.hrule())
+
+	var list := UI.vbox(0)
+	block.add_child(list)
+	for id in city_ids:
+		list.add_child(_row(GameData.city(str(id))))
+	return block
+
+
+func _row(city: Dictionary) -> Control:
+	var id: String = city["id"]
+	var unlocked := GameData.is_city_unlocked(id)
+	var complete := GameData.is_city_complete(id)
+
+	var row := Button.new()
+	row.focus_mode = Control.FOCUS_NONE
+	row.custom_minimum_size = Vector2(0, 46 if is_narrow() else 52)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.tooltip_text = GameData.text(city["name"])
+
+	# Flat, with a hairline underneath: a list of lines, not a stack of cards.
+	var flat := StyleBoxFlat.new()
+	flat.bg_color = Color(0, 0, 0, 0)
+	flat.border_color = Pal.c("line")
+	flat.border_width_bottom = 1
+	row.add_theme_stylebox_override("normal", flat)
+	row.add_theme_stylebox_override("disabled", flat)
+	var lit := flat.duplicate() as StyleBoxFlat
+	lit.bg_color = Pal.c("panel")
+	row.add_theme_stylebox_override("hover", lit)
+	row.add_theme_stylebox_override("pressed", lit)
+
+	var line := UI.hbox(12)
+	line.set_anchors_preset(Control.PRESET_FULL_RECT)
+	line.offset_left = 2
+	# The scroll bar floats over the right edge; keep the status clear of it.
+	line.offset_right = -14
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(line)
+
+	var mark := PinMark.new()
+	mark.setup("stamped" if complete else ("open" if unlocked else "locked"))
+	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	line.add_child(mark)
+
+	line.add_child(UI.label(GameData.text(city["name"]), UI.H3,
+			"ink" if unlocked else "ink_faint"))
+	line.add_child(UI.grow())
+	line.add_child(_status(city, unlocked, complete))
+
+	if unlocked and GameData.is_city_written(id):
+		row.pressed.connect(func(): _open(id))
+	else:
+		row.disabled = true
+	return row
+
+
+## The right-hand end of a row: a date once stamped, a count while playing, and
+## the name of what stands in the way while locked.
+func _status(city: Dictionary, unlocked: bool, complete: bool) -> Control:
+	var id: String = city["id"]
+	if not GameData.is_city_written(id):
+		return UI.label_small(tr("Still being written"), "ink_faint")
 	if complete:
-		var next_id := GameData.next_city_id(city_id)
-		if next_id != "":
-			var onward := UI.button(tr("Travel to %s") % GameData.text(GameData.city(next_id)["name"]), true)
-			onward.pressed.connect(func(): go("journal", {"city": next_id}))
-			actions.add_child(onward)
-	elif GameData.is_city_written(city_id):
-		var next_puzzle := GameData.next_puzzle_for(city_id)
-		var play := UI.button(tr("Puzzle %d") % (int(next_puzzle["index"]) + 1), true)
-		play.pressed.connect(func(): go("puzzle", {"puzzle": next_puzzle["id"]}))
-		actions.add_child(play)
-	else:
-		actions.add_child(UI.label(tr("Still being written"), UI.BODY, "ink_faint"))
-	if narrow:
-		for b in actions.get_children():
-			(b as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_child(head)
-	body.add_child(UI.spacer(2))
-
-	var grid := GridContainer.new()
-	grid.columns = columns_for(170)
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
-	body.add_child(grid)
-
-	var accent: Color = GameData.city_palette(city_id)[1]
-	for p in GameData.puzzles_of(city_id):
-		grid.add_child(_tile(p, accent))
-
-	var letter := _letter_panel(city)
-	if letter != null:
-		body.add_child(UI.spacer(6))
-		body.add_child(letter)
+		var date := SaveGame.stamp_date(id)
+		return UI.label_small(date if date != "" else tr("Stamped"), "accent")
+	if unlocked:
+		var progress := GameData.city_progress(id)
+		var wrap := UI.hbox(8)
+		wrap.alignment = BoxContainer.ALIGNMENT_END
+		if not is_narrow():
+			var bar := UI.progress_bar(float(progress.x) / maxf(1.0, progress.y), 90.0, 4)
+			bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			wrap.add_child(bar)
+		wrap.add_child(UI.label_small("%d / %d" % [progress.x, progress.y], "ink_soft"))
+		return wrap
+	var prev: Dictionary = GameData.cities[int(city["order"]) - 1]
+	# Across a season boundary, naming the previous city is confusing — it
+	# belongs to a chapter this row is not part of. Name the chapter instead.
+	if str(prev.get("season", "")) != str(city.get("season", "")):
+		var earlier := GameData.season(str(prev.get("season", "")))
+		return UI.label_small(
+				tr("Finish %s to unlock") % GameData.text(earlier.get("title", "")),
+				"ink_faint")
+	return UI.label_small(tr("Finish %s to unlock") % GameData.text(prev["name"]),
+			"ink_faint")
 
 
-## Jump between destinations without going back out to the map.
-func _city_switcher() -> Control:
-	# Only this city's season. Ten destinations in one row is wider than a
-	# phone, and a container is never narrower than its contents — the row
-	# would quietly stretch the whole page past the edge of the screen.
-	var season := GameData.season_of(city_id)
-	var ids: Array = season.get("cities", GameData.city_ids())
-	var here := str(season.get("id", ""))
-
-	# Scoping the row to one season stopped it overflowing a phone, and left no
-	# way out of the season you were in. The way out is a season above it.
-	var stack := UI.vbox(8)
-	if GameData.seasons.size() > 1:
-		var chips: Array = []
-		for entry in GameData.seasons:
-			var sid := str(entry.get("id", ""))
-			var b := UI.button(GameData.text(entry.get("title", "")), sid == here)
-			if sid != here:
-				var first := str((entry.get("cities", []) as Array)[0])
-				b.pressed.connect(func(): go("journal", {"city": first}))
-			chips.append(b)
-		stack.add_child(UI.chip_rows(chips,
-				chips.size() if not is_narrow() else 2))
-
-	var row := UI.hbox(6)
-	for cid in ids:
-		var c := GameData.city(str(cid))
-		if c.is_empty():
-			continue
-		var id: String = c["id"]
-		var unlocked := GameData.is_city_unlocked(id)
-		var b := UI.button(GameData.text(c["name"]), id == city_id)
-		b.disabled = not unlocked
-		b.tooltip_text = GameData.text(c["name"])
-		if unlocked:
-			b.pressed.connect(func(): go("journal", {"city": id}))
-		row.add_child(b)
-	stack.add_child(row)
-	return stack
-
-
-## The letter that came with this city's postcard, once it has been earned.
-func _letter_panel(city: Dictionary) -> Control:
-	# The letter arrives with the postcard, so it stays sealed until the city is
-	# finished — otherwise the ending is sitting on the page from the first move.
-	if not SaveGame.has_postcard(city_id):
-		return null
-	var letter: Dictionary = city.get("letter", {})
-	if GameData.text(letter.get("body", "")) == "":
-		return null
-	var panel := UI.panel(12)
-	var v := UI.vbox(8)
-	# The drawn stamp used to sit on a card on the map, five at a time, mostly
-	# as texture. One city has room for it to be read, and next to the letter it
-	# is doing what a stamp does: saying where the thing came from.
-	var narrow := is_narrow()
-	var stamp := StampView.new()
-	stamp.setup(city_id, -0.14 + 0.08 * float(int(city["order"]) % 3))
-	stamp.custom_minimum_size = Vector2(150, 96) if not narrow else Vector2(140, 88)
-	stamp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	if narrow:
-		stamp.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		v.add_child(stamp)
-		panel.add_child(v)
-	else:
-		var spread := UI.hbox(16)
-		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		spread.add_child(v)
-		spread.add_child(stamp)
-		panel.add_child(spread)
-	v.add_child(UI.label_small(GameData.text(letter.get("title", "")), "accent"))
-	v.add_child(UI.paragraph(GameData.text(letter["body"]), UI.BODY, "ink"))
-	var row := UI.hbox(8)
-	var open := UI.button(tr("Postcard"))
-	open.pressed.connect(func(): go("postcards", {"card": city_id}))
-	row.add_child(open)
-	var send := UI.button(tr("Send to a friend"), true)
-	send.pressed.connect(func(): go("share", {"city": city_id}))
-	row.add_child(send)
-	v.add_child(row)
-	return panel
-
-
-func _tile(p: Dictionary, accent: Color) -> Control:
-	var solved := SaveGame.is_solved(p["id"])
-	var unlocked := GameData.is_puzzle_unlocked(p["id"])
-
-	var card := Button.new()
-	card.focus_mode = Control.FOCUS_NONE
-	card.custom_minimum_size = Vector2(0, 132 if is_narrow() else 168)
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.disabled = not unlocked and not solved
-
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Pal.c("panel") if (solved or unlocked) else Pal.c("panel_alt")
-	# No outline: the fill and the space around it separate one tile from the
-	# next. An outline on every tile turned the page into a spreadsheet.
-	sb.border_color = Pal.c("accent")
-	sb.set_border_width_all(1 if (unlocked and not solved) else 0)
-	sb.set_corner_radius_all(3)
-	for s in ["normal", "disabled"]:
-		card.add_theme_stylebox_override(s, sb)
-	var hover := sb.duplicate()
-	hover.border_color = Pal.c("accent")
-	card.add_theme_stylebox_override("hover", hover)
-	card.add_theme_stylebox_override("pressed", hover)
-
-	var v := UI.vbox(4)
-	v.set_anchors_preset(Control.PRESET_FULL_RECT)
-	v.offset_left = 12
-	v.offset_right = -12
-	v.offset_top = 12
-	v.offset_bottom = -12
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(v)
-
-	var art := PixelArtView.new()
-	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	art.setup(p["art"], Pal.c("cell") if solved else accent, not solved)
-	v.add_child(art)
-
-	var caption: String = GameData.text(p["name"]) if solved else ("Puzzle %d" % (int(p["index"]) + 1))
-	v.add_child(UI.label(caption, UI.SMALL, "ink" if solved else "ink_soft",
-			HORIZONTAL_ALIGNMENT_CENTER))
-
-	# Width first, the way everyone says a grid size out loud.
-	var sub := "%d × %d" % [String(p["art"][0]).length(), p["art"].size()]
-	if not unlocked and not solved:
-		sub = "locked"
-	v.add_child(UI.label(sub, UI.SMALL, "ink_faint", HORIZONTAL_ALIGNMENT_CENTER))
-
-	var pid: String = p["id"]
-	card.pressed.connect(func(): go("puzzle", {"puzzle": pid}))
-	return card
+## A destination, from the list or from its pin — the map is a second way to
+## say the same thing, not a second place to go. A city that has not been
+## written has no card to open, which the map used to do anyway.
+func _open(city_id: String) -> void:
+	if not GameData.is_city_unlocked(city_id) or not GameData.is_city_written(city_id):
+		# The row for this destination is on the same screen and already says
+		# what it is waiting for, so the sound alone is the whole answer.
+		Sfx.play("locked")
+		return
+	go("card", {"city": city_id})

@@ -4,7 +4,6 @@ extends Control
 const SCREENS := {
 	"prologue": preload("res://scripts/screens/prologue_screen.gd"),
 	"menu": preload("res://scripts/screens/main_menu.gd"),
-	"map": preload("res://scripts/screens/world_map.gd"),
 	"journal": preload("res://scripts/screens/journal_screen.gd"),
 	"card": preload("res://scripts/screens/card_screen.gd"),
 	"puzzle": preload("res://scripts/screens/puzzle_screen.gd"),
@@ -16,7 +15,6 @@ const SCREENS := {
 
 ## Which nav section each screen belongs to, for the persistent bar's highlight.
 const SECTION := {
-	"map": "map",
 	"journal": "journal", "puzzle": "journal", "city_complete": "journal",
 	"card": "journal",
 	"postcards": "postcards", "share": "postcards",
@@ -26,7 +24,7 @@ const SECTION := {
 ## Where "up" goes from each screen. A hub-and-spoke app has a real hierarchy,
 ## so declaring the parent beats guessing from a visit history.
 const PARENT := {
-	"puzzle": "card", "card": "map", "journal": "map", "city_complete": "map",
+	"puzzle": "card", "card": "journal", "city_complete": "journal",
 	"share": "postcards",
 }
 
@@ -264,8 +262,11 @@ func _build_nav(screen: String) -> void:
 	# Words, not pictograms. A row of coloured emoji reads as a toy, and this is
 	# a game about letters.
 	var here: String = SECTION.get(screen, "")
-	for entry in [["Map", "map"], ["Journal", "journal"],
-			["Postcards", "postcards"], ["Settings", "settings"]]:
+	# Three sections. The map used to be a fourth, showing the same ten
+	# destinations the journal showed; it is pinned to the top of the journal
+	# now, where it can point at the one being read.
+	for entry in [["Journal", "journal"], ["Postcards", "postcards"],
+			["Settings", "settings"]]:
 		var section: String = entry[1]
 		var b := UI.quiet_button(tr(str(entry[0])), UI.SMALL)
 		if section == here:

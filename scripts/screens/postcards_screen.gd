@@ -81,8 +81,6 @@ func build() -> void:
 				UI.BODY, "ink_soft", HORIZONTAL_ALIGNMENT_CENTER))
 		return
 
-	root.add_child(UI.spacer(6))
-	root.add_child(_send_row())
 	_show()
 
 
@@ -128,18 +126,6 @@ func _index_of(card_id: String) -> int:
 	return 0
 
 
-func _send_row() -> Control:
-	var row := UI.hbox(8)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var here: Dictionary = _cards[_index] if _index < _cards.size() else {}
-	if str(here.get("id", "")) != OPENING:
-		var send := UI.quiet_button(tr("Send to a friend"), UI.SMALL)
-		var id := str(here["id"])
-		send.pressed.connect(func(): go("share", {"city": id}))
-		row.add_child(send)
-	return row
-
-
 func _show() -> void:
 	var here: Dictionary = _cards[_index]
 	var opening := str(here["id"]) == OPENING
@@ -172,6 +158,7 @@ func _flip() -> void:
 	tw.tween_property(_stage, "scale:x", 0.0, 0.28).set_trans(Tween.TRANS_SINE)
 	tw.tween_callback(func():
 		_face = "back" if _face == "front" else "front"
+		args["face"] = _face
 		_show())
 	tw.tween_property(_stage, "scale:x", 1.0, 0.28).set_trans(Tween.TRANS_SINE)
 	tw.tween_callback(func(): _busy = false)
@@ -179,9 +166,17 @@ func _flip() -> void:
 
 ## Moving along the line keeps the face you were reading. Someone working
 ## through the letters should not have to turn every card over again.
+##
+## This used to swap the screen for a fresh one at the new index, which threw
+## away the timeline mid-gesture — the line could not be pulled, because the
+## thing being pulled was destroyed the moment it crossed a card. The card is
+## changed in place instead, and where you are is written back into `args` so
+## that a rebuild under the player — a resize, a change of mood, a change of
+## language — still comes back to the card being read.
 func _move_to(next: int) -> void:
-	if next == _index:
+	if next == _index or next >= _cards.size():
 		return
 	_index = next
 	_show()
-	replace("postcards", {"at": _index, "face": _face})
+	args["at"] = _index
+	args["face"] = _face

@@ -30,26 +30,22 @@ func run(main: Node) -> void:
 	await _wait(3.2)
 	await _shot("prologue_back")
 
-	app.go("map")
-	await _shot("world_map")
-
+	# The journal, which is now the map as well: the pinned world reacts to
+	# whichever destination the list below has open.
 	app.go("journal", {"city": "tokyo"})
-	await _shot("city_fresh")
+	await _shot("journal_fresh")
 
-	# The new opening: the card arrives letter-side up, turns over to a blank
-	# back, and a point of light is the way into the first grid.
+	# The card: one face, a point of light, and a picture that develops as the
+	# grids are solved. Empty, then with the first one on it.
 	DisplayServer.window_set_size(Vector2i(430, 900))
 	await _wait(0.6)
 	app.go("card", {"city": "tokyo"})
-	await _wait(0.9)
-	await _shot("card_letter")
-	app._current._turn()
 	await _wait(1.4)
-	await _shot("card_back_empty")
+	await _shot("card_empty")
 	SaveGame.mark_solved("tokyo_pond", 40.0, 0)
-	app.go("card", {"city": "tokyo", "face": "back"})
+	app.go("card", {"city": "tokyo"})
 	await _wait(1.2)
-	await _shot("card_back_one")
+	await _shot("card_one")
 	DisplayServer.window_set_size(Vector2i(1280, 800))
 	await _wait(0.5)
 
@@ -74,10 +70,11 @@ func run(main: Node) -> void:
 	await _shot("city_complete")
 
 	app.go("journal", {"city": "tokyo"})
-	await _shot("city_done")
+	await _shot("journal_done")
 
-	app.go("journal")
-	await _shot("journal")
+	# The map lights whichever destination the journal was opened on.
+	app.go("journal", {"city": "paris"})
+	await _shot("journal_paris")
 
 	app.go("postcards")
 	await _wait(0.7)
@@ -95,15 +92,15 @@ func run(main: Node) -> void:
 	app.go("share", {"city": "tokyo"})
 	await _shot("share")
 
-	app.go("map")
-	await _shot("world_map_progress")
+	app.go("journal", {"city": "tokyo"})
+	await _shot("journal_progress")
 
 	app.go("settings")
 	await _shot("settings")
 
 	Pal.set_mood("evening")
 	app.go("journal", {"city": "tokyo"})
-	await _shot("city_evening")
+	await _shot("journal_evening")
 
 	app.go("puzzle", {"puzzle": "london_bigben"})
 	await _partial_fill()
@@ -144,7 +141,7 @@ func run(main: Node) -> void:
 	await _wait(0.5)
 
 	app.go("journal", {"city": "tokyo"})
-	await _shot("phone_city")
+	await _shot("phone_journal")
 
 	app.go("puzzle", {"puzzle": "tokyo_torii"})
 	await _partial_fill()
@@ -153,8 +150,8 @@ func run(main: Node) -> void:
 	app.go("share", {"city": "tokyo"})
 	await _shot("phone_share")
 
-	app.go("map")
-	await _shot("phone_map")
+	app.go("journal", {"city": "london"})
+	await _shot("phone_journal_all")
 
 	# A colour grid, which is a different game: the palette replaces Fill, and
 	# the clue numbers take the colour of the run they count.
@@ -166,6 +163,32 @@ func run(main: Node) -> void:
 	await _wait(0.6)
 	await _partial_fill()
 	await _shot("colour_puzzle")
+
+	# Four inks and five: the cases where two of them can quietly turn out to be
+	# one, and where the pale end of a palette disappears into the page it is
+	# printed on. Open the images, not the error count.
+	for p in GameData.puzzles_of("reykjavik"):
+		SaveGame.mark_solved(p["id"], 60.0, 0)
+	app.go("puzzle", {"puzzle": "reykjavik_sea"})
+	await _wait(0.6)
+	await _partial_fill()
+	await _shot("colour_puzzle_four")
+
+	for p in GameData.puzzles_of("bermuda"):
+		SaveGame.mark_solved(p["id"], 60.0, 0)
+	app.go("puzzle", {"puzzle": "bermuda_triangle"})
+	await _wait(0.6)
+	await _partial_fill()
+	await _shot("colour_puzzle_five")
+
+	# The same grid in the evening, where the page is dark and the correction
+	# has to push the inks the other way.
+	Pal.set_mood("evening")
+	app.go("puzzle", {"puzzle": "bermuda_triangle"})
+	await _wait(0.6)
+	await _partial_fill()
+	await _shot("colour_puzzle_five_evening")
+	Pal.set_mood("paper")
 	DisplayServer.window_set_size(Vector2i(430, 900))
 	await _wait(0.5)
 
@@ -176,6 +199,11 @@ func run(main: Node) -> void:
 	app.go("postcards")
 	await _wait(0.9)
 	await _shot("phone_postcards_opening")
+
+	# The line is pulled, not tapped. Drag it two cards along and let it settle,
+	# which is the whole gesture: the card under the mark is the card you get.
+	await _drag_timeline(-150.0)
+	await _shot("phone_postcards_dragged")
 
 	# Chinese pass: the content resolver and the CJK fallback both have to hold.
 	Pal.set_locale("zh_CN")
@@ -215,7 +243,7 @@ func run(main: Node) -> void:
 	# A hard quit does not give autoloads a chance to let go of anything, and a
 	# screen still holding a film is torn down after the resource cache has
 	# started clearing. Land somewhere plain, then hand the music back.
-	app.go("map")
+	app.go("journal")
 	await _wait(0.4)
 	Music.release()
 	get_tree().quit()
@@ -259,6 +287,29 @@ func _solve_current() -> void:
 	s.board.queue_redraw()
 	s._on_solved()
 	await _wait(1.6)
+
+
+## Pull the postcard timeline sideways the way a thumb would, in steps, so the
+## drag threshold and the fling both see something like real input.
+func _drag_timeline(by: float) -> void:
+	var line: PostcardTimeline = _screen()._line
+	var mid := line.size * 0.5
+	line._gui_input(_press(mid, true))
+	for step in 10:
+		var move := InputEventMouseMotion.new()
+		move.position = mid + Vector2(by * float(step + 1) / 10.0, 0.0)
+		line._gui_input(move)
+		await _wait(0.016)
+	line._gui_input(_press(mid + Vector2(by, 0.0), false))
+	await _wait(1.2)
+
+
+func _press(at: Vector2, down: bool) -> InputEventMouseButton:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = down
+	e.position = at
+	return e
 
 
 func _wait(seconds: float) -> void:

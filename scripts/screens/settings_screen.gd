@@ -1,36 +1,21 @@
 extends AppScreen
+## Settings.
+##
+## Every row used to carry a paragraph explaining itself. Six of them made a
+## page of prose with some controls buried in it, and none of the explanations
+## said anything the label and the switch did not — "Sound: On" does not need
+## to be told that the sounds are pencil on paper and kept quiet on purpose.
+## A setting is a name and a state.
 
 
 func build() -> void:
 	var body := scaffold(tr("Settings"))
 
-	body.add_child(_row("Language",
-			"Interface and letters. The Chinese letters are written rather than "
-			+ "translated, so they are not line-for-line the same.",
-			_locale_toggle()))
-
-	body.add_child(_row("Mood",
-			"Paper for daytime, Evening for a lamp-lit desk.",
-			_mood_toggle()))
-
-	body.add_child(_row("Sound",
-			"Pencil on the grid and paper on the cards. Kept quiet on purpose.",
-			_bool_toggle("sound")))
-
-	body.add_child(_row("Music",
-			"One piece, looping. It is not in the download — it arrives on its "
-			+ "own once the game is open, so it never makes you wait.",
-			_music_toggle()))
-
-	body.add_child(_row("Cross off finished lines",
-			"When a row or column matches its numbers, strike the numbers out. "
-			+ "It marks what the line says on its own — the line can still be in "
-			+ "the wrong place. Turn off for a stricter puzzle.",
-			_bool_toggle("mark_done")))
-
-	body.add_child(_row("Crosshair guides",
-			"Highlight the row and column under the cursor.",
-			_bool_toggle("cross_hair")))
+	body.add_child(_row("Language", _locale_toggle()))
+	body.add_child(_row("Mood", _mood_toggle()))
+	body.add_child(_row("Sound", _bool_toggle("sound")))
+	body.add_child(_row("Music", _music_toggle()))
+	body.add_child(_row("Cross off finished lines", _bool_toggle("mark_done")))
 
 	body.add_child(UI.spacer(10))
 	body.add_child(UI.hrule())
@@ -51,22 +36,21 @@ func build() -> void:
 	danger.add_child(UI.grow())
 	body.add_child(danger)
 
-	body.add_child(UI.spacer(10))
-	body.add_child(UI.hrule())
-	body.add_child(UI.paragraph(tr("Not in the prototype yet: music, daily "
-			+ "puzzle, Steam integration."), UI.SMALL, "ink_faint"))
 
-
-func _row(title: String, help: String, control: Control) -> Control:
+func _row(title: String, control: Control) -> Control:
 	var panel := UI.panel(12)
+	# A panel's padding was sized around two lines of prose. With the prose gone
+	# it left each switch floating in a band of empty paper.
+	var pad: StyleBoxFlat = panel.get_theme_stylebox("panel")
+	pad.content_margin_top = 12
+	pad.content_margin_bottom = 12
 	var h := UI.hbox(16)
 	panel.add_child(h)
 
-	var text := UI.vbox(2)
-	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text.add_child(UI.label(tr(title), UI.BODY, "ink"))
-	text.add_child(UI.paragraph(tr(help), UI.SMALL, "ink_soft"))
-	h.add_child(text)
+	var name := UI.label(tr(title), UI.BODY, "ink")
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	h.add_child(name)
 	h.add_child(control)
 	return panel
 

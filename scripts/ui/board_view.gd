@@ -164,7 +164,11 @@ func _clue_colour(entry: Vector2i, base: Color) -> Color:
 		return base
 	var palette: Array = puzzle_palette
 	if entry.y - 1 < palette.size():
-		var c: Color = palette[entry.y - 1]
+		# Not the ink itself: the ink is chosen to look right filling a cell,
+		# and the clue is the same colour printed thin on the open page. Only
+		# the numbers are corrected — the fill stays the colour it is meant
+		# to be, because the fill is the picture.
+		var c: Color = Pal.legible(palette[entry.y - 1])
 		c.a = base.a
 		return c
 	return base

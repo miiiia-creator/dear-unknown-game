@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cut the Chinese font down to the characters the game actually uses.
 
-A complete Simplified Chinese face is 17 MB — more than three times the whole
+A complete Simplified Chinese face is 17-25 MB — several times the whole
 web build. The game only ever draws a few hundred distinct characters, so the
 font is subset to exactly those, plus the Latin and punctuation that appears
 alongside them.
@@ -23,8 +23,8 @@ DATA = os.path.join(ROOT, "data", "cities.json")
 UI_STRINGS = os.path.join(ROOT, "data", "translations.csv")
 CODE = os.path.join(ROOT, "scripts")
 # Kept out of the Godot import path: 17 MB of font the game never loads.
-SRC = os.path.join(ROOT, "assets", "fonts", "source", "NotoSansSC-full.ttf")
-OUT = os.path.join(ROOT, "assets", "fonts", "NotoSansSC-subset.ttf")
+SRC = os.path.join(ROOT, "assets", "fonts", "source", "LXGWWenKai-Regular.ttf")
+OUT = os.path.join(ROOT, "assets", "fonts", "LXGWWenKai-subset.ttf")
 
 # Always keep these, whatever the copy currently says: digits and the marks the
 # board draws, so a clue never turns into tofu.
@@ -51,7 +51,8 @@ def harvest(value, into):
 
 def main():
     if not os.path.exists(SRC):
-        print("Missing %s — download Noto Sans SC first." % SRC, file=sys.stderr)
+        print("Missing %s — download LXGW WenKai first:\n"
+              "  https://github.com/lxgw/LxgwWenKai/releases" % SRC, file=sys.stderr)
         return 1
 
     chars = set(ALWAYS)

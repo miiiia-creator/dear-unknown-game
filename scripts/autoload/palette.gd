@@ -71,18 +71,54 @@ func _build_fonts() -> void:
 	# IBM Plex, SIL Open Font License 1.1 (see assets/fonts/OFL.txt).
 	# Chinese hangs off the Latin faces as a fallback rather than replacing them:
 	# a mixed line ("Season One — 第一季") then sets in one pass, and Latin keeps
-	# Plex's shapes instead of Noto's.
+	# Plex's shapes instead of the CJK face's.
+	#
+	# The Chinese is 霞鹜文楷 (LXGW WenKai), also OFL 1.1 — a 楷体, so the strokes
+	# enter and leave the way a brush does. Noto Sans SC was here first and set
+	# the letters in the same even gothic as the buttons around them; the whole
+	# game is a stack of things someone wrote by hand, and the face should not be
+	# the one part of it that reads as an interface.
 	#
 	# The CJK face is subset to the characters the game actually uses — the full
-	# one is 17 MB, which is three times the entire web build. Re-run
+	# one is 24 MB, four times the entire web build. Re-run
 	# tools/subset_font.py after changing any Chinese copy.
-	var cjk := _load("res://assets/fonts/NotoSansSC-subset.ttf")
+	var cjk := _load("res://assets/fonts/LXGWWenKai-subset.ttf")
 
 	ui_font = _load("res://assets/fonts/IBMPlexSans.ttf")
 	mono_font = _load("res://assets/fonts/IBMPlexMono-Regular.ttf")
 	for f in [ui_font, mono_font]:
 		if f is FontFile and cjk != null:
 			(f as FontFile).fallbacks = [cjk]
+
+
+## How far apart two colours have to be before one can be read on the other.
+## Tuned for the clue numbers, which are the smallest coloured thing the game
+## draws: below this the pale end of a palette simply is not there.
+const READABLE := 2.4
+
+
+## An ink is picked for a filled cell, where it sits in a solid block with its
+## neighbours around it. The same ink as a clue number is a few thin strokes on
+## the open page, and a pale one — Bermuda's cloud, Reykjavík's gold — vanished.
+##
+## Keep the hue, walk the lightness away from the page until the number reads.
+## The direction is whatever the page is not, so this darkens on paper and
+## lightens in the evening without knowing which it is looking at.
+func legible(ink: Color, page: Color = c("bg"), want: float = READABLE) -> Color:
+	var target := Color.BLACK if page.get_luminance() > 0.5 else Color.WHITE
+	var out := ink
+	for _step in 16:
+		if contrast(out, page) >= want:
+			break
+		out = out.lerp(target, 0.1)
+	out.a = ink.a
+	return out
+
+
+func contrast(a: Color, b: Color) -> float:
+	var la := a.get_luminance()
+	var lb := b.get_luminance()
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
 
 
 func _load(path: String) -> Font:

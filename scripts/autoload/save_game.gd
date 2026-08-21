@@ -38,7 +38,7 @@ func _default() -> Dictionary:
 		"postcards": [],       # city ids, in the order they were earned
 		"stamps": {},          # city_id -> unix timestamp
 		"sent": [],            # postcards shared with friends
-		"settings": {"mood": "paper", "cross_hair": true, "mark_done": true,
+		"settings": {"mood": "paper", "mark_done": true,
 			"music": true,
 			"locale": "en", "sound": true},
 		"stats": {"seconds_played": 0.0, "puzzles_solved": 0},

@@ -60,7 +60,12 @@ func back() -> void:
 
 ## Standard sub-page layout: back link, title, scrolling body.
 ## Returns the VBox callers should fill.
-func scaffold(title_text: String, subtitle: String = "") -> VBoxContainer:
+##
+## `pinned` goes between the title and the scroll, where it stays put while the
+## body moves under it — the Journal's map has to be able to react to the list
+## below it, which it cannot do from somewhere off the top of the screen.
+func scaffold(title_text: String, subtitle: String = "",
+		pinned: Control = null) -> VBoxContainer:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var gutter := int(page_margin())
@@ -98,6 +103,9 @@ func scaffold(title_text: String, subtitle: String = "") -> VBoxContainer:
 	if subtitle != "":
 		column.add_child(UI.paragraph(subtitle, UI.BODY, "ink_soft"))
 	column.add_child(UI.hrule())
+
+	if pinned != null:
+		column.add_child(pinned)
 
 	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
