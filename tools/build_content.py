@@ -108,69 +108,47 @@ TOKYO = [
 #####
 .#.#.
 """),
-    # Then a change of shape: wider than it is tall, and bigger than either.
-    P("tokyo_torii", "Torii Gate", "⛩️", "Architecture", """
-############
-############
-..########..
-...#....#...
-...#....#...
-...#....#...
-...#....#...
-..###..###..
-"""),
+    # Square, like the two before it. Three square grids in a row and a player
+    # stops wondering what shape the next one is — which is worth setting up,
+    # because it is not true and finding that out should cost something.
+    P("tokyo_torii", "Torii Gate", "\u26e9", "Architecture", """
+##########
+##########
+.########.
+..######..
+..#....#..
+..#....#..
+..#....#..
+..#....#..
+..#....#..
+.###..###.
+""")
 ]
 
 PARIS = [
-    # Pinched in the middle so the filling between the two shells reads. Drawn
-    # as an even round it was just a ball.
-    P("paris_macaron", "Macaron", "🍬", "Food", """
-..####..
-.######.
-########
-.######.
-..####..
-.######.
-########
-.######.
-"""),
-    # Drawn symmetrically on purpose, which cost Paris its asymmetric grid. The
-    # earlier version was rolled from one end the way a real croissant is, and
-    # at thirteen cells across that read as a broken arc rather than as
-    # anything edible. The two lifted horns are what make it legible.
-    P("paris_croissant", "Croissant", "🥐", "Food", """
-.##.......##.
-####.....####
-.###########.
-..#########..
-..#########..
-...#######...
-....#####....
-"""),
-    P("paris_arc", "Arc de Triomphe", "🇫🇷", "Landmark", """
+    # The blackboard in the painting says le dernier croissant aujourd'hui, so
+    # the smallest grid in the city is the thing the letter is about.
+    P("paris_croissant", "Croissant", "\U0001f950", "Food", """
+.##....##.
 ##########
-##########
-##.#..#.##
-##########
-###.##.###
-###.##.###
-###.##.###
-###.##.###
-###.##.###
-##########
+.########.
+..######..
+...####...
 """),
-    P("paris_louvre", "Glass Pyramid", "🔺", "Architecture", """
-.....##.....
-....####....
-....####....
-...######...
-...######...
-..########..
-..########..
-.##########.
-############
+    # Paris's asymmetric one. A cup has a handle and the handle is on one side;
+    # nothing else on this card refuses to mirror.
+    P("paris_cafe", "Caf\u00e9 Cr\u00e8me", "\u2615", "Food", """
+########..
+########..
+######.##.
+######..#.
+######..#.
+######.##.
+########..
+.######...
+..####....
 """),
-    P("paris_eiffel", "Eiffel Tower", "🗼", "Landmark", """
+    P("paris_eiffel", "Eiffel Tower", "\U0001f5fc", "Landmark", """
 ....##....
 ....##....
 ...####...
@@ -698,6 +676,11 @@ COMPOSITION = {
         ('tokyo_pond', 0.480, 0.955, 0.58),
     ],
     'paris': [
+        ('paris_eiffel', 0.240, 0.335, 0.135),
+        ('paris_cafe', 0.255, 0.800, 0.360),
+        ('paris_croissant', 0.680, 0.835, 0.420),
+    ],
+    '_paris_old': [
         ('paris_arc', 0.174, 0.6, 0.099),
         ('paris_eiffel', 0.573, 0.6, 0.104),
         ('paris_louvre', 0.63, 0.655, 0.15),
