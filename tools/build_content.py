@@ -602,11 +602,24 @@ STYLE = {
 # postmark is the only place this shows, deliberately small: it is meant to be
 # noticed on a second reading, not announced on the first.
 SENT = {
-    'tokyo': '08 APR 2019',
-    'paris': '17 MAY 2019',
-    'rome': '03 JUN 2019',
-    'newyork': '21 OCT 2019',
-    'london': '12 NOV 2019',
+    # The order M posted them, which is not the order they arrive. Season Two
+    # was not written after Season One — it happened in the middle of it, and
+    # the timeline in the postcards view is where a player finds that out: a
+    # newly earned card lands *between* two they already had.
+    #
+    # Two years rather than one, because Kyoto's letter says it remembers the
+    # blossoms in Tokyo "last year" — and because you go to Kyoto looking for
+    # blossoms in early April, not in July.
+    "tokyo":        "08 APR 2019",
+    "paris":        "17 MAY 2019",
+    "rome":         "03 JUN 2019",
+    "istanbul":     "29 JUN 2019",
+    "kyoto":        "05 APR 2020",
+    "sanfrancisco": "12 MAY 2020",
+    "newyork":      "21 OCT 2020",
+    "reykjavik":    "30 OCT 2020",
+    "bermuda":      "06 NOV 2020",
+    "london":       "12 NOV 2020",
 }
 
 # Which three discoveries the postcard's mosaic resolves out of, and where each
