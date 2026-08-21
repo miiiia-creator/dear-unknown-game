@@ -260,27 +260,37 @@ LONDON = [
 ###############
 ###############
 """),
-    # Then the same size again, and it inverts: what gets filled is the ground,
-    # not the drawing. The letter it arrives with is about a sky that never
-    # changes and afternoons that feel like evenings, so a picture made of
-    # absence is the one this city should end on.
+    # The same size again, and it inverts: what gets filled is the ground, not
+    # the drawing. Every grid up to here has been a dark shape on empty paper,
+    # so the clues read as enormous and the player fills almost the whole board
+    # before the blank in the middle resolves into the thing they have been
+    # receiving all season.
     #
-    # TODO: this is still the ordinary 15x15 postcard. Redrawn at 15x20 as the
-    # inverted one, it is the last thing in Season One.
-    P("london_postcard", "A Postcard", "✉️", "Cultural object", """
+    # It inverts twice, in fact. Inside the blank card the stamp and the two
+    # written lines are filled again — dark on light, inside light on dark.
+    #
+    # The letter it arrives with is about a sky that never changes and
+    # afternoons that feel like evenings. A picture made of absence is the one
+    # this city should end on.
+    P("london_postcard", "The Last Postcard", "\u2709", "Cultural object", """
+###############
+###############
+###############
+###############
+###############
 ###############
 ###############
 ##...........##
-##.#####.###.##
-##.#####.....##
-##.#####.###.##
 ##.......###.##
-##.#####.....##
-##.#####.###.##
 ##.......###.##
-##.#####.....##
-##.#####.###.##
+##.......###.##
 ##...........##
+##.######....##
+##...........##
+##.######....##
+##...........##
+###############
+###############
 ###############
 ###############
 """),
