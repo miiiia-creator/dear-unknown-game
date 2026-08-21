@@ -63,25 +63,37 @@ func _draw() -> void:
 	if puzzles.is_empty():
 		return
 
-	# Down the card in a column, generously spaced: the back is mostly paper,
-	# and the pictures are what has been recovered from it so far.
+	# Where each picture belongs on the finished painting: the tree on the left
+	# bank, the gate on the far side, the pond across the bottom. A column of
+	# three dots down the middle told the player nothing about what they were
+	# recovering; placed like this, the blank card is already a composition and
+	# each piece lands where it will stay.
 	_slots.clear()
-	var box := card.grow(-card.size.x * 0.16)
-	var step := box.size.y / float(puzzles.size())
-	var side := minf(box.size.x, step * 0.66)
+	var layout: Array = GameData.city(city_id).get("composition", [])
+	var by_id := {}
+	for slot in layout:
+		by_id[str(slot.get("id", ""))] = slot
 
 	for i in puzzles.size():
 		var p: Dictionary = puzzles[i]
-		var centre := Vector2(card.get_center().x,
-				box.position.y + step * (float(i) + 0.5))
-		var rect := Rect2(centre - Vector2(side, side) * 0.5, Vector2(side, side))
+		var here: Dictionary = by_id.get(str(p["id"]), {})
+		var w: float = float(here.get("w", 0.22)) * card.size.x
+		var cx: float = card.position.x + float(here.get("x", 0.5)) * card.size.x
+		var base: float = card.position.y + float(here.get("base", 0.5)) * card.size.y
+		# The art is wider than tall as often as not, so the slot is squared off
+		# the width and stands on its base line.
+		var rows := float(p["art"].size())
+		var cols := float(String(p["art"][0]).length())
+		var h: float = w * (rows / cols)
+		var rect := Rect2(cx - w * 0.5, base - h, w, h)
 		var solved: bool = SaveGame.is_solved(p["id"])
 		_slots.append([rect, p["id"], solved])
 
 		if solved:
 			_draw_art(p["art"], rect, deep)
 		elif _is_next(puzzles, i):
-			_draw_light(centre, side * 0.16, palette[1])
+			_draw_light(rect.get_center(), minf(rect.size.x, rect.size.y) * 0.14,
+					palette[1])
 
 
 func _is_next(puzzles: Array, index: int) -> bool:
