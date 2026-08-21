@@ -80,6 +80,23 @@ func _city_switcher() -> Control:
 	# would quietly stretch the whole page past the edge of the screen.
 	var season := GameData.season_of(city_id)
 	var ids: Array = season.get("cities", GameData.city_ids())
+	var here := str(season.get("id", ""))
+
+	# Scoping the row to one season stopped it overflowing a phone, and left no
+	# way out of the season you were in. The way out is a season above it.
+	var stack := UI.vbox(8)
+	if GameData.seasons.size() > 1:
+		var chips: Array = []
+		for entry in GameData.seasons:
+			var sid := str(entry.get("id", ""))
+			var b := UI.button(GameData.text(entry.get("title", "")), sid == here)
+			if sid != here:
+				var first := str((entry.get("cities", []) as Array)[0])
+				b.pressed.connect(func(): go("journal", {"city": first}))
+			chips.append(b)
+		stack.add_child(UI.chip_rows(chips,
+				chips.size() if not is_narrow() else 2))
+
 	var row := UI.hbox(6)
 	for cid in ids:
 		var c := GameData.city(str(cid))
@@ -93,7 +110,8 @@ func _city_switcher() -> Control:
 		if unlocked:
 			b.pressed.connect(func(): go("journal", {"city": id}))
 		row.add_child(b)
-	return row
+	stack.add_child(row)
+	return stack
 
 
 ## The letter that came with this city's postcard, once it has been earned.
