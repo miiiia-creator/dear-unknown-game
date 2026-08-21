@@ -164,18 +164,44 @@ func _clue_colour(entry: Vector2i, base: Color) -> Color:
 		return base
 	var palette: Array = puzzle_palette
 	if entry.y - 1 < palette.size():
-		# Not the ink itself: the ink is chosen to look right filling a cell,
-		# and the clue is the same colour printed thin on the open page. Only
-		# the numbers are corrected — the fill stays the colour it is meant
-		# to be, because the fill is the picture.
-		var c: Color = Pal.legible(palette[entry.y - 1])
+		# The ink exactly as it is in the cell. A clue says "this run is that
+		# colour", so it has to be that colour — correcting it for legibility
+		# meant deepening it, and deepening a light warm colour is browning it:
+		# San Francisco's brown and its gold both arrived as #79. What the thin
+		# strokes need is not a different colour, it is something behind them.
+		var c: Color = palette[entry.y - 1]
 		c.a = base.a
 		return c
 	return base
 
 
+## Something for a clue in the puzzle's own ink to sit on. Thin strokes of a
+## pale colour disappear into pale paper; a shadow under them holds them up
+## without touching the colour. Cast in whatever the page is not, so it darkens
+## on paper and lifts in the evening.
+func _clue_shadow(alpha: float) -> Color:
+	var lit := Pal.c("bg").get_luminance() > 0.5
+	var c := Color(0.10, 0.10, 0.09) if lit else Color(0.93, 0.93, 0.91)
+	c.a = (0.50 if lit else 0.38) * alpha
+	return c
+
+
+## One-colour grids keep the plain ink they always had; only a clue wearing a
+## puzzle's own colour needs holding up.
+func _clue_string(font: Font, at: Vector2, text: String, fsize: int,
+		col: Color, tinted: bool, furniture: float) -> void:
+	if tinted:
+		# Just enough to give the stroke an edge. Any heavier and the numbers
+		# read as embossed, which is a different game entirely.
+		var drop := maxf(1.0, float(fsize) * 0.055)
+		draw_string(font, at + Vector2(drop, drop), text,
+				HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, _clue_shadow(furniture))
+	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, col)
+
+
 func _draw_clues(furniture: float) -> void:
 	var font: Font = Pal.mono_font
+	var tinted := puzzle.colours > 1
 	var fsize := int(maxf(9.0, _cell * 0.46))
 	var slot := _cell * CLUE_SCALE
 
@@ -194,8 +220,8 @@ func _draw_clues(furniture: float) -> void:
 			var text := str(entry.x)
 			var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
 			var slot_right := _origin.x - (list.size() - 1 - i) * slot - slot * 0.25
-			draw_string(font, Vector2(slot_right - tw, baseline),
-					text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, col)
+			_clue_string(font, Vector2(slot_right - tw, baseline), text, fsize,
+					col, tinted and entry.y > 0, furniture)
 		if done:
 			var strike := Pal.c("ink_faint")
 			strike.a = 0.75 * furniture
@@ -218,8 +244,8 @@ func _draw_clues(furniture: float) -> void:
 			var text := str(entry.x)
 			var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x
 			var y := _origin.y - (list.size() - 1 - i) * slot - slot * 0.25
-			draw_string(font, Vector2(centre_x - tw * 0.5, y),
-					text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, col)
+			_clue_string(font, Vector2(centre_x - tw * 0.5, y), text, fsize,
+					col, tinted and entry.y > 0, furniture)
 		if done:
 			var strike := Pal.c("ink_faint")
 			strike.a = 0.75 * furniture

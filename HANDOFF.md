@@ -69,13 +69,13 @@ rm -f "$HOME/Library/Application Support/Godot/app_userdata/Dear, Unknown/around
   ambiguous grid — Bermuda's cloud and sky were both over the line.
 * **A palette has to be a ladder in lightness, not only a spread of hues.**
   Reykjavík's navy and its near-black were the same cell at grid size.
-* **A clue number is not the ink.** The ink is chosen to look right filling a
-  cell; the same colour printed thin on the open page is a different problem,
-  and the pale end of a palette vanished there. `Pal.legible()` deepens it until
-  it reads — value down and chroma up, so a gold stays gold instead of arriving
-  as brown, and mirrored in the evening where the way out is up. Only the
-  numbers are corrected: the fill is the picture, so the fill stays the colour
-  it is meant to be.
+* **A clue number is the ink, exactly.** A clue says "this run is that colour",
+  so it has to be that colour. Correcting a pale one for legibility was tried
+  twice and is a dead end: walking it toward black and deepening it with the
+  chroma raised are the same operation, and both turn a gold into a brown — San
+  Francisco's two inks arrived as the same `#79`. What thin strokes of a pale
+  colour need is not a different colour but something behind them, so a tinted
+  clue is cast on a shadow in whatever the page is not. `board_view._clue_string`.
 * **The postcards are a pile, not a menu.** No destination buttons, no season
   switcher. One card fills the screen; a timeline underneath is ordered by
   postmark, shows only earned cards, and keeps the face you were reading as you

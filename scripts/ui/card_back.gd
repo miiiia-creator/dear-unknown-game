@@ -153,11 +153,20 @@ func _draw_light(centre: Vector2, radius: float, col: Color) -> void:
 
 ## A discovery as it sits on the card.
 ##
-## It used to be one flat colour with no gaps, which on a sheet of pale paper is
-## a lump of black — and on a grid that was solved in four inks it threw all
-## four away. A discovery is a grid of marks, not a silhouette: the cells keep
-## the hairline between them that the board draws, and they keep the colours
-## they were solved in. What lands on the card is the picture you made.
+## It was one flat colour with no gaps, which on a sheet of pale paper is a lump
+## of black — and on a grid solved in four inks it threw all four away.
+##
+## Ink on paper is not a slab. It pools where a stroke ends and thins where it
+## runs, so a cell on the edge of the shape takes the full colour and the ones
+## buried inside it take a wash. That sorts itself out by shape: the gate is all
+## edge and stays as dark as it ever was, while the pond and the sea stop being
+## bricks. A little grain on top, fixed to the cell so a card looks the same
+## every time it is opened, keeps the wash from reading as a flat tint.
+const EDGE_INK := 0.92
+const BODY_INK := 0.45
+const GRAIN := 0.16
+
+
 func _draw_art(art: Array, rect: Rect2, col: Color, inks: Array = []) -> void:
 	var rows := art.size()
 	var cols := String(art[0]).length()
@@ -179,9 +188,28 @@ func _draw_art(art: Array, rect: Rect2, col: Color, inks: Array = []) -> void:
 				var which := 0 if ch == "#" else int(ch) - 1
 				if which >= 0 and which < inks.size():
 					ink = Color(inks[which])
-			ink.a = _arrived
+			var edge := not (_filled(art, r - 1, c) and _filled(art, r + 1, c)
+					and _filled(art, r, c - 1) and _filled(art, r, c + 1))
+			var weight: float = EDGE_INK if edge else BODY_INK
+			ink.a = (weight - _grain(r, c) * GRAIN) * _arrived
 			draw_rect(Rect2(origin + Vector2(c, r) * cell,
 					Vector2(cell - gap, cell - gap)), ink)
+
+
+func _filled(art: Array, r: int, c: int) -> bool:
+	if r < 0 or r >= art.size():
+		return false
+	var line: String = art[r]
+	if c < 0 or c >= line.length():
+		return false
+	return line[c] != "."
+
+
+## Fixed to the cell rather than random, so the same card is the same card.
+func _grain(r: int, c: int) -> float:
+	var h := absi(int(sin(float(r) * 12.9898 + float(c) * 78.233) * 43758.5453))
+	return float(h % 1000) / 1000.0
+
 
 
 func _gui_input(event: InputEvent) -> void:

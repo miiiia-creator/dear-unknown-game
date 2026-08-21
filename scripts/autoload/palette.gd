@@ -109,49 +109,6 @@ func _build_fonts() -> void:
 		(letter_font as FontFile).fallbacks = [written]
 
 
-## How far apart two colours have to be before one can be read on the other.
-## Tuned for the clue numbers, which are the smallest coloured thing the game
-## draws: below this the pale end of a palette simply is not there.
-const READABLE := 2.4
-
-
-## An ink is picked for a filled cell, where it sits in a solid block with its
-## neighbours around it. The same ink as a clue number is a few thin strokes on
-## the open page, and a pale one — Bermuda's cloud, Reykjavík's gold — vanished.
-##
-## Take the value away from the page and put the chroma back as you go, so what
-## is left is a deeper version of the same colour rather than a greyer one.
-##
-## Walking toward black instead — which is what this did first — is the same
-## thing as turning the value down with the saturation left alone, and a dark
-## gold is simply brown. San Francisco has two inks, a brown and a gold, and
-## they arrived at the same brown: a two-colour puzzle whose clues were one
-## colour. Deepening with the saturation rising keeps gold gold.
-##
-## Mirrored for the evening, where the page is dark and the way out is up: value
-## rises and chroma comes off, which is what a tint is.
-func legible(ink: Color, page: Color = c("bg"), want: float = READABLE) -> Color:
-	var lighten := page.get_luminance() <= 0.5
-	var out := ink
-	for _step in 24:
-		if contrast(out, page) >= want:
-			break
-		if lighten:
-			out = Color.from_hsv(out.h, maxf(0.0, out.s * 0.94 - 0.02),
-					minf(1.0, out.v * 1.06 + 0.02), ink.a)
-		else:
-			out = Color.from_hsv(out.h, minf(1.0, out.s * 1.10 + 0.02),
-					maxf(0.0, out.v * 0.94), ink.a)
-	out.a = ink.a
-	return out
-
-
-func contrast(a: Color, b: Color) -> float:
-	var la := a.get_luminance()
-	var lb := b.get_luminance()
-	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
-
-
 func _load(path: String, fresh: bool = false) -> Font:
 	var f: Font = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) \
 			if fresh else load(path)
