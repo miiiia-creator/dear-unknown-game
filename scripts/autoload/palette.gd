@@ -96,7 +96,12 @@ func _build_fonts() -> void:
 
 	ui_font = _load("res://assets/fonts/IBMPlexSans.ttf")
 	mono_font = _load("res://assets/fonts/IBMPlexMono-Regular.ttf")
-	letter_font = _load("res://assets/fonts/IBMPlexSans.ttf")
+	# A second, separate copy of the Latin face. `load()` hands back the one
+	# instance it has cached for a path, so loading Plex twice gave the same
+	# object twice — and setting a fallback on "one of them" set it on both.
+	# The interface and the letters ended up in whichever face was assigned
+	# last, which is how the 楷体 never reached a postcard.
+	letter_font = _load("res://assets/fonts/IBMPlexSans.ttf", true)
 	for f in [ui_font, mono_font]:
 		if f is FontFile and printed != null:
 			(f as FontFile).fallbacks = [printed]
@@ -147,8 +152,9 @@ func contrast(a: Color, b: Color) -> float:
 	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
 
 
-func _load(path: String) -> Font:
-	var f: Font = load(path)
+func _load(path: String, fresh: bool = false) -> Font:
+	var f: Font = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) \
+			if fresh else load(path)
 	if f == null:
 		push_warning("Missing bundled font %s — falling back to the system face." % path)
 		var fallback := SystemFont.new()
