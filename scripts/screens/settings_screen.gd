@@ -17,6 +17,14 @@ func build() -> void:
 	body.add_child(_row("Music", _music_toggle()))
 	body.add_child(_row("Cross off finished lines", _bool_toggle("mark_done")))
 
+	# The Season Three experiment. It was a quiet grey link below the save path
+	# and nobody found it, which is what "quiet" earns you when the thing is the
+	# one thing worth pressing on the page.
+	var try_it := UI.button(tr("Try the solid"), true)
+	try_it.custom_minimum_size = Vector2(120, 40)
+	try_it.pressed.connect(func(): go("solid"))
+	body.add_child(_row("Season Three, an experiment", try_it))
+
 	body.add_child(UI.spacer(10))
 	body.add_child(UI.hrule())
 
@@ -28,19 +36,6 @@ func build() -> void:
 			UI.BODY, "ink_soft"))
 	stats.add_child(UI.paragraph(tr("Saved to ") + SaveGame.save_path(), UI.SMALL, "ink_faint"))
 	body.add_child(stats)
-
-	# The Season Three experiment. A URL hatch was the way in and it could not
-	# be got to work from a phone in an afternoon; a button can be pressed.
-	body.add_child(UI.spacer(4))
-	var lab := UI.hbox(10)
-	var solid := UI.quiet_button(tr("Try the solid"), UI.SMALL)
-	solid.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	solid.pressed.connect(func(): go("solid"))
-	lab.add_child(solid)
-	lab.add_child(UI.label(tr("Season Three, an experiment"), UI.SMALL, "ink_faint"))
-	lab.add_child(UI.grow())
-	body.add_child(lab)
-	body.add_child(UI.spacer(4))
 
 	var danger := UI.hbox(10)
 	var reset := UI.button(tr("Reset all progress"))
