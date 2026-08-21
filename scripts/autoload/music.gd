@@ -14,6 +14,7 @@ const PACKED := "res://assets/music/theme.ogg"
 const CACHE := "user://theme.ogg"
 const FADE := 4.0            ## seconds to come up from nothing
 const LEVEL_DB := -13.0      ## under everything, never in front of it
+const TRIES := 8             ## retries before accepting that it is not going to
 
 var _player: AudioStreamPlayer
 var _fetch: HTTPRequest
@@ -29,6 +30,8 @@ var _fetch: HTTPRequest
 ## So: keep asking until the player says it is actually playing.
 var _touched := false
 var _since := 0.0
+var _tries := 0
+var _fade: Tween
 
 
 func _ready() -> void:
@@ -71,19 +74,27 @@ func set_enabled(on: bool) -> void:
 
 
 func _input(_event: InputEvent) -> void:
+	if _touched:
+		return
 	_touched = true
+	set_process_input(false)
 	_start()
 
 
-## Nothing to do until there is a stream and somebody has touched the page; from
-## then on, one attempt a second until it takes.
+## The retry, and the whole reason this class has a `_process` at all. Asking
+## once was not enough on a phone; asking on every input event was very much
+## worse than not asking at all. A few attempts, a second apart, then stop.
 func _process(delta: float) -> void:
-	if not _touched or _player.stream == null or _player.playing or not enabled():
+	if _player.playing or _tries >= TRIES:
+		set_process(false)
+		return
+	if not _touched or _player.stream == null or not enabled():
 		return
 	_since += delta
 	if _since < 1.0:
 		return
 	_since = 0.0
+	_tries += 1
 	_start()
 
 
@@ -159,8 +170,15 @@ func _start() -> void:
 	if not _player.playing:
 		_player.volume_db = -60.0
 		_player.play()
-	var tw := create_tween()
-	tw.tween_property(_player, "volume_db", LEVEL_DB, FADE)
+	# One fade at a time. This made a fresh tween on every call, and for one
+	# afternoon it was called from every input event — a single drag left
+	# hundreds of them alive, each writing the same property every frame. On a
+	# single-threaded web build that is the same thread the audio is mixed on,
+	# and the game went silent on a phone, sound effects included.
+	if _fade != null and _fade.is_valid():
+		_fade.kill()
+	_fade = create_tween()
+	_fade.tween_property(_player, "volume_db", LEVEL_DB, FADE)
 
 
 ## Sibling of the page the game was served from, so it follows the build.
