@@ -14,7 +14,7 @@ import json
 import os
 import sys
 from functools import lru_cache
-from itertools import combinations
+from itertools import combinations, product
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "data", "cities.json")
@@ -700,6 +700,11 @@ SEASONS = [
 
 EMPTY = 0
 
+## How many cells a puzzle may leave to trial and error. Four is "the last
+## corner needs a guess"; more than that is gambling through the middle of a
+## grid and only finding out much later that it went wrong.
+GUESS_LIMIT = 4
+
 
 def value_of(ch):
     """One art character to one cell value."""
@@ -845,16 +850,47 @@ def validate(puzzle):
     cc = [clues([grid[r][c] for r in range(h)]) for c in range(w)]
 
     solution, solved = line_solve(rc, cc, h, w, colours)
+    info = {"rows": rc, "cols": cc, "colours": colours, "guess": 0}
     if solution is None:
         errs.append("contradictory clues")
-    elif not solved:
-        unknown = sum(1 for row in solution for v in row if bin(v).count("1") > 1)
-        errs.append("NOT line-solvable: %d cells need guessing (solution may not be unique)" % unknown)
-    else:
+        return errs, info
+    if solved:
         found = [[v.bit_length() - 1 for v in row] for row in solution]
         if found != grid:
             errs.append("solver found a different grid - solution is not unique")
-    return errs, {"rows": rc, "cols": cc, "colours": colours}
+        return errs, info
+
+    # Line logic stalled. A few cells left over is a puzzle that ends with a
+    # guess, which is a fine thing for a puzzle to do; a lot left over is a
+    # puzzle you have to gamble your way through, which is not.
+    stuck = [(r, c) for r in range(h) for c in range(w)
+             if bin(solution[r][c]).count("1") > 1]
+    if len(stuck) > GUESS_LIMIT:
+        errs.append("NOT line-solvable: %d cells need guessing" % len(stuck))
+        return errs, info
+
+    # Small enough to settle by hand. Guessing is only acceptable if there is
+    # still exactly one picture at the end of it — two valid completions means
+    # the player can solve it correctly and get a different drawing than the
+    # one that was authored.
+    options = [[v for v in range(colours + 1) if solution[r][c] >> v & 1]
+               for r, c in stuck]
+    fits = 0
+    for combo in product(*options):
+        trial = [row[:] for row in grid]
+        for (r, c), value in zip(stuck, combo):
+            trial[r][c] = value
+        if [clues(row) for row in trial] != rc:
+            continue
+        if [clues([trial[r][c] for r in range(h)]) for c in range(w)] != cc:
+            continue
+        fits += 1
+    if fits != 1:
+        errs.append("ambiguous: %d different pictures fit these clues" % fits)
+        return errs, info
+
+    info["guess"] = len(stuck)
+    return errs, info
 
 
 def difficulty_of(width, height):
@@ -882,8 +918,11 @@ def main():
                 print("  FAIL %-28s %s" % (tag, "; ".join(errs)))
             else:
                 w = len(p["art"][0])
-                print("  ok   %-28s %2dx%-2d %4d  %s"
-                      % (tag, w, size, w * size, difficulty_of(w, size)))
+                note = ""
+                if meta and meta.get("guess"):
+                    note = "   <- ends on a guess (%d cells)" % meta["guess"]
+                print("  ok   %-28s %2dx%-2d %4d  %s%s"
+                      % (tag, w, size, w * size, difficulty_of(w, size), note))
             out_puzzles.append({
                 "id": p["id"],
                 "name": p["name"],
